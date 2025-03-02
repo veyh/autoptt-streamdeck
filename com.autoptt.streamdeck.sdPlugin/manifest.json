@@ -1,0 +1,52 @@
+{
+	"Name": "AutoPTT",
+	"Version": "1.0.0.0",
+	"Author": "AutoPTT",
+	"Actions": [
+		{
+			"Name": "Activity State",
+			"UUID": "com.autoptt.streamdeck.activity-state",
+			"Icon": "imgs/actions/activity-state/icon",
+			"Tooltip": "Shows the current activity state and activation mode.",
+			"PropertyInspectorPath": "ui/activity-state.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/activity-state/key",
+					"TitleAlignment": "bottom"
+				}
+			]
+		}
+	],
+	"Category": "AutoPTT",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Elgato Streamdeck plugin for AutoPTT",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.4"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "--inspect=127.6.6.6:12345"
+	},
+	"ApplicationsToMonitor": {
+		"windows": [
+			"AutoPTT.exe"
+		]
+	},
+	"UUID": "com.autoptt.streamdeck"
+}

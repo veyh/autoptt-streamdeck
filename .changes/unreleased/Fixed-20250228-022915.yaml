@@ -1,0 +1,3 @@
+kind: Fixed
+body: Ensure compatibility with AutoPTT application (shows an error in case there's a problem).
+time: 2025-02-28T02:29:15.1354325+02:00

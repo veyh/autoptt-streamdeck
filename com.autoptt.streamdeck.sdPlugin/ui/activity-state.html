@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Activity State Settings</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+</head>
+
+<body>
+    <sdpi-item label="IPC Address">
+        <sdpi-textfield
+            setting="ipcAddress"
+            pattern="/^tcp://.+:\d+$/"
+            placeholder="tcp://127.1.2.3:4000"
+        >
+        </sdpi-textfield>
+    </sdpi-item>
+
+    <sdpi-item label="On Key Down">
+        <sdpi-select
+            setting="onKeyDown"
+            loading="Loading..."
+            hot-reload
+            datasource="getOnKeyDownOptions"
+        >
+        </sdpi-select>
+    </sdpi-item>
+</body>
+
+</html>
