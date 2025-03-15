@@ -306,7 +306,8 @@ export interface Settings {
   keySetModeToManualOpenMicToPtt: HotkeyV3 | undefined;
   keySwapModeBetweenManualAndVoiceActivity: HotkeyV3 | undefined;
   keySwapModeBetweenManualAndTap: HotkeyV3 | undefined;
-  keySwapModeBetweenManualAndManualOpenMicToPtt:
+  keySwapModeBetweenManualAndManualOpenMicToPtt: HotkeyV3 | undefined;
+  keyToggleMuteGlobal:
     | HotkeyV3
     | undefined;
   /** --> key_groups (v4) */
@@ -380,6 +381,7 @@ export interface Ipc {
   requestSetPushToTalkState?: IpcRequestSetPushToTalkState | undefined;
   requestSetPushToMuteState?: IpcRequestSetPushToMuteState | undefined;
   requestSetPushToMuteGlobalState?: IpcRequestSetPushToMuteGlobalState | undefined;
+  requestToggleMuteGlobal?: IpcRequestToggleMuteGlobal | undefined;
 }
 
 export interface IpcActivityStateChanged {
@@ -500,6 +502,9 @@ export interface IpcRequestSetPushToMuteGlobalState {
   isDown: boolean;
 }
 
+export interface IpcRequestToggleMuteGlobal {
+}
+
 function createBaseSettings(): Settings {
   return {
     version: 0,
@@ -538,6 +543,7 @@ function createBaseSettings(): Settings {
     keySwapModeBetweenManualAndVoiceActivity: undefined,
     keySwapModeBetweenManualAndTap: undefined,
     keySwapModeBetweenManualAndManualOpenMicToPtt: undefined,
+    keyToggleMuteGlobal: undefined,
     deprecatedExtraTriggerKeys: [],
     minimizeToTray: false,
     openMicToPttConsumeInput: false,
@@ -665,6 +671,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.keySwapModeBetweenManualAndManualOpenMicToPtt !== undefined) {
       HotkeyV3.encode(message.keySwapModeBetweenManualAndManualOpenMicToPtt, writer.uint32(298).fork()).join();
+    }
+    if (message.keyToggleMuteGlobal !== undefined) {
+      HotkeyV3.encode(message.keyToggleMuteGlobal, writer.uint32(482).fork()).join();
     }
     for (const v of message.deprecatedExtraTriggerKeys) {
       HotkeyV3.encode(v!, writer.uint32(306).fork()).join();
@@ -1009,6 +1018,14 @@ export const Settings: MessageFns<Settings> = {
           message.keySwapModeBetweenManualAndManualOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
           continue;
         }
+        case 60: {
+          if (tag !== 482) {
+            break;
+          }
+
+          message.keyToggleMuteGlobal = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
         case 38: {
           if (tag !== 306) {
             break;
@@ -1210,6 +1227,9 @@ export const Settings: MessageFns<Settings> = {
       keySwapModeBetweenManualAndManualOpenMicToPtt: isSet(object.keySwapModeBetweenManualAndManualOpenMicToPtt)
         ? HotkeyV3.fromJSON(object.keySwapModeBetweenManualAndManualOpenMicToPtt)
         : undefined,
+      keyToggleMuteGlobal: isSet(object.keyToggleMuteGlobal)
+        ? HotkeyV3.fromJSON(object.keyToggleMuteGlobal)
+        : undefined,
       deprecatedExtraTriggerKeys: globalThis.Array.isArray(object?.deprecatedExtraTriggerKeys)
         ? object.deprecatedExtraTriggerKeys.map((e: any) => HotkeyV3.fromJSON(e))
         : [],
@@ -1347,6 +1367,9 @@ export const Settings: MessageFns<Settings> = {
       obj.keySwapModeBetweenManualAndManualOpenMicToPtt = HotkeyV3.toJSON(
         message.keySwapModeBetweenManualAndManualOpenMicToPtt,
       );
+    }
+    if (message.keyToggleMuteGlobal !== undefined) {
+      obj.keyToggleMuteGlobal = HotkeyV3.toJSON(message.keyToggleMuteGlobal);
     }
     if (message.deprecatedExtraTriggerKeys?.length) {
       obj.deprecatedExtraTriggerKeys = message.deprecatedExtraTriggerKeys.map((e) => HotkeyV3.toJSON(e));
@@ -1496,6 +1519,9 @@ export const Settings: MessageFns<Settings> = {
           object.keySwapModeBetweenManualAndManualOpenMicToPtt !== null)
         ? HotkeyV3.fromPartial(object.keySwapModeBetweenManualAndManualOpenMicToPtt)
         : undefined;
+    message.keyToggleMuteGlobal = (object.keyToggleMuteGlobal !== undefined && object.keyToggleMuteGlobal !== null)
+      ? HotkeyV3.fromPartial(object.keyToggleMuteGlobal)
+      : undefined;
     message.deprecatedExtraTriggerKeys = object.deprecatedExtraTriggerKeys?.map((e) => HotkeyV3.fromPartial(e)) || [];
     message.minimizeToTray = object.minimizeToTray ?? false;
     message.openMicToPttConsumeInput = object.openMicToPttConsumeInput ?? false;
@@ -2003,6 +2029,7 @@ function createBaseIpc(): Ipc {
     requestSetPushToTalkState: undefined,
     requestSetPushToMuteState: undefined,
     requestSetPushToMuteGlobalState: undefined,
+    requestToggleMuteGlobal: undefined,
   };
 }
 
@@ -2077,6 +2104,9 @@ export const Ipc: MessageFns<Ipc> = {
     if (message.requestSetPushToMuteGlobalState !== undefined) {
       IpcRequestSetPushToMuteGlobalState.encode(message.requestSetPushToMuteGlobalState, writer.uint32(234).fork())
         .join();
+    }
+    if (message.requestToggleMuteGlobal !== undefined) {
+      IpcRequestToggleMuteGlobal.encode(message.requestToggleMuteGlobal, writer.uint32(242).fork()).join();
     }
     return writer;
   },
@@ -2272,6 +2302,14 @@ export const Ipc: MessageFns<Ipc> = {
           message.requestSetPushToMuteGlobalState = IpcRequestSetPushToMuteGlobalState.decode(reader, reader.uint32());
           continue;
         }
+        case 30: {
+          if (tag !== 242) {
+            break;
+          }
+
+          message.requestToggleMuteGlobal = IpcRequestToggleMuteGlobal.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2335,6 +2373,9 @@ export const Ipc: MessageFns<Ipc> = {
         : undefined,
       requestSetPushToMuteGlobalState: isSet(object.requestSetPushToMuteGlobalState)
         ? IpcRequestSetPushToMuteGlobalState.fromJSON(object.requestSetPushToMuteGlobalState)
+        : undefined,
+      requestToggleMuteGlobal: isSet(object.requestToggleMuteGlobal)
+        ? IpcRequestToggleMuteGlobal.fromJSON(object.requestToggleMuteGlobal)
         : undefined,
     };
   },
@@ -2411,6 +2452,9 @@ export const Ipc: MessageFns<Ipc> = {
       obj.requestSetPushToMuteGlobalState = IpcRequestSetPushToMuteGlobalState.toJSON(
         message.requestSetPushToMuteGlobalState,
       );
+    }
+    if (message.requestToggleMuteGlobal !== undefined) {
+      obj.requestToggleMuteGlobal = IpcRequestToggleMuteGlobal.toJSON(message.requestToggleMuteGlobal);
     }
     return obj;
   },
@@ -2494,6 +2538,10 @@ export const Ipc: MessageFns<Ipc> = {
     message.requestSetPushToMuteGlobalState =
       (object.requestSetPushToMuteGlobalState !== undefined && object.requestSetPushToMuteGlobalState !== null)
         ? IpcRequestSetPushToMuteGlobalState.fromPartial(object.requestSetPushToMuteGlobalState)
+        : undefined;
+    message.requestToggleMuteGlobal =
+      (object.requestToggleMuteGlobal !== undefined && object.requestToggleMuteGlobal !== null)
+        ? IpcRequestToggleMuteGlobal.fromPartial(object.requestToggleMuteGlobal)
         : undefined;
     return message;
   },
@@ -4199,6 +4247,49 @@ export const IpcRequestSetPushToMuteGlobalState: MessageFns<IpcRequestSetPushToM
   ): IpcRequestSetPushToMuteGlobalState {
     const message = createBaseIpcRequestSetPushToMuteGlobalState();
     message.isDown = object.isDown ?? false;
+    return message;
+  },
+};
+
+function createBaseIpcRequestToggleMuteGlobal(): IpcRequestToggleMuteGlobal {
+  return {};
+}
+
+export const IpcRequestToggleMuteGlobal: MessageFns<IpcRequestToggleMuteGlobal> = {
+  encode(_: IpcRequestToggleMuteGlobal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcRequestToggleMuteGlobal {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcRequestToggleMuteGlobal();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): IpcRequestToggleMuteGlobal {
+    return {};
+  },
+
+  toJSON(_: IpcRequestToggleMuteGlobal): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcRequestToggleMuteGlobal>, I>>(base?: I): IpcRequestToggleMuteGlobal {
+    return IpcRequestToggleMuteGlobal.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcRequestToggleMuteGlobal>, I>>(_: I): IpcRequestToggleMuteGlobal {
+    const message = createBaseIpcRequestToggleMuteGlobal();
     return message;
   },
 };

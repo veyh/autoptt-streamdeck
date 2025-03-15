@@ -125,6 +125,14 @@ export class ActivityState extends SingletonAction<Settings> {
 				return cx.ipc.setPushToMuteGlobalDown(true);
 			}
 
+			case "toggle-mute-global": {
+				if (!settings.onKeyDown) {
+					break;
+				}
+
+				return cx.ipc.toggleMuteGlobal();
+			}
+
 			default: {
 				if (!settings.onKeyDown) {
 					break;
@@ -215,6 +223,7 @@ export class ActivityState extends SingletonAction<Settings> {
 		}
 
 		hotkeyActions.push({ value: "ptm-global", label: "Push-to-Mute (Global)" });
+		hotkeyActions.push({ value: "toggle-mute-global", label: "Toggle Mute (Global)" });
 
 		streamDeck.ui.current?.sendToPropertyInspector({
 			event: "getOnKeyDownOptions",

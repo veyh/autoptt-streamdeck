@@ -315,4 +315,10 @@ export default class IPC {
       }
     }));
   }
+
+  toggleMuteGlobal() {
+    this.write(AutopttIpc.create({
+      requestToggleMuteGlobal: {}
+    }));
+  }
 }
