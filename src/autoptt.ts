@@ -226,7 +226,11 @@ export enum AppEnabledState {
   ENABLED = 0,
   /** DISABLED_INVALID_LICENSE - Occures when the license is either invalid or the trial has expired. */
   DISABLED_INVALID_LICENSE = 1,
-  /** DISABLED_BLOCKED_BY_GUI - Occurs when you're writing into a text box, or when you're biding a key. */
+  /**
+   * DISABLED_BLOCKED_BY_GUI - Occurs when the app is temporarily disabled due to editing the settings,
+   * such as when you're writing into a text box, binding a key, or changing
+   * a sound effect.
+   */
   DISABLED_BLOCKED_BY_GUI = 2,
   UNRECOGNIZED = -1,
 }
@@ -289,7 +293,9 @@ export interface Settings {
   soundOnSetModeToTap: Sound | undefined;
   soundOnSetModeToManual: Sound | undefined;
   soundOnSetModeToTapOpenMicToPtt: Sound | undefined;
-  soundOnSetModeToManualOpenMicToPtt:
+  soundOnSetModeToManualOpenMicToPtt: Sound | undefined;
+  soundOnToggleMuteGlobalOn: Sound | undefined;
+  soundOnToggleMuteGlobalOff:
     | Sound
     | undefined;
   /** --> key_groups (v4) */
@@ -364,6 +370,7 @@ export interface Ipc {
   currentValueChanged?: IpcCurrentValueChanged | undefined;
   muteStateChanged?: IpcMuteStateChanged | undefined;
   settingsChanged?: IpcSettingsChanged | undefined;
+  toggleMuteGlobalChanged?: IpcToggleMuteGlobalChanged | undefined;
   sidekickConnected?: IpcSidekickConnected | undefined;
   sidekickDisconnected?: IpcSidekickDisconnected | undefined;
   updaterStateChanged?: IpcUpdaterStateChanged | undefined;
@@ -455,6 +462,10 @@ export interface IpcMonitoringAllowedChanged {
   isAllowed: boolean;
 }
 
+export interface IpcToggleMuteGlobalChanged {
+  isActive: boolean;
+}
+
 export interface IpcRequestPlaySfx {
   sfx: number;
 }
@@ -532,6 +543,8 @@ function createBaseSettings(): Settings {
     soundOnSetModeToManual: undefined,
     soundOnSetModeToTapOpenMicToPtt: undefined,
     soundOnSetModeToManualOpenMicToPtt: undefined,
+    soundOnToggleMuteGlobalOn: undefined,
+    soundOnToggleMuteGlobalOff: undefined,
     pttSingle: undefined,
     keyPushToMuteSingle: undefined,
     keyPushToMuteGlobal: undefined,
@@ -638,6 +651,12 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.soundOnSetModeToManualOpenMicToPtt !== undefined) {
       Sound.encode(message.soundOnSetModeToManualOpenMicToPtt, writer.uint32(218).fork()).join();
+    }
+    if (message.soundOnToggleMuteGlobalOn !== undefined) {
+      Sound.encode(message.soundOnToggleMuteGlobalOn, writer.uint32(490).fork()).join();
+    }
+    if (message.soundOnToggleMuteGlobalOff !== undefined) {
+      Sound.encode(message.soundOnToggleMuteGlobalOff, writer.uint32(498).fork()).join();
     }
     if (message.pttSingle !== undefined) {
       HotkeyV3.encode(message.pttSingle, writer.uint32(82).fork()).join();
@@ -930,6 +949,22 @@ export const Settings: MessageFns<Settings> = {
           message.soundOnSetModeToManualOpenMicToPtt = Sound.decode(reader, reader.uint32());
           continue;
         }
+        case 61: {
+          if (tag !== 490) {
+            break;
+          }
+
+          message.soundOnToggleMuteGlobalOn = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 62: {
+          if (tag !== 498) {
+            break;
+          }
+
+          message.soundOnToggleMuteGlobalOff = Sound.decode(reader, reader.uint32());
+          continue;
+        }
         case 10: {
           if (tag !== 82) {
             break;
@@ -1200,6 +1235,12 @@ export const Settings: MessageFns<Settings> = {
       soundOnSetModeToManualOpenMicToPtt: isSet(object.soundOnSetModeToManualOpenMicToPtt)
         ? Sound.fromJSON(object.soundOnSetModeToManualOpenMicToPtt)
         : undefined,
+      soundOnToggleMuteGlobalOn: isSet(object.soundOnToggleMuteGlobalOn)
+        ? Sound.fromJSON(object.soundOnToggleMuteGlobalOn)
+        : undefined,
+      soundOnToggleMuteGlobalOff: isSet(object.soundOnToggleMuteGlobalOff)
+        ? Sound.fromJSON(object.soundOnToggleMuteGlobalOff)
+        : undefined,
       pttSingle: isSet(object.pttSingle) ? HotkeyV3.fromJSON(object.pttSingle) : undefined,
       keyPushToMuteSingle: isSet(object.keyPushToMuteSingle)
         ? HotkeyV3.fromJSON(object.keyPushToMuteSingle)
@@ -1332,6 +1373,12 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.soundOnSetModeToManualOpenMicToPtt !== undefined) {
       obj.soundOnSetModeToManualOpenMicToPtt = Sound.toJSON(message.soundOnSetModeToManualOpenMicToPtt);
+    }
+    if (message.soundOnToggleMuteGlobalOn !== undefined) {
+      obj.soundOnToggleMuteGlobalOn = Sound.toJSON(message.soundOnToggleMuteGlobalOn);
+    }
+    if (message.soundOnToggleMuteGlobalOff !== undefined) {
+      obj.soundOnToggleMuteGlobalOff = Sound.toJSON(message.soundOnToggleMuteGlobalOff);
     }
     if (message.pttSingle !== undefined) {
       obj.pttSingle = HotkeyV3.toJSON(message.pttSingle);
@@ -1477,6 +1524,14 @@ export const Settings: MessageFns<Settings> = {
     message.soundOnSetModeToManualOpenMicToPtt =
       (object.soundOnSetModeToManualOpenMicToPtt !== undefined && object.soundOnSetModeToManualOpenMicToPtt !== null)
         ? Sound.fromPartial(object.soundOnSetModeToManualOpenMicToPtt)
+        : undefined;
+    message.soundOnToggleMuteGlobalOn =
+      (object.soundOnToggleMuteGlobalOn !== undefined && object.soundOnToggleMuteGlobalOn !== null)
+        ? Sound.fromPartial(object.soundOnToggleMuteGlobalOn)
+        : undefined;
+    message.soundOnToggleMuteGlobalOff =
+      (object.soundOnToggleMuteGlobalOff !== undefined && object.soundOnToggleMuteGlobalOff !== null)
+        ? Sound.fromPartial(object.soundOnToggleMuteGlobalOff)
         : undefined;
     message.pttSingle = (object.pttSingle !== undefined && object.pttSingle !== null)
       ? HotkeyV3.fromPartial(object.pttSingle)
@@ -2012,6 +2067,7 @@ function createBaseIpc(): Ipc {
     currentValueChanged: undefined,
     muteStateChanged: undefined,
     settingsChanged: undefined,
+    toggleMuteGlobalChanged: undefined,
     sidekickConnected: undefined,
     sidekickDisconnected: undefined,
     updaterStateChanged: undefined,
@@ -2052,6 +2108,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.settingsChanged !== undefined) {
       IpcSettingsChanged.encode(message.settingsChanged, writer.uint32(26).fork()).join();
+    }
+    if (message.toggleMuteGlobalChanged !== undefined) {
+      IpcToggleMuteGlobalChanged.encode(message.toggleMuteGlobalChanged, writer.uint32(250).fork()).join();
     }
     if (message.sidekickConnected !== undefined) {
       IpcSidekickConnected.encode(message.sidekickConnected, writer.uint32(58).fork()).join();
@@ -2164,6 +2223,14 @@ export const Ipc: MessageFns<Ipc> = {
           }
 
           message.settingsChanged = IpcSettingsChanged.decode(reader, reader.uint32());
+          continue;
+        }
+        case 31: {
+          if (tag !== 250) {
+            break;
+          }
+
+          message.toggleMuteGlobalChanged = IpcToggleMuteGlobalChanged.decode(reader, reader.uint32());
           continue;
         }
         case 7: {
@@ -2335,6 +2402,9 @@ export const Ipc: MessageFns<Ipc> = {
         ? IpcMuteStateChanged.fromJSON(object.muteStateChanged)
         : undefined,
       settingsChanged: isSet(object.settingsChanged) ? IpcSettingsChanged.fromJSON(object.settingsChanged) : undefined,
+      toggleMuteGlobalChanged: isSet(object.toggleMuteGlobalChanged)
+        ? IpcToggleMuteGlobalChanged.fromJSON(object.toggleMuteGlobalChanged)
+        : undefined,
       sidekickConnected: isSet(object.sidekickConnected)
         ? IpcSidekickConnected.fromJSON(object.sidekickConnected)
         : undefined,
@@ -2399,6 +2469,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.settingsChanged !== undefined) {
       obj.settingsChanged = IpcSettingsChanged.toJSON(message.settingsChanged);
+    }
+    if (message.toggleMuteGlobalChanged !== undefined) {
+      obj.toggleMuteGlobalChanged = IpcToggleMuteGlobalChanged.toJSON(message.toggleMuteGlobalChanged);
     }
     if (message.sidekickConnected !== undefined) {
       obj.sidekickConnected = IpcSidekickConnected.toJSON(message.sidekickConnected);
@@ -2483,6 +2556,10 @@ export const Ipc: MessageFns<Ipc> = {
     message.settingsChanged = (object.settingsChanged !== undefined && object.settingsChanged !== null)
       ? IpcSettingsChanged.fromPartial(object.settingsChanged)
       : undefined;
+    message.toggleMuteGlobalChanged =
+      (object.toggleMuteGlobalChanged !== undefined && object.toggleMuteGlobalChanged !== null)
+        ? IpcToggleMuteGlobalChanged.fromPartial(object.toggleMuteGlobalChanged)
+        : undefined;
     message.sidekickConnected = (object.sidekickConnected !== undefined && object.sidekickConnected !== null)
       ? IpcSidekickConnected.fromPartial(object.sidekickConnected)
       : undefined;
@@ -3617,6 +3694,64 @@ export const IpcMonitoringAllowedChanged: MessageFns<IpcMonitoringAllowedChanged
   fromPartial<I extends Exact<DeepPartial<IpcMonitoringAllowedChanged>, I>>(object: I): IpcMonitoringAllowedChanged {
     const message = createBaseIpcMonitoringAllowedChanged();
     message.isAllowed = object.isAllowed ?? false;
+    return message;
+  },
+};
+
+function createBaseIpcToggleMuteGlobalChanged(): IpcToggleMuteGlobalChanged {
+  return { isActive: false };
+}
+
+export const IpcToggleMuteGlobalChanged: MessageFns<IpcToggleMuteGlobalChanged> = {
+  encode(message: IpcToggleMuteGlobalChanged, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.isActive !== false) {
+      writer.uint32(8).bool(message.isActive);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcToggleMuteGlobalChanged {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcToggleMuteGlobalChanged();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.isActive = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcToggleMuteGlobalChanged {
+    return { isActive: isSet(object.isActive) ? globalThis.Boolean(object.isActive) : false };
+  },
+
+  toJSON(message: IpcToggleMuteGlobalChanged): unknown {
+    const obj: any = {};
+    if (message.isActive !== false) {
+      obj.isActive = message.isActive;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcToggleMuteGlobalChanged>, I>>(base?: I): IpcToggleMuteGlobalChanged {
+    return IpcToggleMuteGlobalChanged.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcToggleMuteGlobalChanged>, I>>(object: I): IpcToggleMuteGlobalChanged {
+    const message = createBaseIpcToggleMuteGlobalChanged();
+    message.isActive = object.isActive ?? false;
     return message;
   },
 };

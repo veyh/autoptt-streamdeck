@@ -30,12 +30,13 @@ export default class IPC {
   activationMode: AutopttActivationMode = AutopttActivationMode.AUTOMATIC;
   aggregateActivityState: AutopttActivityState = AutopttActivityState.INACTIVE;
   isMuted = false;
+  toggleMuteGlobalIsActive = false;
   currentValue = 0;
   appEnabledState = AutopttAppEnabledState.ENABLED;
 
   serverIpcVersion = -1;
 
-  static VERSION = 1;
+  static VERSION = 2;
 
   start() {
     if (this.state !== "idle") {
@@ -222,6 +223,10 @@ export default class IPC {
 
     if (msg.appEnabledStateChanged) {
       this.appEnabledState = msg.appEnabledStateChanged.state;
+    }
+
+    if (msg.toggleMuteGlobalChanged) {
+      this.toggleMuteGlobalIsActive = msg.toggleMuteGlobalChanged.isActive;
     }
 
     this.onMessageHook?.(msg);
