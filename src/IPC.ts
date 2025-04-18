@@ -36,7 +36,7 @@ export default class IPC {
 
   serverIpcVersion = -1;
 
-  static VERSION = 2;
+  static VERSION = 3;
 
   start() {
     if (this.state !== "idle") {

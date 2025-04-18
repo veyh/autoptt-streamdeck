@@ -132,6 +132,86 @@ export function startOnBootTypeToJSON(object: StartOnBootType): string {
   }
 }
 
+/** These match the return values from SDL_GetJoystickHat. */
+export enum JoyPovDirection {
+  CENTERED = 0,
+  UP = 1,
+  RIGHT = 2,
+  DOWN = 4,
+  LEFT = 8,
+  /** RIGHT_UP - RIGHT | UP */
+  RIGHT_UP = 3,
+  /** RIGHT_DOWN - RIGHT | DOWN */
+  RIGHT_DOWN = 6,
+  /** LEFT_UP - LEFT  | UP */
+  LEFT_UP = 9,
+  /** LEFT_DOWN - LEFT  | DOWN */
+  LEFT_DOWN = 12,
+  UNRECOGNIZED = -1,
+}
+
+export function joyPovDirectionFromJSON(object: any): JoyPovDirection {
+  switch (object) {
+    case 0:
+    case "CENTERED":
+      return JoyPovDirection.CENTERED;
+    case 1:
+    case "UP":
+      return JoyPovDirection.UP;
+    case 2:
+    case "RIGHT":
+      return JoyPovDirection.RIGHT;
+    case 4:
+    case "DOWN":
+      return JoyPovDirection.DOWN;
+    case 8:
+    case "LEFT":
+      return JoyPovDirection.LEFT;
+    case 3:
+    case "RIGHT_UP":
+      return JoyPovDirection.RIGHT_UP;
+    case 6:
+    case "RIGHT_DOWN":
+      return JoyPovDirection.RIGHT_DOWN;
+    case 9:
+    case "LEFT_UP":
+      return JoyPovDirection.LEFT_UP;
+    case 12:
+    case "LEFT_DOWN":
+      return JoyPovDirection.LEFT_DOWN;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return JoyPovDirection.UNRECOGNIZED;
+  }
+}
+
+export function joyPovDirectionToJSON(object: JoyPovDirection): string {
+  switch (object) {
+    case JoyPovDirection.CENTERED:
+      return "CENTERED";
+    case JoyPovDirection.UP:
+      return "UP";
+    case JoyPovDirection.RIGHT:
+      return "RIGHT";
+    case JoyPovDirection.DOWN:
+      return "DOWN";
+    case JoyPovDirection.LEFT:
+      return "LEFT";
+    case JoyPovDirection.RIGHT_UP:
+      return "RIGHT_UP";
+    case JoyPovDirection.RIGHT_DOWN:
+      return "RIGHT_DOWN";
+    case JoyPovDirection.LEFT_UP:
+      return "LEFT_UP";
+    case JoyPovDirection.LEFT_DOWN:
+      return "LEFT_DOWN";
+    case JoyPovDirection.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum ActivityState {
   INACTIVE = 0,
   ACTIVE = 1,
@@ -342,6 +422,26 @@ export interface Sound {
 
 export interface HotkeyV3 {
   vkCodes: number[];
+  joyButtons: JoyButton[];
+  joyPovs: JoyPov[];
+}
+
+export interface JoyButton {
+  joyId: JoyId | undefined;
+  button: number;
+}
+
+export interface JoyPov {
+  joyId: JoyId | undefined;
+  index: number;
+  direction: JoyPovDirection;
+}
+
+export interface JoyId {
+  /** Used to identify the device, so must be provided. */
+  guid: Uint8Array;
+  /** Used to show a human readable name only, so technically optional. */
+  name: string;
 }
 
 export interface HotkeyGroup {
@@ -1693,7 +1793,7 @@ export const Sound: MessageFns<Sound> = {
 };
 
 function createBaseHotkeyV3(): HotkeyV3 {
-  return { vkCodes: [] };
+  return { vkCodes: [], joyButtons: [], joyPovs: [] };
 }
 
 export const HotkeyV3: MessageFns<HotkeyV3> = {
@@ -1703,6 +1803,12 @@ export const HotkeyV3: MessageFns<HotkeyV3> = {
       writer.uint32(v);
     }
     writer.join();
+    for (const v of message.joyButtons) {
+      JoyButton.encode(v!, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.joyPovs) {
+      JoyPov.encode(v!, writer.uint32(26).fork()).join();
+    }
     return writer;
   },
 
@@ -1731,6 +1837,22 @@ export const HotkeyV3: MessageFns<HotkeyV3> = {
 
           break;
         }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.joyButtons.push(JoyButton.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.joyPovs.push(JoyPov.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1743,6 +1865,10 @@ export const HotkeyV3: MessageFns<HotkeyV3> = {
   fromJSON(object: any): HotkeyV3 {
     return {
       vkCodes: globalThis.Array.isArray(object?.vkCodes) ? object.vkCodes.map((e: any) => globalThis.Number(e)) : [],
+      joyButtons: globalThis.Array.isArray(object?.joyButtons)
+        ? object.joyButtons.map((e: any) => JoyButton.fromJSON(e))
+        : [],
+      joyPovs: globalThis.Array.isArray(object?.joyPovs) ? object.joyPovs.map((e: any) => JoyPov.fromJSON(e)) : [],
     };
   },
 
@@ -1750,6 +1876,12 @@ export const HotkeyV3: MessageFns<HotkeyV3> = {
     const obj: any = {};
     if (message.vkCodes?.length) {
       obj.vkCodes = message.vkCodes.map((e) => Math.round(e));
+    }
+    if (message.joyButtons?.length) {
+      obj.joyButtons = message.joyButtons.map((e) => JoyButton.toJSON(e));
+    }
+    if (message.joyPovs?.length) {
+      obj.joyPovs = message.joyPovs.map((e) => JoyPov.toJSON(e));
     }
     return obj;
   },
@@ -1760,6 +1892,252 @@ export const HotkeyV3: MessageFns<HotkeyV3> = {
   fromPartial<I extends Exact<DeepPartial<HotkeyV3>, I>>(object: I): HotkeyV3 {
     const message = createBaseHotkeyV3();
     message.vkCodes = object.vkCodes?.map((e) => e) || [];
+    message.joyButtons = object.joyButtons?.map((e) => JoyButton.fromPartial(e)) || [];
+    message.joyPovs = object.joyPovs?.map((e) => JoyPov.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseJoyButton(): JoyButton {
+  return { joyId: undefined, button: 0 };
+}
+
+export const JoyButton: MessageFns<JoyButton> = {
+  encode(message: JoyButton, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.joyId !== undefined) {
+      JoyId.encode(message.joyId, writer.uint32(10).fork()).join();
+    }
+    if (message.button !== 0) {
+      writer.uint32(24).uint32(message.button);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): JoyButton {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseJoyButton();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.joyId = JoyId.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.button = reader.uint32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): JoyButton {
+    return {
+      joyId: isSet(object.joyId) ? JoyId.fromJSON(object.joyId) : undefined,
+      button: isSet(object.button) ? globalThis.Number(object.button) : 0,
+    };
+  },
+
+  toJSON(message: JoyButton): unknown {
+    const obj: any = {};
+    if (message.joyId !== undefined) {
+      obj.joyId = JoyId.toJSON(message.joyId);
+    }
+    if (message.button !== 0) {
+      obj.button = Math.round(message.button);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<JoyButton>, I>>(base?: I): JoyButton {
+    return JoyButton.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<JoyButton>, I>>(object: I): JoyButton {
+    const message = createBaseJoyButton();
+    message.joyId = (object.joyId !== undefined && object.joyId !== null) ? JoyId.fromPartial(object.joyId) : undefined;
+    message.button = object.button ?? 0;
+    return message;
+  },
+};
+
+function createBaseJoyPov(): JoyPov {
+  return { joyId: undefined, index: 0, direction: 0 };
+}
+
+export const JoyPov: MessageFns<JoyPov> = {
+  encode(message: JoyPov, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.joyId !== undefined) {
+      JoyId.encode(message.joyId, writer.uint32(10).fork()).join();
+    }
+    if (message.index !== 0) {
+      writer.uint32(16).uint32(message.index);
+    }
+    if (message.direction !== 0) {
+      writer.uint32(24).int32(message.direction);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): JoyPov {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseJoyPov();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.joyId = JoyId.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.index = reader.uint32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.direction = reader.int32() as any;
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): JoyPov {
+    return {
+      joyId: isSet(object.joyId) ? JoyId.fromJSON(object.joyId) : undefined,
+      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      direction: isSet(object.direction) ? joyPovDirectionFromJSON(object.direction) : 0,
+    };
+  },
+
+  toJSON(message: JoyPov): unknown {
+    const obj: any = {};
+    if (message.joyId !== undefined) {
+      obj.joyId = JoyId.toJSON(message.joyId);
+    }
+    if (message.index !== 0) {
+      obj.index = Math.round(message.index);
+    }
+    if (message.direction !== 0) {
+      obj.direction = joyPovDirectionToJSON(message.direction);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<JoyPov>, I>>(base?: I): JoyPov {
+    return JoyPov.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<JoyPov>, I>>(object: I): JoyPov {
+    const message = createBaseJoyPov();
+    message.joyId = (object.joyId !== undefined && object.joyId !== null) ? JoyId.fromPartial(object.joyId) : undefined;
+    message.index = object.index ?? 0;
+    message.direction = object.direction ?? 0;
+    return message;
+  },
+};
+
+function createBaseJoyId(): JoyId {
+  return { guid: new Uint8Array(0), name: "" };
+}
+
+export const JoyId: MessageFns<JoyId> = {
+  encode(message: JoyId, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.guid.length !== 0) {
+      writer.uint32(10).bytes(message.guid);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): JoyId {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseJoyId();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.guid = reader.bytes();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): JoyId {
+    return {
+      guid: isSet(object.guid) ? bytesFromBase64(object.guid) : new Uint8Array(0),
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+    };
+  },
+
+  toJSON(message: JoyId): unknown {
+    const obj: any = {};
+    if (message.guid.length !== 0) {
+      obj.guid = base64FromBytes(message.guid);
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<JoyId>, I>>(base?: I): JoyId {
+    return JoyId.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<JoyId>, I>>(object: I): JoyId {
+    const message = createBaseJoyId();
+    message.guid = object.guid ?? new Uint8Array(0);
+    message.name = object.name ?? "";
     return message;
   },
 };
@@ -4428,6 +4806,31 @@ export const IpcRequestToggleMuteGlobal: MessageFns<IpcRequestToggleMuteGlobal> 
     return message;
   },
 };
+
+function bytesFromBase64(b64: string): Uint8Array {
+  if ((globalThis as any).Buffer) {
+    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
+  } else {
+    const bin = globalThis.atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; ++i) {
+      arr[i] = bin.charCodeAt(i);
+    }
+    return arr;
+  }
+}
+
+function base64FromBytes(arr: Uint8Array): string {
+  if ((globalThis as any).Buffer) {
+    return globalThis.Buffer.from(arr).toString("base64");
+  } else {
+    const bin: string[] = [];
+    arr.forEach((byte) => {
+      bin.push(globalThis.String.fromCharCode(byte));
+    });
+    return globalThis.btoa(bin.join(""));
+  }
+}
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 

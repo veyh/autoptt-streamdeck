@@ -232,19 +232,19 @@ export class ActivityState extends SingletonAction<Settings> {
 				children: [
 					{ value: "mode:voice-activity", label: "Mode: Voice Activity" },
 					{ value: "mode:tap",            label: "Mode: Tap" },
-					{ value: "mode:manual",         label: "Mode: Manual" },
-					{ value: "mode:om2ptt-tap",     label: "Mode: Open Mic to PTT (Tap)" },
-					{ value: "mode:om2ptt-manual",  label: "Mode: Open Mic to PTT (Manual)" },
+					{ value: "mode:manual",         label: "Mode: Push-to-Talk" },
+					{ value: "mode:om2ptt-tap",     label: "Mode: Open Mic to Tap" },
+					{ value: "mode:om2ptt-manual",  label: "Mode: Open Mic to PTT" },
 				],
 			}, {
 				label: "Swap Activity Mode",
 				children: [
 					{ value: "swap:manual-voice",
-					  label: "Mode: Manual/Voice (\"Toggle Mute via PTT\")" },
+					  label: "Mode: PTT/Voice (\"Toggle Mute via PTT\")" },
 					{ value: "swap:manual-tap",
-					  label: "Mode: Manual/Tap" },
+					  label: "Mode: PTT/Tap" },
 					{ value: "swap:manual-om2ptt-manual",
-					  label: "Mode: Manual/Open Mic to PTT (Manual) (\"Toggle Mute via Open Mic\")" },
+					  label: "Mode: PTT/Open Mic to PTT (\"Toggle Mute via Open Mic\")" },
 				],
 			}, {
 				label: "Hotkey",
