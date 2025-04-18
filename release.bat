@@ -1,1 +1,1 @@
-streamdeck pack com.autoptt.streamdeck.sdPlugin
+streamdeck pack --force com.autoptt.streamdeck.sdPlugin
