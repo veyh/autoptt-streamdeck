@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 1.2.0 - 2025-10-04
+### Added
+* Add **Toggle Mute** action for individual PTT keys. Requires AutoPTT 2.11.0 or later.
+
 ## 1.1.0 - 2025-04-18
 Compatible with AutoPTT 2.8.0 (2025-04-14) and later.
 ### Added
