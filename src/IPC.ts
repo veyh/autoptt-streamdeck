@@ -33,10 +33,31 @@ export default class IPC {
   toggleMuteGlobalIsActive = false;
   currentValue = 0;
   appEnabledState = AutopttAppEnabledState.ENABLED;
+  toggleMuteStates: (boolean | undefined)[] = [];
 
   serverIpcVersion = -1;
 
-  static VERSION = 3;
+  // IPC versions
+  // 3 - AutoPTT 2.8.0
+  // 4 - AutoPTT 2.11.0
+
+  static VERSION = 4;
+
+  isCompatible() {
+    const server = this.serverIpcVersion;
+    const client = IPC.VERSION;
+
+    if (server === client) {
+      return true;
+    }
+
+    if (server === 3 && client === 4) {
+      // individual toggle mute will not work though
+      return true;
+    }
+
+    return false;
+  }
 
   start() {
     if (this.state !== "idle") {
@@ -229,6 +250,16 @@ export default class IPC {
       this.toggleMuteGlobalIsActive = msg.toggleMuteGlobalChanged.isActive;
     }
 
+    if (msg.toggleMuteChanged) {
+      const inner = msg.toggleMuteChanged;
+
+      if (inner.keyGroupIndex < this.toggleMuteStates.length) {
+        this.toggleMuteStates.length = inner.keyGroupIndex + 1;
+      }
+
+      this.toggleMuteStates[inner.keyGroupIndex] = inner.isActive;
+    }
+
     this.onMessageHook?.(msg);
   }
 
@@ -324,6 +355,14 @@ export default class IPC {
   toggleMuteGlobal() {
     this.write(AutopttIpc.create({
       requestToggleMuteGlobal: {}
+    }));
+  }
+
+  toggleMute(index: number) {
+    this.write(AutopttIpc.create({
+      requestToggleMute: {
+        keyGroupIndex: index,
+      }
     }));
   }
 }

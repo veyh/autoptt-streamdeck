@@ -66,7 +66,7 @@ export class ActivityState extends SingletonAction<Settings> {
 			return;
 		}
 
-		if (cx.ipc.serverIpcVersion !== IPC.VERSION) {
+		if (!cx.ipc.isCompatible()) {
 			return;
 		}
 
@@ -150,6 +150,12 @@ export class ActivityState extends SingletonAction<Settings> {
 					return cx.ipc.setPushToMuteDown(index, true);
 				}
 
+				if (settings.onKeyDown.startsWith("toggle-mute:")) {
+					const [_key, indexStr] = settings.onKeyDown.split(":");
+					const index = parseInt(indexStr);
+					return cx.ipc.toggleMute(index);
+				}
+
 				break;
 			}
 		}
@@ -162,7 +168,7 @@ export class ActivityState extends SingletonAction<Settings> {
 			return;
 		}
 
-		if (cx.ipc.serverIpcVersion !== IPC.VERSION) {
+		if (!cx.ipc.isCompatible()) {
 			return;
 		}
 
@@ -220,6 +226,7 @@ export class ActivityState extends SingletonAction<Settings> {
 		for (let i = 0; i < keyGroupCount; i++) {
 			hotkeyActions.push({ value: `ptt:${i}`, label: `Push-to-Talk ${i + 1}` });
 			hotkeyActions.push({ value: `ptm:${i}`, label: `Push-to-Mute ${i + 1}` });
+			hotkeyActions.push({ value: `toggle-mute:${i}`, label: `Toggle Mute ${i + 1}` });
 		}
 
 		hotkeyActions.push({ value: "ptm-global", label: "Push-to-Mute (Global)" });
@@ -291,7 +298,10 @@ class Context {
 	}
 
 	onIpcMessage = (msg: AutopttIpc) => {
-		if (msg.settingsChanged || msg.muteStateChanged || msg.activityStateChanged) {
+		if (msg.settingsChanged
+		|| msg.muteStateChanged
+		|| msg.toggleMuteChanged
+		|| msg.activityStateChanged) {
 			this.updateIcon();
 		}
 
@@ -326,7 +336,7 @@ class Context {
 			return "imgs/actions/activity-state/autoptt-logo-4-scaled-gray-50-opacity-60pct.png";
 		}
 
-		if (this.ipc.serverIpcVersion !== IPC.VERSION) {
+		if (!this.ipc.isCompatible()) {
 			return "imgs/actions/activity-state/autoptt-logo-4-scaled-gray-50-opacity-60pct.png";
 		}
 
@@ -343,9 +353,24 @@ class Context {
 				return "imgs/actions/activity-state/autoptt-logo-4-scaled-yellow-60pct.png";
 
 			default:
-			case AutopttActivityState.INACTIVE:
+			case AutopttActivityState.INACTIVE: {
+				if (this.isAnyToggleMuteActive()) {
+					return "imgs/actions/activity-state/autoptt-logo-4-scaled-purple-60pct.png";
+				}
+
 				return "imgs/actions/activity-state/autoptt-logo-4-scaled-gray-50-opacity-60pct.png";
+			}
 		}
+	}
+
+	isAnyToggleMuteActive() {
+		for (const isActive of this.ipc.toggleMuteStates) {
+			if (isActive) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	updateTitle(force?: boolean) {
@@ -364,12 +389,14 @@ class Context {
 			return "Not Conn";
 		}
 
-		if (this.ipc.serverIpcVersion < IPC.VERSION) {
-			return "Not\nCompatible\nUpdate\nAutoPTT";
-		}
+		if (!this.ipc.isCompatible()) {
+			if (this.ipc.serverIpcVersion < IPC.VERSION) {
+				return "Not\nCompatible\nUpdate\nAutoPTT";
+			}
 
-		if (this.ipc.serverIpcVersion > IPC.VERSION) {
-			return "Not\nCompatible\nUpdate\nPlugin";
+			if (this.ipc.serverIpcVersion > IPC.VERSION) {
+				return "Not\nCompatible\nUpdate\nPlugin";
+			}
 		}
 
 		if (this.ipc.appEnabledState === AutopttAppEnabledState.DISABLED_BLOCKED_BY_GUI) {

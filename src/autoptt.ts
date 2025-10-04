@@ -375,7 +375,9 @@ export interface Settings {
   soundOnSetModeToTapOpenMicToPtt: Sound | undefined;
   soundOnSetModeToManualOpenMicToPtt: Sound | undefined;
   soundOnToggleMuteGlobalOn: Sound | undefined;
-  soundOnToggleMuteGlobalOff:
+  soundOnToggleMuteGlobalOff: Sound | undefined;
+  soundOnToggleMuteOn: Sound | undefined;
+  soundOnToggleMuteOff:
     | Sound
     | undefined;
   /** --> key_groups (v4) */
@@ -449,6 +451,7 @@ export interface HotkeyGroup {
   pushToTalk: HotkeyV3 | undefined;
   pushToMute: HotkeyV3[];
   extraTriggers: HotkeyV3[];
+  toggleMute: HotkeyV3[];
 }
 
 export interface SelectedTab {
@@ -471,6 +474,7 @@ export interface Ipc {
   muteStateChanged?: IpcMuteStateChanged | undefined;
   settingsChanged?: IpcSettingsChanged | undefined;
   toggleMuteGlobalChanged?: IpcToggleMuteGlobalChanged | undefined;
+  toggleMuteChanged?: IpcToggleMuteChanged | undefined;
   sidekickConnected?: IpcSidekickConnected | undefined;
   sidekickDisconnected?: IpcSidekickDisconnected | undefined;
   updaterStateChanged?: IpcUpdaterStateChanged | undefined;
@@ -489,6 +493,7 @@ export interface Ipc {
   requestSetPushToMuteState?: IpcRequestSetPushToMuteState | undefined;
   requestSetPushToMuteGlobalState?: IpcRequestSetPushToMuteGlobalState | undefined;
   requestToggleMuteGlobal?: IpcRequestToggleMuteGlobal | undefined;
+  requestToggleMute?: IpcRequestToggleMute | undefined;
 }
 
 export interface IpcActivityStateChanged {
@@ -566,6 +571,11 @@ export interface IpcToggleMuteGlobalChanged {
   isActive: boolean;
 }
 
+export interface IpcToggleMuteChanged {
+  keyGroupIndex: number;
+  isActive: boolean;
+}
+
 export interface IpcRequestPlaySfx {
   sfx: number;
 }
@@ -616,6 +626,10 @@ export interface IpcRequestSetPushToMuteGlobalState {
 export interface IpcRequestToggleMuteGlobal {
 }
 
+export interface IpcRequestToggleMute {
+  keyGroupIndex: number;
+}
+
 function createBaseSettings(): Settings {
   return {
     version: 0,
@@ -645,6 +659,8 @@ function createBaseSettings(): Settings {
     soundOnSetModeToManualOpenMicToPtt: undefined,
     soundOnToggleMuteGlobalOn: undefined,
     soundOnToggleMuteGlobalOff: undefined,
+    soundOnToggleMuteOn: undefined,
+    soundOnToggleMuteOff: undefined,
     pttSingle: undefined,
     keyPushToMuteSingle: undefined,
     keyPushToMuteGlobal: undefined,
@@ -757,6 +773,12 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.soundOnToggleMuteGlobalOff !== undefined) {
       Sound.encode(message.soundOnToggleMuteGlobalOff, writer.uint32(498).fork()).join();
+    }
+    if (message.soundOnToggleMuteOn !== undefined) {
+      Sound.encode(message.soundOnToggleMuteOn, writer.uint32(506).fork()).join();
+    }
+    if (message.soundOnToggleMuteOff !== undefined) {
+      Sound.encode(message.soundOnToggleMuteOff, writer.uint32(514).fork()).join();
     }
     if (message.pttSingle !== undefined) {
       HotkeyV3.encode(message.pttSingle, writer.uint32(82).fork()).join();
@@ -1065,6 +1087,22 @@ export const Settings: MessageFns<Settings> = {
           message.soundOnToggleMuteGlobalOff = Sound.decode(reader, reader.uint32());
           continue;
         }
+        case 63: {
+          if (tag !== 506) {
+            break;
+          }
+
+          message.soundOnToggleMuteOn = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 64: {
+          if (tag !== 514) {
+            break;
+          }
+
+          message.soundOnToggleMuteOff = Sound.decode(reader, reader.uint32());
+          continue;
+        }
         case 10: {
           if (tag !== 82) {
             break;
@@ -1341,6 +1379,10 @@ export const Settings: MessageFns<Settings> = {
       soundOnToggleMuteGlobalOff: isSet(object.soundOnToggleMuteGlobalOff)
         ? Sound.fromJSON(object.soundOnToggleMuteGlobalOff)
         : undefined,
+      soundOnToggleMuteOn: isSet(object.soundOnToggleMuteOn) ? Sound.fromJSON(object.soundOnToggleMuteOn) : undefined,
+      soundOnToggleMuteOff: isSet(object.soundOnToggleMuteOff)
+        ? Sound.fromJSON(object.soundOnToggleMuteOff)
+        : undefined,
       pttSingle: isSet(object.pttSingle) ? HotkeyV3.fromJSON(object.pttSingle) : undefined,
       keyPushToMuteSingle: isSet(object.keyPushToMuteSingle)
         ? HotkeyV3.fromJSON(object.keyPushToMuteSingle)
@@ -1479,6 +1521,12 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.soundOnToggleMuteGlobalOff !== undefined) {
       obj.soundOnToggleMuteGlobalOff = Sound.toJSON(message.soundOnToggleMuteGlobalOff);
+    }
+    if (message.soundOnToggleMuteOn !== undefined) {
+      obj.soundOnToggleMuteOn = Sound.toJSON(message.soundOnToggleMuteOn);
+    }
+    if (message.soundOnToggleMuteOff !== undefined) {
+      obj.soundOnToggleMuteOff = Sound.toJSON(message.soundOnToggleMuteOff);
     }
     if (message.pttSingle !== undefined) {
       obj.pttSingle = HotkeyV3.toJSON(message.pttSingle);
@@ -1633,6 +1681,12 @@ export const Settings: MessageFns<Settings> = {
       (object.soundOnToggleMuteGlobalOff !== undefined && object.soundOnToggleMuteGlobalOff !== null)
         ? Sound.fromPartial(object.soundOnToggleMuteGlobalOff)
         : undefined;
+    message.soundOnToggleMuteOn = (object.soundOnToggleMuteOn !== undefined && object.soundOnToggleMuteOn !== null)
+      ? Sound.fromPartial(object.soundOnToggleMuteOn)
+      : undefined;
+    message.soundOnToggleMuteOff = (object.soundOnToggleMuteOff !== undefined && object.soundOnToggleMuteOff !== null)
+      ? Sound.fromPartial(object.soundOnToggleMuteOff)
+      : undefined;
     message.pttSingle = (object.pttSingle !== undefined && object.pttSingle !== null)
       ? HotkeyV3.fromPartial(object.pttSingle)
       : undefined;
@@ -2143,7 +2197,7 @@ export const JoyId: MessageFns<JoyId> = {
 };
 
 function createBaseHotkeyGroup(): HotkeyGroup {
-  return { displayName: "", pushToTalk: undefined, pushToMute: [], extraTriggers: [] };
+  return { displayName: "", pushToTalk: undefined, pushToMute: [], extraTriggers: [], toggleMute: [] };
 }
 
 export const HotkeyGroup: MessageFns<HotkeyGroup> = {
@@ -2159,6 +2213,9 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
     }
     for (const v of message.extraTriggers) {
       HotkeyV3.encode(v!, writer.uint32(34).fork()).join();
+    }
+    for (const v of message.toggleMute) {
+      HotkeyV3.encode(v!, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -2202,6 +2259,14 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
           message.extraTriggers.push(HotkeyV3.decode(reader, reader.uint32()));
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.toggleMute.push(HotkeyV3.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2221,6 +2286,9 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
       extraTriggers: globalThis.Array.isArray(object?.extraTriggers)
         ? object.extraTriggers.map((e: any) => HotkeyV3.fromJSON(e))
         : [],
+      toggleMute: globalThis.Array.isArray(object?.toggleMute)
+        ? object.toggleMute.map((e: any) => HotkeyV3.fromJSON(e))
+        : [],
     };
   },
 
@@ -2238,6 +2306,9 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
     if (message.extraTriggers?.length) {
       obj.extraTriggers = message.extraTriggers.map((e) => HotkeyV3.toJSON(e));
     }
+    if (message.toggleMute?.length) {
+      obj.toggleMute = message.toggleMute.map((e) => HotkeyV3.toJSON(e));
+    }
     return obj;
   },
 
@@ -2252,6 +2323,7 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
       : undefined;
     message.pushToMute = object.pushToMute?.map((e) => HotkeyV3.fromPartial(e)) || [];
     message.extraTriggers = object.extraTriggers?.map((e) => HotkeyV3.fromPartial(e)) || [];
+    message.toggleMute = object.toggleMute?.map((e) => HotkeyV3.fromPartial(e)) || [];
     return message;
   },
 };
@@ -2446,6 +2518,7 @@ function createBaseIpc(): Ipc {
     muteStateChanged: undefined,
     settingsChanged: undefined,
     toggleMuteGlobalChanged: undefined,
+    toggleMuteChanged: undefined,
     sidekickConnected: undefined,
     sidekickDisconnected: undefined,
     updaterStateChanged: undefined,
@@ -2464,6 +2537,7 @@ function createBaseIpc(): Ipc {
     requestSetPushToMuteState: undefined,
     requestSetPushToMuteGlobalState: undefined,
     requestToggleMuteGlobal: undefined,
+    requestToggleMute: undefined,
   };
 }
 
@@ -2489,6 +2563,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.toggleMuteGlobalChanged !== undefined) {
       IpcToggleMuteGlobalChanged.encode(message.toggleMuteGlobalChanged, writer.uint32(250).fork()).join();
+    }
+    if (message.toggleMuteChanged !== undefined) {
+      IpcToggleMuteChanged.encode(message.toggleMuteChanged, writer.uint32(258).fork()).join();
     }
     if (message.sidekickConnected !== undefined) {
       IpcSidekickConnected.encode(message.sidekickConnected, writer.uint32(58).fork()).join();
@@ -2544,6 +2621,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.requestToggleMuteGlobal !== undefined) {
       IpcRequestToggleMuteGlobal.encode(message.requestToggleMuteGlobal, writer.uint32(242).fork()).join();
+    }
+    if (message.requestToggleMute !== undefined) {
+      IpcRequestToggleMute.encode(message.requestToggleMute, writer.uint32(266).fork()).join();
     }
     return writer;
   },
@@ -2609,6 +2689,14 @@ export const Ipc: MessageFns<Ipc> = {
           }
 
           message.toggleMuteGlobalChanged = IpcToggleMuteGlobalChanged.decode(reader, reader.uint32());
+          continue;
+        }
+        case 32: {
+          if (tag !== 258) {
+            break;
+          }
+
+          message.toggleMuteChanged = IpcToggleMuteChanged.decode(reader, reader.uint32());
           continue;
         }
         case 7: {
@@ -2755,6 +2843,14 @@ export const Ipc: MessageFns<Ipc> = {
           message.requestToggleMuteGlobal = IpcRequestToggleMuteGlobal.decode(reader, reader.uint32());
           continue;
         }
+        case 33: {
+          if (tag !== 266) {
+            break;
+          }
+
+          message.requestToggleMute = IpcRequestToggleMute.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2782,6 +2878,9 @@ export const Ipc: MessageFns<Ipc> = {
       settingsChanged: isSet(object.settingsChanged) ? IpcSettingsChanged.fromJSON(object.settingsChanged) : undefined,
       toggleMuteGlobalChanged: isSet(object.toggleMuteGlobalChanged)
         ? IpcToggleMuteGlobalChanged.fromJSON(object.toggleMuteGlobalChanged)
+        : undefined,
+      toggleMuteChanged: isSet(object.toggleMuteChanged)
+        ? IpcToggleMuteChanged.fromJSON(object.toggleMuteChanged)
         : undefined,
       sidekickConnected: isSet(object.sidekickConnected)
         ? IpcSidekickConnected.fromJSON(object.sidekickConnected)
@@ -2825,6 +2924,9 @@ export const Ipc: MessageFns<Ipc> = {
       requestToggleMuteGlobal: isSet(object.requestToggleMuteGlobal)
         ? IpcRequestToggleMuteGlobal.fromJSON(object.requestToggleMuteGlobal)
         : undefined,
+      requestToggleMute: isSet(object.requestToggleMute)
+        ? IpcRequestToggleMute.fromJSON(object.requestToggleMute)
+        : undefined,
     };
   },
 
@@ -2850,6 +2952,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.toggleMuteGlobalChanged !== undefined) {
       obj.toggleMuteGlobalChanged = IpcToggleMuteGlobalChanged.toJSON(message.toggleMuteGlobalChanged);
+    }
+    if (message.toggleMuteChanged !== undefined) {
+      obj.toggleMuteChanged = IpcToggleMuteChanged.toJSON(message.toggleMuteChanged);
     }
     if (message.sidekickConnected !== undefined) {
       obj.sidekickConnected = IpcSidekickConnected.toJSON(message.sidekickConnected);
@@ -2907,6 +3012,9 @@ export const Ipc: MessageFns<Ipc> = {
     if (message.requestToggleMuteGlobal !== undefined) {
       obj.requestToggleMuteGlobal = IpcRequestToggleMuteGlobal.toJSON(message.requestToggleMuteGlobal);
     }
+    if (message.requestToggleMute !== undefined) {
+      obj.requestToggleMute = IpcRequestToggleMute.toJSON(message.requestToggleMute);
+    }
     return obj;
   },
 
@@ -2938,6 +3046,9 @@ export const Ipc: MessageFns<Ipc> = {
       (object.toggleMuteGlobalChanged !== undefined && object.toggleMuteGlobalChanged !== null)
         ? IpcToggleMuteGlobalChanged.fromPartial(object.toggleMuteGlobalChanged)
         : undefined;
+    message.toggleMuteChanged = (object.toggleMuteChanged !== undefined && object.toggleMuteChanged !== null)
+      ? IpcToggleMuteChanged.fromPartial(object.toggleMuteChanged)
+      : undefined;
     message.sidekickConnected = (object.sidekickConnected !== undefined && object.sidekickConnected !== null)
       ? IpcSidekickConnected.fromPartial(object.sidekickConnected)
       : undefined;
@@ -2998,6 +3109,9 @@ export const Ipc: MessageFns<Ipc> = {
       (object.requestToggleMuteGlobal !== undefined && object.requestToggleMuteGlobal !== null)
         ? IpcRequestToggleMuteGlobal.fromPartial(object.requestToggleMuteGlobal)
         : undefined;
+    message.requestToggleMute = (object.requestToggleMute !== undefined && object.requestToggleMute !== null)
+      ? IpcRequestToggleMute.fromPartial(object.requestToggleMute)
+      : undefined;
     return message;
   },
 };
@@ -4134,6 +4248,82 @@ export const IpcToggleMuteGlobalChanged: MessageFns<IpcToggleMuteGlobalChanged> 
   },
 };
 
+function createBaseIpcToggleMuteChanged(): IpcToggleMuteChanged {
+  return { keyGroupIndex: 0, isActive: false };
+}
+
+export const IpcToggleMuteChanged: MessageFns<IpcToggleMuteChanged> = {
+  encode(message: IpcToggleMuteChanged, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.keyGroupIndex !== 0) {
+      writer.uint32(8).uint32(message.keyGroupIndex);
+    }
+    if (message.isActive !== false) {
+      writer.uint32(16).bool(message.isActive);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcToggleMuteChanged {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcToggleMuteChanged();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.keyGroupIndex = reader.uint32();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.isActive = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcToggleMuteChanged {
+    return {
+      keyGroupIndex: isSet(object.keyGroupIndex) ? globalThis.Number(object.keyGroupIndex) : 0,
+      isActive: isSet(object.isActive) ? globalThis.Boolean(object.isActive) : false,
+    };
+  },
+
+  toJSON(message: IpcToggleMuteChanged): unknown {
+    const obj: any = {};
+    if (message.keyGroupIndex !== 0) {
+      obj.keyGroupIndex = Math.round(message.keyGroupIndex);
+    }
+    if (message.isActive !== false) {
+      obj.isActive = message.isActive;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcToggleMuteChanged>, I>>(base?: I): IpcToggleMuteChanged {
+    return IpcToggleMuteChanged.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcToggleMuteChanged>, I>>(object: I): IpcToggleMuteChanged {
+    const message = createBaseIpcToggleMuteChanged();
+    message.keyGroupIndex = object.keyGroupIndex ?? 0;
+    message.isActive = object.isActive ?? false;
+    return message;
+  },
+};
+
 function createBaseIpcRequestPlaySfx(): IpcRequestPlaySfx {
   return { sfx: 0 };
 }
@@ -4803,6 +4993,64 @@ export const IpcRequestToggleMuteGlobal: MessageFns<IpcRequestToggleMuteGlobal> 
   },
   fromPartial<I extends Exact<DeepPartial<IpcRequestToggleMuteGlobal>, I>>(_: I): IpcRequestToggleMuteGlobal {
     const message = createBaseIpcRequestToggleMuteGlobal();
+    return message;
+  },
+};
+
+function createBaseIpcRequestToggleMute(): IpcRequestToggleMute {
+  return { keyGroupIndex: 0 };
+}
+
+export const IpcRequestToggleMute: MessageFns<IpcRequestToggleMute> = {
+  encode(message: IpcRequestToggleMute, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.keyGroupIndex !== 0) {
+      writer.uint32(8).uint32(message.keyGroupIndex);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcRequestToggleMute {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcRequestToggleMute();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.keyGroupIndex = reader.uint32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcRequestToggleMute {
+    return { keyGroupIndex: isSet(object.keyGroupIndex) ? globalThis.Number(object.keyGroupIndex) : 0 };
+  },
+
+  toJSON(message: IpcRequestToggleMute): unknown {
+    const obj: any = {};
+    if (message.keyGroupIndex !== 0) {
+      obj.keyGroupIndex = Math.round(message.keyGroupIndex);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcRequestToggleMute>, I>>(base?: I): IpcRequestToggleMute {
+    return IpcRequestToggleMute.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcRequestToggleMute>, I>>(object: I): IpcRequestToggleMute {
+    const message = createBaseIpcRequestToggleMute();
+    message.keyGroupIndex = object.keyGroupIndex ?? 0;
     return message;
   },
 };
