@@ -349,20 +349,92 @@ export function appEnabledStateToJSON(object: AppEnabledState): string {
 
 export interface Settings {
   version: number;
+  appVersion: number;
+  selectedTab: SelectedTab | undefined;
+  startOnBootType: StartOnBootType;
+  licenseKey: string;
+  ipcAddr: string;
+  minimizeToTray: boolean;
+  updateCheck: boolean;
+  useSidekick: boolean;
+  profile: number;
+  profiles: Profile[];
+  x3xThreshold: number;
+  x3xUseDeactThreshold: boolean;
+  x3xDeactThreshold: number;
+  x3xSafe: boolean;
+  x3xSafeIntervalMs: number;
+  x3xDeprecatedUpdateIntervalMs: number;
+  x3xReleaseDelayMs: number;
+  x3xActivationMode: ActivationMode;
+  x3xMeterType: MeterType;
+  /** --> device_name, device_uuid (v6) */
+  x3xDeprecatedDeviceNameOrUuid: string;
+  x3xSoundOnPttDown: Sound | undefined;
+  x3xSoundOnPttUp: Sound | undefined;
+  x3xSoundOnPushToMuteDown: Sound | undefined;
+  x3xSoundOnPushToMuteUp: Sound | undefined;
+  x3xSoundOnPushToMuteGlobalDown: Sound | undefined;
+  x3xSoundOnPushToMuteGlobalUp: Sound | undefined;
+  x3xSoundOnSetModeToVoiceActivity: Sound | undefined;
+  x3xSoundOnSetModeToTap: Sound | undefined;
+  x3xSoundOnSetModeToManual: Sound | undefined;
+  x3xSoundOnSetModeToTapOpenMicToPtt: Sound | undefined;
+  x3xSoundOnSetModeToManualOpenMicToPtt: Sound | undefined;
+  x3xSoundOnToggleMuteGlobalOn: Sound | undefined;
+  x3xSoundOnToggleMuteGlobalOff: Sound | undefined;
+  x3xSoundOnToggleMuteOn: Sound | undefined;
+  x3xSoundOnToggleMuteOff:
+    | Sound
+    | undefined;
+  /** --> key_groups (v4) */
+  x3xPttSingle:
+    | HotkeyV3
+    | undefined;
+  /** --> key_groups (v4) */
+  x3xKeyPushToMuteSingle: HotkeyV3 | undefined;
+  x3xKeyPushToMuteGlobal: HotkeyV3 | undefined;
+  x3xKeySetModeToVoiceActivity: HotkeyV3 | undefined;
+  x3xKeySetModeToTap: HotkeyV3 | undefined;
+  x3xKeySetModeToManual: HotkeyV3 | undefined;
+  x3xKeySetModeToTapOpenMicToPtt: HotkeyV3 | undefined;
+  x3xKeySetModeToManualOpenMicToPtt: HotkeyV3 | undefined;
+  x3xKeySwapModeBetweenManualAndVoiceActivity: HotkeyV3 | undefined;
+  x3xKeySwapModeBetweenManualAndTap: HotkeyV3 | undefined;
+  x3xKeySwapModeBetweenManualAndManualOpenMicToPtt: HotkeyV3 | undefined;
+  x3xKeyToggleMuteGlobal:
+    | HotkeyV3
+    | undefined;
+  /** --> key_groups (v4) */
+  x3xDeprecatedExtraTriggerKeys: HotkeyV3[];
+  x3xOpenMicToPttConsumeInput: boolean;
+  x3xOverlayEnable: boolean;
+  x3xOverlaySettings: OverlaySettings | undefined;
+  x3xDeviceDisplayName: string;
+  x3xKeyGroups: HotkeyGroup[];
+  x3xUseTapActivationWindow: boolean;
+  x3xTapActivationWindowMs: number;
+  x3xDeviceName: string;
+  x3xDeviceUuid: string;
+}
+
+export interface Profile {
+  id: Uint8Array;
+  name: string;
+  /** These are matched with OR */
+  activationTriggers: ProfileActivationTrigger[];
+  settings: ProfileSettings | undefined;
+}
+
+export interface ProfileSettings {
   threshold: number;
   useDeactThreshold: boolean;
   deactThreshold: number;
   safe: boolean;
   safeIntervalMs: number;
-  deprecatedUpdateIntervalMs: number;
   releaseDelayMs: number;
   activationMode: ActivationMode;
   meterType: MeterType;
-  startOnBootType: StartOnBootType;
-  /** --> device_name, device_uuid (v6) */
-  deprecatedDeviceNameOrUuid: string;
-  licenseKey: string;
-  useSidekick: boolean;
   soundOnPttDown: Sound | undefined;
   soundOnPttUp: Sound | undefined;
   soundOnPushToMuteDown: Sound | undefined;
@@ -377,15 +449,7 @@ export interface Settings {
   soundOnToggleMuteGlobalOn: Sound | undefined;
   soundOnToggleMuteGlobalOff: Sound | undefined;
   soundOnToggleMuteOn: Sound | undefined;
-  soundOnToggleMuteOff:
-    | Sound
-    | undefined;
-  /** --> key_groups (v4) */
-  pttSingle:
-    | HotkeyV3
-    | undefined;
-  /** --> key_groups (v4) */
-  keyPushToMuteSingle: HotkeyV3 | undefined;
+  soundOnToggleMuteOff: Sound | undefined;
   keyPushToMuteGlobal: HotkeyV3 | undefined;
   keySetModeToVoiceActivity: HotkeyV3 | undefined;
   keySetModeToTap: HotkeyV3 | undefined;
@@ -395,25 +459,61 @@ export interface Settings {
   keySwapModeBetweenManualAndVoiceActivity: HotkeyV3 | undefined;
   keySwapModeBetweenManualAndTap: HotkeyV3 | undefined;
   keySwapModeBetweenManualAndManualOpenMicToPtt: HotkeyV3 | undefined;
-  keyToggleMuteGlobal:
-    | HotkeyV3
-    | undefined;
-  /** --> key_groups (v4) */
-  deprecatedExtraTriggerKeys: HotkeyV3[];
-  minimizeToTray: boolean;
+  keyToggleMuteGlobal: HotkeyV3 | undefined;
   openMicToPttConsumeInput: boolean;
-  updateCheck: boolean;
-  ipcAddr: string;
   overlayEnable: boolean;
   overlaySettings: OverlaySettings | undefined;
   deviceDisplayName: string;
   keyGroups: HotkeyGroup[];
-  selectedTab: SelectedTab | undefined;
   useTapActivationWindow: boolean;
   tapActivationWindowMs: number;
   deviceName: string;
   deviceUuid: string;
-  appVersion: number;
+}
+
+export interface ProfileActivationTrigger {
+  type: ProfileActivationTrigger_TextType;
+  text: string;
+  activeWindowOnly: boolean;
+}
+
+export enum ProfileActivationTrigger_TextType {
+  BINARY_NAME = 0,
+  BINARY_PATH = 1,
+  WINDOW_TITLE = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function profileActivationTrigger_TextTypeFromJSON(object: any): ProfileActivationTrigger_TextType {
+  switch (object) {
+    case 0:
+    case "BINARY_NAME":
+      return ProfileActivationTrigger_TextType.BINARY_NAME;
+    case 1:
+    case "BINARY_PATH":
+      return ProfileActivationTrigger_TextType.BINARY_PATH;
+    case 2:
+    case "WINDOW_TITLE":
+      return ProfileActivationTrigger_TextType.WINDOW_TITLE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ProfileActivationTrigger_TextType.UNRECOGNIZED;
+  }
+}
+
+export function profileActivationTrigger_TextTypeToJSON(object: ProfileActivationTrigger_TextType): string {
+  switch (object) {
+    case ProfileActivationTrigger_TextType.BINARY_NAME:
+      return "BINARY_NAME";
+    case ProfileActivationTrigger_TextType.BINARY_PATH:
+      return "BINARY_PATH";
+    case ProfileActivationTrigger_TextType.WINDOW_TITLE:
+      return "WINDOW_TITLE";
+    case ProfileActivationTrigger_TextType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
 }
 
 export interface Sound {
@@ -455,14 +555,18 @@ export interface HotkeyGroup {
 }
 
 export interface SelectedTab {
-  general?: SelectedTabGeneral | undefined;
-  device?: SelectedTabDevice | undefined;
+  settingsGeneral?: SelectedTabSettingsGeneral | undefined;
+  settingsDevice?: SelectedTabSettingsDevice | undefined;
+  overview?: SelectedTabOverview | undefined;
 }
 
-export interface SelectedTabGeneral {
+export interface SelectedTabOverview {
 }
 
-export interface SelectedTabDevice {
+export interface SelectedTabSettingsGeneral {
+}
+
+export interface SelectedTabSettingsDevice {
   deviceIndex: number;
 }
 
@@ -633,61 +737,63 @@ export interface IpcRequestToggleMute {
 function createBaseSettings(): Settings {
   return {
     version: 0,
-    threshold: 0,
-    useDeactThreshold: false,
-    deactThreshold: 0,
-    safe: false,
-    safeIntervalMs: 0,
-    deprecatedUpdateIntervalMs: 0,
-    releaseDelayMs: 0,
-    activationMode: 0,
-    meterType: 0,
-    startOnBootType: 0,
-    deprecatedDeviceNameOrUuid: "",
-    licenseKey: "",
-    useSidekick: false,
-    soundOnPttDown: undefined,
-    soundOnPttUp: undefined,
-    soundOnPushToMuteDown: undefined,
-    soundOnPushToMuteUp: undefined,
-    soundOnPushToMuteGlobalDown: undefined,
-    soundOnPushToMuteGlobalUp: undefined,
-    soundOnSetModeToVoiceActivity: undefined,
-    soundOnSetModeToTap: undefined,
-    soundOnSetModeToManual: undefined,
-    soundOnSetModeToTapOpenMicToPtt: undefined,
-    soundOnSetModeToManualOpenMicToPtt: undefined,
-    soundOnToggleMuteGlobalOn: undefined,
-    soundOnToggleMuteGlobalOff: undefined,
-    soundOnToggleMuteOn: undefined,
-    soundOnToggleMuteOff: undefined,
-    pttSingle: undefined,
-    keyPushToMuteSingle: undefined,
-    keyPushToMuteGlobal: undefined,
-    keySetModeToVoiceActivity: undefined,
-    keySetModeToTap: undefined,
-    keySetModeToManual: undefined,
-    keySetModeToTapOpenMicToPtt: undefined,
-    keySetModeToManualOpenMicToPtt: undefined,
-    keySwapModeBetweenManualAndVoiceActivity: undefined,
-    keySwapModeBetweenManualAndTap: undefined,
-    keySwapModeBetweenManualAndManualOpenMicToPtt: undefined,
-    keyToggleMuteGlobal: undefined,
-    deprecatedExtraTriggerKeys: [],
-    minimizeToTray: false,
-    openMicToPttConsumeInput: false,
-    updateCheck: false,
-    ipcAddr: "",
-    overlayEnable: false,
-    overlaySettings: undefined,
-    deviceDisplayName: "",
-    keyGroups: [],
-    selectedTab: undefined,
-    useTapActivationWindow: false,
-    tapActivationWindowMs: 0,
-    deviceName: "",
-    deviceUuid: "",
     appVersion: 0,
+    selectedTab: undefined,
+    startOnBootType: 0,
+    licenseKey: "",
+    ipcAddr: "",
+    minimizeToTray: false,
+    updateCheck: false,
+    useSidekick: false,
+    profile: 0,
+    profiles: [],
+    x3xThreshold: 0,
+    x3xUseDeactThreshold: false,
+    x3xDeactThreshold: 0,
+    x3xSafe: false,
+    x3xSafeIntervalMs: 0,
+    x3xDeprecatedUpdateIntervalMs: 0,
+    x3xReleaseDelayMs: 0,
+    x3xActivationMode: 0,
+    x3xMeterType: 0,
+    x3xDeprecatedDeviceNameOrUuid: "",
+    x3xSoundOnPttDown: undefined,
+    x3xSoundOnPttUp: undefined,
+    x3xSoundOnPushToMuteDown: undefined,
+    x3xSoundOnPushToMuteUp: undefined,
+    x3xSoundOnPushToMuteGlobalDown: undefined,
+    x3xSoundOnPushToMuteGlobalUp: undefined,
+    x3xSoundOnSetModeToVoiceActivity: undefined,
+    x3xSoundOnSetModeToTap: undefined,
+    x3xSoundOnSetModeToManual: undefined,
+    x3xSoundOnSetModeToTapOpenMicToPtt: undefined,
+    x3xSoundOnSetModeToManualOpenMicToPtt: undefined,
+    x3xSoundOnToggleMuteGlobalOn: undefined,
+    x3xSoundOnToggleMuteGlobalOff: undefined,
+    x3xSoundOnToggleMuteOn: undefined,
+    x3xSoundOnToggleMuteOff: undefined,
+    x3xPttSingle: undefined,
+    x3xKeyPushToMuteSingle: undefined,
+    x3xKeyPushToMuteGlobal: undefined,
+    x3xKeySetModeToVoiceActivity: undefined,
+    x3xKeySetModeToTap: undefined,
+    x3xKeySetModeToManual: undefined,
+    x3xKeySetModeToTapOpenMicToPtt: undefined,
+    x3xKeySetModeToManualOpenMicToPtt: undefined,
+    x3xKeySwapModeBetweenManualAndVoiceActivity: undefined,
+    x3xKeySwapModeBetweenManualAndTap: undefined,
+    x3xKeySwapModeBetweenManualAndManualOpenMicToPtt: undefined,
+    x3xKeyToggleMuteGlobal: undefined,
+    x3xDeprecatedExtraTriggerKeys: [],
+    x3xOpenMicToPttConsumeInput: false,
+    x3xOverlayEnable: false,
+    x3xOverlaySettings: undefined,
+    x3xDeviceDisplayName: "",
+    x3xKeyGroups: [],
+    x3xUseTapActivationWindow: false,
+    x3xTapActivationWindowMs: 0,
+    x3xDeviceName: "",
+    x3xDeviceUuid: "",
   };
 }
 
@@ -696,170 +802,176 @@ export const Settings: MessageFns<Settings> = {
     if (message.version !== 0) {
       writer.uint32(8).uint32(message.version);
     }
-    if (message.threshold !== 0) {
-      writer.uint32(17).double(message.threshold);
-    }
-    if (message.useDeactThreshold !== false) {
-      writer.uint32(24).bool(message.useDeactThreshold);
-    }
-    if (message.deactThreshold !== 0) {
-      writer.uint32(33).double(message.deactThreshold);
-    }
-    if (message.safe !== false) {
-      writer.uint32(40).bool(message.safe);
-    }
-    if (message.safeIntervalMs !== 0) {
-      writer.uint32(48).uint32(message.safeIntervalMs);
-    }
-    if (message.deprecatedUpdateIntervalMs !== 0) {
-      writer.uint32(56).uint32(message.deprecatedUpdateIntervalMs);
-    }
-    if (message.releaseDelayMs !== 0) {
-      writer.uint32(64).uint32(message.releaseDelayMs);
-    }
-    if (message.activationMode !== 0) {
-      writer.uint32(88).int32(message.activationMode);
-    }
-    if (message.meterType !== 0) {
-      writer.uint32(96).int32(message.meterType);
-    }
-    if (message.startOnBootType !== 0) {
-      writer.uint32(104).int32(message.startOnBootType);
-    }
-    if (message.deprecatedDeviceNameOrUuid !== "") {
-      writer.uint32(114).string(message.deprecatedDeviceNameOrUuid);
-    }
-    if (message.licenseKey !== "") {
-      writer.uint32(122).string(message.licenseKey);
-    }
-    if (message.useSidekick !== false) {
-      writer.uint32(128).bool(message.useSidekick);
-    }
-    if (message.soundOnPttDown !== undefined) {
-      Sound.encode(message.soundOnPttDown, writer.uint32(138).fork()).join();
-    }
-    if (message.soundOnPttUp !== undefined) {
-      Sound.encode(message.soundOnPttUp, writer.uint32(146).fork()).join();
-    }
-    if (message.soundOnPushToMuteDown !== undefined) {
-      Sound.encode(message.soundOnPushToMuteDown, writer.uint32(154).fork()).join();
-    }
-    if (message.soundOnPushToMuteUp !== undefined) {
-      Sound.encode(message.soundOnPushToMuteUp, writer.uint32(162).fork()).join();
-    }
-    if (message.soundOnPushToMuteGlobalDown !== undefined) {
-      Sound.encode(message.soundOnPushToMuteGlobalDown, writer.uint32(170).fork()).join();
-    }
-    if (message.soundOnPushToMuteGlobalUp !== undefined) {
-      Sound.encode(message.soundOnPushToMuteGlobalUp, writer.uint32(178).fork()).join();
-    }
-    if (message.soundOnSetModeToVoiceActivity !== undefined) {
-      Sound.encode(message.soundOnSetModeToVoiceActivity, writer.uint32(186).fork()).join();
-    }
-    if (message.soundOnSetModeToTap !== undefined) {
-      Sound.encode(message.soundOnSetModeToTap, writer.uint32(194).fork()).join();
-    }
-    if (message.soundOnSetModeToManual !== undefined) {
-      Sound.encode(message.soundOnSetModeToManual, writer.uint32(202).fork()).join();
-    }
-    if (message.soundOnSetModeToTapOpenMicToPtt !== undefined) {
-      Sound.encode(message.soundOnSetModeToTapOpenMicToPtt, writer.uint32(210).fork()).join();
-    }
-    if (message.soundOnSetModeToManualOpenMicToPtt !== undefined) {
-      Sound.encode(message.soundOnSetModeToManualOpenMicToPtt, writer.uint32(218).fork()).join();
-    }
-    if (message.soundOnToggleMuteGlobalOn !== undefined) {
-      Sound.encode(message.soundOnToggleMuteGlobalOn, writer.uint32(490).fork()).join();
-    }
-    if (message.soundOnToggleMuteGlobalOff !== undefined) {
-      Sound.encode(message.soundOnToggleMuteGlobalOff, writer.uint32(498).fork()).join();
-    }
-    if (message.soundOnToggleMuteOn !== undefined) {
-      Sound.encode(message.soundOnToggleMuteOn, writer.uint32(506).fork()).join();
-    }
-    if (message.soundOnToggleMuteOff !== undefined) {
-      Sound.encode(message.soundOnToggleMuteOff, writer.uint32(514).fork()).join();
-    }
-    if (message.pttSingle !== undefined) {
-      HotkeyV3.encode(message.pttSingle, writer.uint32(82).fork()).join();
-    }
-    if (message.keyPushToMuteSingle !== undefined) {
-      HotkeyV3.encode(message.keyPushToMuteSingle, writer.uint32(226).fork()).join();
-    }
-    if (message.keyPushToMuteGlobal !== undefined) {
-      HotkeyV3.encode(message.keyPushToMuteGlobal, writer.uint32(234).fork()).join();
-    }
-    if (message.keySetModeToVoiceActivity !== undefined) {
-      HotkeyV3.encode(message.keySetModeToVoiceActivity, writer.uint32(242).fork()).join();
-    }
-    if (message.keySetModeToTap !== undefined) {
-      HotkeyV3.encode(message.keySetModeToTap, writer.uint32(250).fork()).join();
-    }
-    if (message.keySetModeToManual !== undefined) {
-      HotkeyV3.encode(message.keySetModeToManual, writer.uint32(258).fork()).join();
-    }
-    if (message.keySetModeToTapOpenMicToPtt !== undefined) {
-      HotkeyV3.encode(message.keySetModeToTapOpenMicToPtt, writer.uint32(266).fork()).join();
-    }
-    if (message.keySetModeToManualOpenMicToPtt !== undefined) {
-      HotkeyV3.encode(message.keySetModeToManualOpenMicToPtt, writer.uint32(274).fork()).join();
-    }
-    if (message.keySwapModeBetweenManualAndVoiceActivity !== undefined) {
-      HotkeyV3.encode(message.keySwapModeBetweenManualAndVoiceActivity, writer.uint32(282).fork()).join();
-    }
-    if (message.keySwapModeBetweenManualAndTap !== undefined) {
-      HotkeyV3.encode(message.keySwapModeBetweenManualAndTap, writer.uint32(290).fork()).join();
-    }
-    if (message.keySwapModeBetweenManualAndManualOpenMicToPtt !== undefined) {
-      HotkeyV3.encode(message.keySwapModeBetweenManualAndManualOpenMicToPtt, writer.uint32(298).fork()).join();
-    }
-    if (message.keyToggleMuteGlobal !== undefined) {
-      HotkeyV3.encode(message.keyToggleMuteGlobal, writer.uint32(482).fork()).join();
-    }
-    for (const v of message.deprecatedExtraTriggerKeys) {
-      HotkeyV3.encode(v!, writer.uint32(306).fork()).join();
-    }
-    if (message.minimizeToTray !== false) {
-      writer.uint32(312).bool(message.minimizeToTray);
-    }
-    if (message.openMicToPttConsumeInput !== false) {
-      writer.uint32(320).bool(message.openMicToPttConsumeInput);
-    }
-    if (message.updateCheck !== false) {
-      writer.uint32(328).bool(message.updateCheck);
-    }
-    if (message.ipcAddr !== "") {
-      writer.uint32(338).string(message.ipcAddr);
-    }
-    if (message.overlayEnable !== false) {
-      writer.uint32(344).bool(message.overlayEnable);
-    }
-    if (message.overlaySettings !== undefined) {
-      OverlaySettings.encode(message.overlaySettings, writer.uint32(354).fork()).join();
-    }
-    if (message.deviceDisplayName !== "") {
-      writer.uint32(362).string(message.deviceDisplayName);
-    }
-    for (const v of message.keyGroups) {
-      HotkeyGroup.encode(v!, writer.uint32(402).fork()).join();
+    if (message.appVersion !== 0) {
+      writer.uint32(464).uint64(message.appVersion);
     }
     if (message.selectedTab !== undefined) {
       SelectedTab.encode(message.selectedTab, writer.uint32(410).fork()).join();
     }
-    if (message.useTapActivationWindow !== false) {
-      writer.uint32(416).bool(message.useTapActivationWindow);
+    if (message.startOnBootType !== 0) {
+      writer.uint32(104).int32(message.startOnBootType);
     }
-    if (message.tapActivationWindowMs !== 0) {
-      writer.uint32(424).uint32(message.tapActivationWindowMs);
+    if (message.licenseKey !== "") {
+      writer.uint32(122).string(message.licenseKey);
     }
-    if (message.deviceName !== "") {
-      writer.uint32(450).string(message.deviceName);
+    if (message.ipcAddr !== "") {
+      writer.uint32(338).string(message.ipcAddr);
     }
-    if (message.deviceUuid !== "") {
-      writer.uint32(458).string(message.deviceUuid);
+    if (message.minimizeToTray !== false) {
+      writer.uint32(312).bool(message.minimizeToTray);
     }
-    if (message.appVersion !== 0) {
-      writer.uint32(464).uint64(message.appVersion);
+    if (message.updateCheck !== false) {
+      writer.uint32(328).bool(message.updateCheck);
+    }
+    if (message.useSidekick !== false) {
+      writer.uint32(128).bool(message.useSidekick);
+    }
+    if (message.profile !== 0) {
+      writer.uint32(520).uint64(message.profile);
+    }
+    for (const v of message.profiles) {
+      Profile.encode(v!, writer.uint32(530).fork()).join();
+    }
+    if (message.x3xThreshold !== 0) {
+      writer.uint32(17).double(message.x3xThreshold);
+    }
+    if (message.x3xUseDeactThreshold !== false) {
+      writer.uint32(24).bool(message.x3xUseDeactThreshold);
+    }
+    if (message.x3xDeactThreshold !== 0) {
+      writer.uint32(33).double(message.x3xDeactThreshold);
+    }
+    if (message.x3xSafe !== false) {
+      writer.uint32(40).bool(message.x3xSafe);
+    }
+    if (message.x3xSafeIntervalMs !== 0) {
+      writer.uint32(48).uint32(message.x3xSafeIntervalMs);
+    }
+    if (message.x3xDeprecatedUpdateIntervalMs !== 0) {
+      writer.uint32(56).uint32(message.x3xDeprecatedUpdateIntervalMs);
+    }
+    if (message.x3xReleaseDelayMs !== 0) {
+      writer.uint32(64).uint32(message.x3xReleaseDelayMs);
+    }
+    if (message.x3xActivationMode !== 0) {
+      writer.uint32(88).int32(message.x3xActivationMode);
+    }
+    if (message.x3xMeterType !== 0) {
+      writer.uint32(96).int32(message.x3xMeterType);
+    }
+    if (message.x3xDeprecatedDeviceNameOrUuid !== "") {
+      writer.uint32(114).string(message.x3xDeprecatedDeviceNameOrUuid);
+    }
+    if (message.x3xSoundOnPttDown !== undefined) {
+      Sound.encode(message.x3xSoundOnPttDown, writer.uint32(138).fork()).join();
+    }
+    if (message.x3xSoundOnPttUp !== undefined) {
+      Sound.encode(message.x3xSoundOnPttUp, writer.uint32(146).fork()).join();
+    }
+    if (message.x3xSoundOnPushToMuteDown !== undefined) {
+      Sound.encode(message.x3xSoundOnPushToMuteDown, writer.uint32(154).fork()).join();
+    }
+    if (message.x3xSoundOnPushToMuteUp !== undefined) {
+      Sound.encode(message.x3xSoundOnPushToMuteUp, writer.uint32(162).fork()).join();
+    }
+    if (message.x3xSoundOnPushToMuteGlobalDown !== undefined) {
+      Sound.encode(message.x3xSoundOnPushToMuteGlobalDown, writer.uint32(170).fork()).join();
+    }
+    if (message.x3xSoundOnPushToMuteGlobalUp !== undefined) {
+      Sound.encode(message.x3xSoundOnPushToMuteGlobalUp, writer.uint32(178).fork()).join();
+    }
+    if (message.x3xSoundOnSetModeToVoiceActivity !== undefined) {
+      Sound.encode(message.x3xSoundOnSetModeToVoiceActivity, writer.uint32(186).fork()).join();
+    }
+    if (message.x3xSoundOnSetModeToTap !== undefined) {
+      Sound.encode(message.x3xSoundOnSetModeToTap, writer.uint32(194).fork()).join();
+    }
+    if (message.x3xSoundOnSetModeToManual !== undefined) {
+      Sound.encode(message.x3xSoundOnSetModeToManual, writer.uint32(202).fork()).join();
+    }
+    if (message.x3xSoundOnSetModeToTapOpenMicToPtt !== undefined) {
+      Sound.encode(message.x3xSoundOnSetModeToTapOpenMicToPtt, writer.uint32(210).fork()).join();
+    }
+    if (message.x3xSoundOnSetModeToManualOpenMicToPtt !== undefined) {
+      Sound.encode(message.x3xSoundOnSetModeToManualOpenMicToPtt, writer.uint32(218).fork()).join();
+    }
+    if (message.x3xSoundOnToggleMuteGlobalOn !== undefined) {
+      Sound.encode(message.x3xSoundOnToggleMuteGlobalOn, writer.uint32(490).fork()).join();
+    }
+    if (message.x3xSoundOnToggleMuteGlobalOff !== undefined) {
+      Sound.encode(message.x3xSoundOnToggleMuteGlobalOff, writer.uint32(498).fork()).join();
+    }
+    if (message.x3xSoundOnToggleMuteOn !== undefined) {
+      Sound.encode(message.x3xSoundOnToggleMuteOn, writer.uint32(506).fork()).join();
+    }
+    if (message.x3xSoundOnToggleMuteOff !== undefined) {
+      Sound.encode(message.x3xSoundOnToggleMuteOff, writer.uint32(514).fork()).join();
+    }
+    if (message.x3xPttSingle !== undefined) {
+      HotkeyV3.encode(message.x3xPttSingle, writer.uint32(82).fork()).join();
+    }
+    if (message.x3xKeyPushToMuteSingle !== undefined) {
+      HotkeyV3.encode(message.x3xKeyPushToMuteSingle, writer.uint32(226).fork()).join();
+    }
+    if (message.x3xKeyPushToMuteGlobal !== undefined) {
+      HotkeyV3.encode(message.x3xKeyPushToMuteGlobal, writer.uint32(234).fork()).join();
+    }
+    if (message.x3xKeySetModeToVoiceActivity !== undefined) {
+      HotkeyV3.encode(message.x3xKeySetModeToVoiceActivity, writer.uint32(242).fork()).join();
+    }
+    if (message.x3xKeySetModeToTap !== undefined) {
+      HotkeyV3.encode(message.x3xKeySetModeToTap, writer.uint32(250).fork()).join();
+    }
+    if (message.x3xKeySetModeToManual !== undefined) {
+      HotkeyV3.encode(message.x3xKeySetModeToManual, writer.uint32(258).fork()).join();
+    }
+    if (message.x3xKeySetModeToTapOpenMicToPtt !== undefined) {
+      HotkeyV3.encode(message.x3xKeySetModeToTapOpenMicToPtt, writer.uint32(266).fork()).join();
+    }
+    if (message.x3xKeySetModeToManualOpenMicToPtt !== undefined) {
+      HotkeyV3.encode(message.x3xKeySetModeToManualOpenMicToPtt, writer.uint32(274).fork()).join();
+    }
+    if (message.x3xKeySwapModeBetweenManualAndVoiceActivity !== undefined) {
+      HotkeyV3.encode(message.x3xKeySwapModeBetweenManualAndVoiceActivity, writer.uint32(282).fork()).join();
+    }
+    if (message.x3xKeySwapModeBetweenManualAndTap !== undefined) {
+      HotkeyV3.encode(message.x3xKeySwapModeBetweenManualAndTap, writer.uint32(290).fork()).join();
+    }
+    if (message.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt !== undefined) {
+      HotkeyV3.encode(message.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt, writer.uint32(298).fork()).join();
+    }
+    if (message.x3xKeyToggleMuteGlobal !== undefined) {
+      HotkeyV3.encode(message.x3xKeyToggleMuteGlobal, writer.uint32(482).fork()).join();
+    }
+    for (const v of message.x3xDeprecatedExtraTriggerKeys) {
+      HotkeyV3.encode(v!, writer.uint32(306).fork()).join();
+    }
+    if (message.x3xOpenMicToPttConsumeInput !== false) {
+      writer.uint32(320).bool(message.x3xOpenMicToPttConsumeInput);
+    }
+    if (message.x3xOverlayEnable !== false) {
+      writer.uint32(344).bool(message.x3xOverlayEnable);
+    }
+    if (message.x3xOverlaySettings !== undefined) {
+      OverlaySettings.encode(message.x3xOverlaySettings, writer.uint32(354).fork()).join();
+    }
+    if (message.x3xDeviceDisplayName !== "") {
+      writer.uint32(362).string(message.x3xDeviceDisplayName);
+    }
+    for (const v of message.x3xKeyGroups) {
+      HotkeyGroup.encode(v!, writer.uint32(402).fork()).join();
+    }
+    if (message.x3xUseTapActivationWindow !== false) {
+      writer.uint32(416).bool(message.x3xUseTapActivationWindow);
+    }
+    if (message.x3xTapActivationWindowMs !== 0) {
+      writer.uint32(424).uint32(message.x3xTapActivationWindowMs);
+    }
+    if (message.x3xDeviceName !== "") {
+      writer.uint32(450).string(message.x3xDeviceName);
+    }
+    if (message.x3xDeviceUuid !== "") {
+      writer.uint32(458).string(message.x3xDeviceUuid);
     }
     return writer;
   },
@@ -879,396 +991,12 @@ export const Settings: MessageFns<Settings> = {
           message.version = reader.uint32();
           continue;
         }
-        case 2: {
-          if (tag !== 17) {
+        case 58: {
+          if (tag !== 464) {
             break;
           }
 
-          message.threshold = reader.double();
-          continue;
-        }
-        case 3: {
-          if (tag !== 24) {
-            break;
-          }
-
-          message.useDeactThreshold = reader.bool();
-          continue;
-        }
-        case 4: {
-          if (tag !== 33) {
-            break;
-          }
-
-          message.deactThreshold = reader.double();
-          continue;
-        }
-        case 5: {
-          if (tag !== 40) {
-            break;
-          }
-
-          message.safe = reader.bool();
-          continue;
-        }
-        case 6: {
-          if (tag !== 48) {
-            break;
-          }
-
-          message.safeIntervalMs = reader.uint32();
-          continue;
-        }
-        case 7: {
-          if (tag !== 56) {
-            break;
-          }
-
-          message.deprecatedUpdateIntervalMs = reader.uint32();
-          continue;
-        }
-        case 8: {
-          if (tag !== 64) {
-            break;
-          }
-
-          message.releaseDelayMs = reader.uint32();
-          continue;
-        }
-        case 11: {
-          if (tag !== 88) {
-            break;
-          }
-
-          message.activationMode = reader.int32() as any;
-          continue;
-        }
-        case 12: {
-          if (tag !== 96) {
-            break;
-          }
-
-          message.meterType = reader.int32() as any;
-          continue;
-        }
-        case 13: {
-          if (tag !== 104) {
-            break;
-          }
-
-          message.startOnBootType = reader.int32() as any;
-          continue;
-        }
-        case 14: {
-          if (tag !== 114) {
-            break;
-          }
-
-          message.deprecatedDeviceNameOrUuid = reader.string();
-          continue;
-        }
-        case 15: {
-          if (tag !== 122) {
-            break;
-          }
-
-          message.licenseKey = reader.string();
-          continue;
-        }
-        case 16: {
-          if (tag !== 128) {
-            break;
-          }
-
-          message.useSidekick = reader.bool();
-          continue;
-        }
-        case 17: {
-          if (tag !== 138) {
-            break;
-          }
-
-          message.soundOnPttDown = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 18: {
-          if (tag !== 146) {
-            break;
-          }
-
-          message.soundOnPttUp = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 19: {
-          if (tag !== 154) {
-            break;
-          }
-
-          message.soundOnPushToMuteDown = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 20: {
-          if (tag !== 162) {
-            break;
-          }
-
-          message.soundOnPushToMuteUp = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 21: {
-          if (tag !== 170) {
-            break;
-          }
-
-          message.soundOnPushToMuteGlobalDown = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 22: {
-          if (tag !== 178) {
-            break;
-          }
-
-          message.soundOnPushToMuteGlobalUp = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 23: {
-          if (tag !== 186) {
-            break;
-          }
-
-          message.soundOnSetModeToVoiceActivity = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 24: {
-          if (tag !== 194) {
-            break;
-          }
-
-          message.soundOnSetModeToTap = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 25: {
-          if (tag !== 202) {
-            break;
-          }
-
-          message.soundOnSetModeToManual = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 26: {
-          if (tag !== 210) {
-            break;
-          }
-
-          message.soundOnSetModeToTapOpenMicToPtt = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 27: {
-          if (tag !== 218) {
-            break;
-          }
-
-          message.soundOnSetModeToManualOpenMicToPtt = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 61: {
-          if (tag !== 490) {
-            break;
-          }
-
-          message.soundOnToggleMuteGlobalOn = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 62: {
-          if (tag !== 498) {
-            break;
-          }
-
-          message.soundOnToggleMuteGlobalOff = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 63: {
-          if (tag !== 506) {
-            break;
-          }
-
-          message.soundOnToggleMuteOn = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 64: {
-          if (tag !== 514) {
-            break;
-          }
-
-          message.soundOnToggleMuteOff = Sound.decode(reader, reader.uint32());
-          continue;
-        }
-        case 10: {
-          if (tag !== 82) {
-            break;
-          }
-
-          message.pttSingle = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 28: {
-          if (tag !== 226) {
-            break;
-          }
-
-          message.keyPushToMuteSingle = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 29: {
-          if (tag !== 234) {
-            break;
-          }
-
-          message.keyPushToMuteGlobal = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 30: {
-          if (tag !== 242) {
-            break;
-          }
-
-          message.keySetModeToVoiceActivity = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 31: {
-          if (tag !== 250) {
-            break;
-          }
-
-          message.keySetModeToTap = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 32: {
-          if (tag !== 258) {
-            break;
-          }
-
-          message.keySetModeToManual = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 33: {
-          if (tag !== 266) {
-            break;
-          }
-
-          message.keySetModeToTapOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 34: {
-          if (tag !== 274) {
-            break;
-          }
-
-          message.keySetModeToManualOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 35: {
-          if (tag !== 282) {
-            break;
-          }
-
-          message.keySwapModeBetweenManualAndVoiceActivity = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 36: {
-          if (tag !== 290) {
-            break;
-          }
-
-          message.keySwapModeBetweenManualAndTap = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 37: {
-          if (tag !== 298) {
-            break;
-          }
-
-          message.keySwapModeBetweenManualAndManualOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 60: {
-          if (tag !== 482) {
-            break;
-          }
-
-          message.keyToggleMuteGlobal = HotkeyV3.decode(reader, reader.uint32());
-          continue;
-        }
-        case 38: {
-          if (tag !== 306) {
-            break;
-          }
-
-          message.deprecatedExtraTriggerKeys.push(HotkeyV3.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 39: {
-          if (tag !== 312) {
-            break;
-          }
-
-          message.minimizeToTray = reader.bool();
-          continue;
-        }
-        case 40: {
-          if (tag !== 320) {
-            break;
-          }
-
-          message.openMicToPttConsumeInput = reader.bool();
-          continue;
-        }
-        case 41: {
-          if (tag !== 328) {
-            break;
-          }
-
-          message.updateCheck = reader.bool();
-          continue;
-        }
-        case 42: {
-          if (tag !== 338) {
-            break;
-          }
-
-          message.ipcAddr = reader.string();
-          continue;
-        }
-        case 43: {
-          if (tag !== 344) {
-            break;
-          }
-
-          message.overlayEnable = reader.bool();
-          continue;
-        }
-        case 44: {
-          if (tag !== 354) {
-            break;
-          }
-
-          message.overlaySettings = OverlaySettings.decode(reader, reader.uint32());
-          continue;
-        }
-        case 45: {
-          if (tag !== 362) {
-            break;
-          }
-
-          message.deviceDisplayName = reader.string();
-          continue;
-        }
-        case 50: {
-          if (tag !== 402) {
-            break;
-          }
-
-          message.keyGroups.push(HotkeyGroup.decode(reader, reader.uint32()));
+          message.appVersion = longToNumber(reader.uint64());
           continue;
         }
         case 51: {
@@ -1279,12 +1007,420 @@ export const Settings: MessageFns<Settings> = {
           message.selectedTab = SelectedTab.decode(reader, reader.uint32());
           continue;
         }
+        case 13: {
+          if (tag !== 104) {
+            break;
+          }
+
+          message.startOnBootType = reader.int32() as any;
+          continue;
+        }
+        case 15: {
+          if (tag !== 122) {
+            break;
+          }
+
+          message.licenseKey = reader.string();
+          continue;
+        }
+        case 42: {
+          if (tag !== 338) {
+            break;
+          }
+
+          message.ipcAddr = reader.string();
+          continue;
+        }
+        case 39: {
+          if (tag !== 312) {
+            break;
+          }
+
+          message.minimizeToTray = reader.bool();
+          continue;
+        }
+        case 41: {
+          if (tag !== 328) {
+            break;
+          }
+
+          message.updateCheck = reader.bool();
+          continue;
+        }
+        case 16: {
+          if (tag !== 128) {
+            break;
+          }
+
+          message.useSidekick = reader.bool();
+          continue;
+        }
+        case 65: {
+          if (tag !== 520) {
+            break;
+          }
+
+          message.profile = longToNumber(reader.uint64());
+          continue;
+        }
+        case 66: {
+          if (tag !== 530) {
+            break;
+          }
+
+          message.profiles.push(Profile.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 17) {
+            break;
+          }
+
+          message.x3xThreshold = reader.double();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.x3xUseDeactThreshold = reader.bool();
+          continue;
+        }
+        case 4: {
+          if (tag !== 33) {
+            break;
+          }
+
+          message.x3xDeactThreshold = reader.double();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.x3xSafe = reader.bool();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.x3xSafeIntervalMs = reader.uint32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.x3xDeprecatedUpdateIntervalMs = reader.uint32();
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.x3xReleaseDelayMs = reader.uint32();
+          continue;
+        }
+        case 11: {
+          if (tag !== 88) {
+            break;
+          }
+
+          message.x3xActivationMode = reader.int32() as any;
+          continue;
+        }
+        case 12: {
+          if (tag !== 96) {
+            break;
+          }
+
+          message.x3xMeterType = reader.int32() as any;
+          continue;
+        }
+        case 14: {
+          if (tag !== 114) {
+            break;
+          }
+
+          message.x3xDeprecatedDeviceNameOrUuid = reader.string();
+          continue;
+        }
+        case 17: {
+          if (tag !== 138) {
+            break;
+          }
+
+          message.x3xSoundOnPttDown = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 18: {
+          if (tag !== 146) {
+            break;
+          }
+
+          message.x3xSoundOnPttUp = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 19: {
+          if (tag !== 154) {
+            break;
+          }
+
+          message.x3xSoundOnPushToMuteDown = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 20: {
+          if (tag !== 162) {
+            break;
+          }
+
+          message.x3xSoundOnPushToMuteUp = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 21: {
+          if (tag !== 170) {
+            break;
+          }
+
+          message.x3xSoundOnPushToMuteGlobalDown = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 22: {
+          if (tag !== 178) {
+            break;
+          }
+
+          message.x3xSoundOnPushToMuteGlobalUp = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 23: {
+          if (tag !== 186) {
+            break;
+          }
+
+          message.x3xSoundOnSetModeToVoiceActivity = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 24: {
+          if (tag !== 194) {
+            break;
+          }
+
+          message.x3xSoundOnSetModeToTap = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 25: {
+          if (tag !== 202) {
+            break;
+          }
+
+          message.x3xSoundOnSetModeToManual = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 26: {
+          if (tag !== 210) {
+            break;
+          }
+
+          message.x3xSoundOnSetModeToTapOpenMicToPtt = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 27: {
+          if (tag !== 218) {
+            break;
+          }
+
+          message.x3xSoundOnSetModeToManualOpenMicToPtt = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 61: {
+          if (tag !== 490) {
+            break;
+          }
+
+          message.x3xSoundOnToggleMuteGlobalOn = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 62: {
+          if (tag !== 498) {
+            break;
+          }
+
+          message.x3xSoundOnToggleMuteGlobalOff = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 63: {
+          if (tag !== 506) {
+            break;
+          }
+
+          message.x3xSoundOnToggleMuteOn = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 64: {
+          if (tag !== 514) {
+            break;
+          }
+
+          message.x3xSoundOnToggleMuteOff = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.x3xPttSingle = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 28: {
+          if (tag !== 226) {
+            break;
+          }
+
+          message.x3xKeyPushToMuteSingle = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 29: {
+          if (tag !== 234) {
+            break;
+          }
+
+          message.x3xKeyPushToMuteGlobal = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 30: {
+          if (tag !== 242) {
+            break;
+          }
+
+          message.x3xKeySetModeToVoiceActivity = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 31: {
+          if (tag !== 250) {
+            break;
+          }
+
+          message.x3xKeySetModeToTap = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 32: {
+          if (tag !== 258) {
+            break;
+          }
+
+          message.x3xKeySetModeToManual = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 33: {
+          if (tag !== 266) {
+            break;
+          }
+
+          message.x3xKeySetModeToTapOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 34: {
+          if (tag !== 274) {
+            break;
+          }
+
+          message.x3xKeySetModeToManualOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 35: {
+          if (tag !== 282) {
+            break;
+          }
+
+          message.x3xKeySwapModeBetweenManualAndVoiceActivity = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 36: {
+          if (tag !== 290) {
+            break;
+          }
+
+          message.x3xKeySwapModeBetweenManualAndTap = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 37: {
+          if (tag !== 298) {
+            break;
+          }
+
+          message.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 60: {
+          if (tag !== 482) {
+            break;
+          }
+
+          message.x3xKeyToggleMuteGlobal = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 38: {
+          if (tag !== 306) {
+            break;
+          }
+
+          message.x3xDeprecatedExtraTriggerKeys.push(HotkeyV3.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 40: {
+          if (tag !== 320) {
+            break;
+          }
+
+          message.x3xOpenMicToPttConsumeInput = reader.bool();
+          continue;
+        }
+        case 43: {
+          if (tag !== 344) {
+            break;
+          }
+
+          message.x3xOverlayEnable = reader.bool();
+          continue;
+        }
+        case 44: {
+          if (tag !== 354) {
+            break;
+          }
+
+          message.x3xOverlaySettings = OverlaySettings.decode(reader, reader.uint32());
+          continue;
+        }
+        case 45: {
+          if (tag !== 362) {
+            break;
+          }
+
+          message.x3xDeviceDisplayName = reader.string();
+          continue;
+        }
+        case 50: {
+          if (tag !== 402) {
+            break;
+          }
+
+          message.x3xKeyGroups.push(HotkeyGroup.decode(reader, reader.uint32()));
+          continue;
+        }
         case 52: {
           if (tag !== 416) {
             break;
           }
 
-          message.useTapActivationWindow = reader.bool();
+          message.x3xUseTapActivationWindow = reader.bool();
           continue;
         }
         case 53: {
@@ -1292,7 +1428,7 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.tapActivationWindowMs = reader.uint32();
+          message.x3xTapActivationWindowMs = reader.uint32();
           continue;
         }
         case 56: {
@@ -1300,7 +1436,7 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.deviceName = reader.string();
+          message.x3xDeviceName = reader.string();
           continue;
         }
         case 57: {
@@ -1308,15 +1444,7 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.deviceUuid = reader.string();
-          continue;
-        }
-        case 58: {
-          if (tag !== 464) {
-            break;
-          }
-
-          message.appVersion = longToNumber(reader.uint64());
+          message.x3xDeviceUuid = reader.string();
           continue;
         }
       }
@@ -1331,23 +1459,1117 @@ export const Settings: MessageFns<Settings> = {
   fromJSON(object: any): Settings {
     return {
       version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      appVersion: isSet(object.appVersion) ? globalThis.Number(object.appVersion) : 0,
+      selectedTab: isSet(object.selectedTab) ? SelectedTab.fromJSON(object.selectedTab) : undefined,
+      startOnBootType: isSet(object.startOnBootType) ? startOnBootTypeFromJSON(object.startOnBootType) : 0,
+      licenseKey: isSet(object.licenseKey) ? globalThis.String(object.licenseKey) : "",
+      ipcAddr: isSet(object.ipcAddr) ? globalThis.String(object.ipcAddr) : "",
+      minimizeToTray: isSet(object.minimizeToTray) ? globalThis.Boolean(object.minimizeToTray) : false,
+      updateCheck: isSet(object.updateCheck) ? globalThis.Boolean(object.updateCheck) : false,
+      useSidekick: isSet(object.useSidekick) ? globalThis.Boolean(object.useSidekick) : false,
+      profile: isSet(object.profile) ? globalThis.Number(object.profile) : 0,
+      profiles: globalThis.Array.isArray(object?.profiles) ? object.profiles.map((e: any) => Profile.fromJSON(e)) : [],
+      x3xThreshold: isSet(object.x3xThreshold) ? globalThis.Number(object.x3xThreshold) : 0,
+      x3xUseDeactThreshold: isSet(object.x3xUseDeactThreshold)
+        ? globalThis.Boolean(object.x3xUseDeactThreshold)
+        : false,
+      x3xDeactThreshold: isSet(object.x3xDeactThreshold) ? globalThis.Number(object.x3xDeactThreshold) : 0,
+      x3xSafe: isSet(object.x3xSafe) ? globalThis.Boolean(object.x3xSafe) : false,
+      x3xSafeIntervalMs: isSet(object.x3xSafeIntervalMs) ? globalThis.Number(object.x3xSafeIntervalMs) : 0,
+      x3xDeprecatedUpdateIntervalMs: isSet(object.x3xDeprecatedUpdateIntervalMs)
+        ? globalThis.Number(object.x3xDeprecatedUpdateIntervalMs)
+        : 0,
+      x3xReleaseDelayMs: isSet(object.x3xReleaseDelayMs) ? globalThis.Number(object.x3xReleaseDelayMs) : 0,
+      x3xActivationMode: isSet(object.x3xActivationMode) ? activationModeFromJSON(object.x3xActivationMode) : 0,
+      x3xMeterType: isSet(object.x3xMeterType) ? meterTypeFromJSON(object.x3xMeterType) : 0,
+      x3xDeprecatedDeviceNameOrUuid: isSet(object.x3xDeprecatedDeviceNameOrUuid)
+        ? globalThis.String(object.x3xDeprecatedDeviceNameOrUuid)
+        : "",
+      x3xSoundOnPttDown: isSet(object.x3xSoundOnPttDown) ? Sound.fromJSON(object.x3xSoundOnPttDown) : undefined,
+      x3xSoundOnPttUp: isSet(object.x3xSoundOnPttUp) ? Sound.fromJSON(object.x3xSoundOnPttUp) : undefined,
+      x3xSoundOnPushToMuteDown: isSet(object.x3xSoundOnPushToMuteDown)
+        ? Sound.fromJSON(object.x3xSoundOnPushToMuteDown)
+        : undefined,
+      x3xSoundOnPushToMuteUp: isSet(object.x3xSoundOnPushToMuteUp)
+        ? Sound.fromJSON(object.x3xSoundOnPushToMuteUp)
+        : undefined,
+      x3xSoundOnPushToMuteGlobalDown: isSet(object.x3xSoundOnPushToMuteGlobalDown)
+        ? Sound.fromJSON(object.x3xSoundOnPushToMuteGlobalDown)
+        : undefined,
+      x3xSoundOnPushToMuteGlobalUp: isSet(object.x3xSoundOnPushToMuteGlobalUp)
+        ? Sound.fromJSON(object.x3xSoundOnPushToMuteGlobalUp)
+        : undefined,
+      x3xSoundOnSetModeToVoiceActivity: isSet(object.x3xSoundOnSetModeToVoiceActivity)
+        ? Sound.fromJSON(object.x3xSoundOnSetModeToVoiceActivity)
+        : undefined,
+      x3xSoundOnSetModeToTap: isSet(object.x3xSoundOnSetModeToTap)
+        ? Sound.fromJSON(object.x3xSoundOnSetModeToTap)
+        : undefined,
+      x3xSoundOnSetModeToManual: isSet(object.x3xSoundOnSetModeToManual)
+        ? Sound.fromJSON(object.x3xSoundOnSetModeToManual)
+        : undefined,
+      x3xSoundOnSetModeToTapOpenMicToPtt: isSet(object.x3xSoundOnSetModeToTapOpenMicToPtt)
+        ? Sound.fromJSON(object.x3xSoundOnSetModeToTapOpenMicToPtt)
+        : undefined,
+      x3xSoundOnSetModeToManualOpenMicToPtt: isSet(object.x3xSoundOnSetModeToManualOpenMicToPtt)
+        ? Sound.fromJSON(object.x3xSoundOnSetModeToManualOpenMicToPtt)
+        : undefined,
+      x3xSoundOnToggleMuteGlobalOn: isSet(object.x3xSoundOnToggleMuteGlobalOn)
+        ? Sound.fromJSON(object.x3xSoundOnToggleMuteGlobalOn)
+        : undefined,
+      x3xSoundOnToggleMuteGlobalOff: isSet(object.x3xSoundOnToggleMuteGlobalOff)
+        ? Sound.fromJSON(object.x3xSoundOnToggleMuteGlobalOff)
+        : undefined,
+      x3xSoundOnToggleMuteOn: isSet(object.x3xSoundOnToggleMuteOn)
+        ? Sound.fromJSON(object.x3xSoundOnToggleMuteOn)
+        : undefined,
+      x3xSoundOnToggleMuteOff: isSet(object.x3xSoundOnToggleMuteOff)
+        ? Sound.fromJSON(object.x3xSoundOnToggleMuteOff)
+        : undefined,
+      x3xPttSingle: isSet(object.x3xPttSingle) ? HotkeyV3.fromJSON(object.x3xPttSingle) : undefined,
+      x3xKeyPushToMuteSingle: isSet(object.x3xKeyPushToMuteSingle)
+        ? HotkeyV3.fromJSON(object.x3xKeyPushToMuteSingle)
+        : undefined,
+      x3xKeyPushToMuteGlobal: isSet(object.x3xKeyPushToMuteGlobal)
+        ? HotkeyV3.fromJSON(object.x3xKeyPushToMuteGlobal)
+        : undefined,
+      x3xKeySetModeToVoiceActivity: isSet(object.x3xKeySetModeToVoiceActivity)
+        ? HotkeyV3.fromJSON(object.x3xKeySetModeToVoiceActivity)
+        : undefined,
+      x3xKeySetModeToTap: isSet(object.x3xKeySetModeToTap) ? HotkeyV3.fromJSON(object.x3xKeySetModeToTap) : undefined,
+      x3xKeySetModeToManual: isSet(object.x3xKeySetModeToManual)
+        ? HotkeyV3.fromJSON(object.x3xKeySetModeToManual)
+        : undefined,
+      x3xKeySetModeToTapOpenMicToPtt: isSet(object.x3xKeySetModeToTapOpenMicToPtt)
+        ? HotkeyV3.fromJSON(object.x3xKeySetModeToTapOpenMicToPtt)
+        : undefined,
+      x3xKeySetModeToManualOpenMicToPtt: isSet(object.x3xKeySetModeToManualOpenMicToPtt)
+        ? HotkeyV3.fromJSON(object.x3xKeySetModeToManualOpenMicToPtt)
+        : undefined,
+      x3xKeySwapModeBetweenManualAndVoiceActivity: isSet(object.x3xKeySwapModeBetweenManualAndVoiceActivity)
+        ? HotkeyV3.fromJSON(object.x3xKeySwapModeBetweenManualAndVoiceActivity)
+        : undefined,
+      x3xKeySwapModeBetweenManualAndTap: isSet(object.x3xKeySwapModeBetweenManualAndTap)
+        ? HotkeyV3.fromJSON(object.x3xKeySwapModeBetweenManualAndTap)
+        : undefined,
+      x3xKeySwapModeBetweenManualAndManualOpenMicToPtt: isSet(object.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt)
+        ? HotkeyV3.fromJSON(object.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt)
+        : undefined,
+      x3xKeyToggleMuteGlobal: isSet(object.x3xKeyToggleMuteGlobal)
+        ? HotkeyV3.fromJSON(object.x3xKeyToggleMuteGlobal)
+        : undefined,
+      x3xDeprecatedExtraTriggerKeys: globalThis.Array.isArray(object?.x3xDeprecatedExtraTriggerKeys)
+        ? object.x3xDeprecatedExtraTriggerKeys.map((e: any) => HotkeyV3.fromJSON(e))
+        : [],
+      x3xOpenMicToPttConsumeInput: isSet(object.x3xOpenMicToPttConsumeInput)
+        ? globalThis.Boolean(object.x3xOpenMicToPttConsumeInput)
+        : false,
+      x3xOverlayEnable: isSet(object.x3xOverlayEnable) ? globalThis.Boolean(object.x3xOverlayEnable) : false,
+      x3xOverlaySettings: isSet(object.x3xOverlaySettings)
+        ? OverlaySettings.fromJSON(object.x3xOverlaySettings)
+        : undefined,
+      x3xDeviceDisplayName: isSet(object.x3xDeviceDisplayName) ? globalThis.String(object.x3xDeviceDisplayName) : "",
+      x3xKeyGroups: globalThis.Array.isArray(object?.x3xKeyGroups)
+        ? object.x3xKeyGroups.map((e: any) => HotkeyGroup.fromJSON(e))
+        : [],
+      x3xUseTapActivationWindow: isSet(object.x3xUseTapActivationWindow)
+        ? globalThis.Boolean(object.x3xUseTapActivationWindow)
+        : false,
+      x3xTapActivationWindowMs: isSet(object.x3xTapActivationWindowMs)
+        ? globalThis.Number(object.x3xTapActivationWindowMs)
+        : 0,
+      x3xDeviceName: isSet(object.x3xDeviceName) ? globalThis.String(object.x3xDeviceName) : "",
+      x3xDeviceUuid: isSet(object.x3xDeviceUuid) ? globalThis.String(object.x3xDeviceUuid) : "",
+    };
+  },
+
+  toJSON(message: Settings): unknown {
+    const obj: any = {};
+    if (message.version !== 0) {
+      obj.version = Math.round(message.version);
+    }
+    if (message.appVersion !== 0) {
+      obj.appVersion = Math.round(message.appVersion);
+    }
+    if (message.selectedTab !== undefined) {
+      obj.selectedTab = SelectedTab.toJSON(message.selectedTab);
+    }
+    if (message.startOnBootType !== 0) {
+      obj.startOnBootType = startOnBootTypeToJSON(message.startOnBootType);
+    }
+    if (message.licenseKey !== "") {
+      obj.licenseKey = message.licenseKey;
+    }
+    if (message.ipcAddr !== "") {
+      obj.ipcAddr = message.ipcAddr;
+    }
+    if (message.minimizeToTray !== false) {
+      obj.minimizeToTray = message.minimizeToTray;
+    }
+    if (message.updateCheck !== false) {
+      obj.updateCheck = message.updateCheck;
+    }
+    if (message.useSidekick !== false) {
+      obj.useSidekick = message.useSidekick;
+    }
+    if (message.profile !== 0) {
+      obj.profile = Math.round(message.profile);
+    }
+    if (message.profiles?.length) {
+      obj.profiles = message.profiles.map((e) => Profile.toJSON(e));
+    }
+    if (message.x3xThreshold !== 0) {
+      obj.x3xThreshold = message.x3xThreshold;
+    }
+    if (message.x3xUseDeactThreshold !== false) {
+      obj.x3xUseDeactThreshold = message.x3xUseDeactThreshold;
+    }
+    if (message.x3xDeactThreshold !== 0) {
+      obj.x3xDeactThreshold = message.x3xDeactThreshold;
+    }
+    if (message.x3xSafe !== false) {
+      obj.x3xSafe = message.x3xSafe;
+    }
+    if (message.x3xSafeIntervalMs !== 0) {
+      obj.x3xSafeIntervalMs = Math.round(message.x3xSafeIntervalMs);
+    }
+    if (message.x3xDeprecatedUpdateIntervalMs !== 0) {
+      obj.x3xDeprecatedUpdateIntervalMs = Math.round(message.x3xDeprecatedUpdateIntervalMs);
+    }
+    if (message.x3xReleaseDelayMs !== 0) {
+      obj.x3xReleaseDelayMs = Math.round(message.x3xReleaseDelayMs);
+    }
+    if (message.x3xActivationMode !== 0) {
+      obj.x3xActivationMode = activationModeToJSON(message.x3xActivationMode);
+    }
+    if (message.x3xMeterType !== 0) {
+      obj.x3xMeterType = meterTypeToJSON(message.x3xMeterType);
+    }
+    if (message.x3xDeprecatedDeviceNameOrUuid !== "") {
+      obj.x3xDeprecatedDeviceNameOrUuid = message.x3xDeprecatedDeviceNameOrUuid;
+    }
+    if (message.x3xSoundOnPttDown !== undefined) {
+      obj.x3xSoundOnPttDown = Sound.toJSON(message.x3xSoundOnPttDown);
+    }
+    if (message.x3xSoundOnPttUp !== undefined) {
+      obj.x3xSoundOnPttUp = Sound.toJSON(message.x3xSoundOnPttUp);
+    }
+    if (message.x3xSoundOnPushToMuteDown !== undefined) {
+      obj.x3xSoundOnPushToMuteDown = Sound.toJSON(message.x3xSoundOnPushToMuteDown);
+    }
+    if (message.x3xSoundOnPushToMuteUp !== undefined) {
+      obj.x3xSoundOnPushToMuteUp = Sound.toJSON(message.x3xSoundOnPushToMuteUp);
+    }
+    if (message.x3xSoundOnPushToMuteGlobalDown !== undefined) {
+      obj.x3xSoundOnPushToMuteGlobalDown = Sound.toJSON(message.x3xSoundOnPushToMuteGlobalDown);
+    }
+    if (message.x3xSoundOnPushToMuteGlobalUp !== undefined) {
+      obj.x3xSoundOnPushToMuteGlobalUp = Sound.toJSON(message.x3xSoundOnPushToMuteGlobalUp);
+    }
+    if (message.x3xSoundOnSetModeToVoiceActivity !== undefined) {
+      obj.x3xSoundOnSetModeToVoiceActivity = Sound.toJSON(message.x3xSoundOnSetModeToVoiceActivity);
+    }
+    if (message.x3xSoundOnSetModeToTap !== undefined) {
+      obj.x3xSoundOnSetModeToTap = Sound.toJSON(message.x3xSoundOnSetModeToTap);
+    }
+    if (message.x3xSoundOnSetModeToManual !== undefined) {
+      obj.x3xSoundOnSetModeToManual = Sound.toJSON(message.x3xSoundOnSetModeToManual);
+    }
+    if (message.x3xSoundOnSetModeToTapOpenMicToPtt !== undefined) {
+      obj.x3xSoundOnSetModeToTapOpenMicToPtt = Sound.toJSON(message.x3xSoundOnSetModeToTapOpenMicToPtt);
+    }
+    if (message.x3xSoundOnSetModeToManualOpenMicToPtt !== undefined) {
+      obj.x3xSoundOnSetModeToManualOpenMicToPtt = Sound.toJSON(message.x3xSoundOnSetModeToManualOpenMicToPtt);
+    }
+    if (message.x3xSoundOnToggleMuteGlobalOn !== undefined) {
+      obj.x3xSoundOnToggleMuteGlobalOn = Sound.toJSON(message.x3xSoundOnToggleMuteGlobalOn);
+    }
+    if (message.x3xSoundOnToggleMuteGlobalOff !== undefined) {
+      obj.x3xSoundOnToggleMuteGlobalOff = Sound.toJSON(message.x3xSoundOnToggleMuteGlobalOff);
+    }
+    if (message.x3xSoundOnToggleMuteOn !== undefined) {
+      obj.x3xSoundOnToggleMuteOn = Sound.toJSON(message.x3xSoundOnToggleMuteOn);
+    }
+    if (message.x3xSoundOnToggleMuteOff !== undefined) {
+      obj.x3xSoundOnToggleMuteOff = Sound.toJSON(message.x3xSoundOnToggleMuteOff);
+    }
+    if (message.x3xPttSingle !== undefined) {
+      obj.x3xPttSingle = HotkeyV3.toJSON(message.x3xPttSingle);
+    }
+    if (message.x3xKeyPushToMuteSingle !== undefined) {
+      obj.x3xKeyPushToMuteSingle = HotkeyV3.toJSON(message.x3xKeyPushToMuteSingle);
+    }
+    if (message.x3xKeyPushToMuteGlobal !== undefined) {
+      obj.x3xKeyPushToMuteGlobal = HotkeyV3.toJSON(message.x3xKeyPushToMuteGlobal);
+    }
+    if (message.x3xKeySetModeToVoiceActivity !== undefined) {
+      obj.x3xKeySetModeToVoiceActivity = HotkeyV3.toJSON(message.x3xKeySetModeToVoiceActivity);
+    }
+    if (message.x3xKeySetModeToTap !== undefined) {
+      obj.x3xKeySetModeToTap = HotkeyV3.toJSON(message.x3xKeySetModeToTap);
+    }
+    if (message.x3xKeySetModeToManual !== undefined) {
+      obj.x3xKeySetModeToManual = HotkeyV3.toJSON(message.x3xKeySetModeToManual);
+    }
+    if (message.x3xKeySetModeToTapOpenMicToPtt !== undefined) {
+      obj.x3xKeySetModeToTapOpenMicToPtt = HotkeyV3.toJSON(message.x3xKeySetModeToTapOpenMicToPtt);
+    }
+    if (message.x3xKeySetModeToManualOpenMicToPtt !== undefined) {
+      obj.x3xKeySetModeToManualOpenMicToPtt = HotkeyV3.toJSON(message.x3xKeySetModeToManualOpenMicToPtt);
+    }
+    if (message.x3xKeySwapModeBetweenManualAndVoiceActivity !== undefined) {
+      obj.x3xKeySwapModeBetweenManualAndVoiceActivity = HotkeyV3.toJSON(
+        message.x3xKeySwapModeBetweenManualAndVoiceActivity,
+      );
+    }
+    if (message.x3xKeySwapModeBetweenManualAndTap !== undefined) {
+      obj.x3xKeySwapModeBetweenManualAndTap = HotkeyV3.toJSON(message.x3xKeySwapModeBetweenManualAndTap);
+    }
+    if (message.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt !== undefined) {
+      obj.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt = HotkeyV3.toJSON(
+        message.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt,
+      );
+    }
+    if (message.x3xKeyToggleMuteGlobal !== undefined) {
+      obj.x3xKeyToggleMuteGlobal = HotkeyV3.toJSON(message.x3xKeyToggleMuteGlobal);
+    }
+    if (message.x3xDeprecatedExtraTriggerKeys?.length) {
+      obj.x3xDeprecatedExtraTriggerKeys = message.x3xDeprecatedExtraTriggerKeys.map((e) => HotkeyV3.toJSON(e));
+    }
+    if (message.x3xOpenMicToPttConsumeInput !== false) {
+      obj.x3xOpenMicToPttConsumeInput = message.x3xOpenMicToPttConsumeInput;
+    }
+    if (message.x3xOverlayEnable !== false) {
+      obj.x3xOverlayEnable = message.x3xOverlayEnable;
+    }
+    if (message.x3xOverlaySettings !== undefined) {
+      obj.x3xOverlaySettings = OverlaySettings.toJSON(message.x3xOverlaySettings);
+    }
+    if (message.x3xDeviceDisplayName !== "") {
+      obj.x3xDeviceDisplayName = message.x3xDeviceDisplayName;
+    }
+    if (message.x3xKeyGroups?.length) {
+      obj.x3xKeyGroups = message.x3xKeyGroups.map((e) => HotkeyGroup.toJSON(e));
+    }
+    if (message.x3xUseTapActivationWindow !== false) {
+      obj.x3xUseTapActivationWindow = message.x3xUseTapActivationWindow;
+    }
+    if (message.x3xTapActivationWindowMs !== 0) {
+      obj.x3xTapActivationWindowMs = Math.round(message.x3xTapActivationWindowMs);
+    }
+    if (message.x3xDeviceName !== "") {
+      obj.x3xDeviceName = message.x3xDeviceName;
+    }
+    if (message.x3xDeviceUuid !== "") {
+      obj.x3xDeviceUuid = message.x3xDeviceUuid;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Settings>, I>>(base?: I): Settings {
+    return Settings.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Settings>, I>>(object: I): Settings {
+    const message = createBaseSettings();
+    message.version = object.version ?? 0;
+    message.appVersion = object.appVersion ?? 0;
+    message.selectedTab = (object.selectedTab !== undefined && object.selectedTab !== null)
+      ? SelectedTab.fromPartial(object.selectedTab)
+      : undefined;
+    message.startOnBootType = object.startOnBootType ?? 0;
+    message.licenseKey = object.licenseKey ?? "";
+    message.ipcAddr = object.ipcAddr ?? "";
+    message.minimizeToTray = object.minimizeToTray ?? false;
+    message.updateCheck = object.updateCheck ?? false;
+    message.useSidekick = object.useSidekick ?? false;
+    message.profile = object.profile ?? 0;
+    message.profiles = object.profiles?.map((e) => Profile.fromPartial(e)) || [];
+    message.x3xThreshold = object.x3xThreshold ?? 0;
+    message.x3xUseDeactThreshold = object.x3xUseDeactThreshold ?? false;
+    message.x3xDeactThreshold = object.x3xDeactThreshold ?? 0;
+    message.x3xSafe = object.x3xSafe ?? false;
+    message.x3xSafeIntervalMs = object.x3xSafeIntervalMs ?? 0;
+    message.x3xDeprecatedUpdateIntervalMs = object.x3xDeprecatedUpdateIntervalMs ?? 0;
+    message.x3xReleaseDelayMs = object.x3xReleaseDelayMs ?? 0;
+    message.x3xActivationMode = object.x3xActivationMode ?? 0;
+    message.x3xMeterType = object.x3xMeterType ?? 0;
+    message.x3xDeprecatedDeviceNameOrUuid = object.x3xDeprecatedDeviceNameOrUuid ?? "";
+    message.x3xSoundOnPttDown = (object.x3xSoundOnPttDown !== undefined && object.x3xSoundOnPttDown !== null)
+      ? Sound.fromPartial(object.x3xSoundOnPttDown)
+      : undefined;
+    message.x3xSoundOnPttUp = (object.x3xSoundOnPttUp !== undefined && object.x3xSoundOnPttUp !== null)
+      ? Sound.fromPartial(object.x3xSoundOnPttUp)
+      : undefined;
+    message.x3xSoundOnPushToMuteDown =
+      (object.x3xSoundOnPushToMuteDown !== undefined && object.x3xSoundOnPushToMuteDown !== null)
+        ? Sound.fromPartial(object.x3xSoundOnPushToMuteDown)
+        : undefined;
+    message.x3xSoundOnPushToMuteUp =
+      (object.x3xSoundOnPushToMuteUp !== undefined && object.x3xSoundOnPushToMuteUp !== null)
+        ? Sound.fromPartial(object.x3xSoundOnPushToMuteUp)
+        : undefined;
+    message.x3xSoundOnPushToMuteGlobalDown =
+      (object.x3xSoundOnPushToMuteGlobalDown !== undefined && object.x3xSoundOnPushToMuteGlobalDown !== null)
+        ? Sound.fromPartial(object.x3xSoundOnPushToMuteGlobalDown)
+        : undefined;
+    message.x3xSoundOnPushToMuteGlobalUp =
+      (object.x3xSoundOnPushToMuteGlobalUp !== undefined && object.x3xSoundOnPushToMuteGlobalUp !== null)
+        ? Sound.fromPartial(object.x3xSoundOnPushToMuteGlobalUp)
+        : undefined;
+    message.x3xSoundOnSetModeToVoiceActivity =
+      (object.x3xSoundOnSetModeToVoiceActivity !== undefined && object.x3xSoundOnSetModeToVoiceActivity !== null)
+        ? Sound.fromPartial(object.x3xSoundOnSetModeToVoiceActivity)
+        : undefined;
+    message.x3xSoundOnSetModeToTap =
+      (object.x3xSoundOnSetModeToTap !== undefined && object.x3xSoundOnSetModeToTap !== null)
+        ? Sound.fromPartial(object.x3xSoundOnSetModeToTap)
+        : undefined;
+    message.x3xSoundOnSetModeToManual =
+      (object.x3xSoundOnSetModeToManual !== undefined && object.x3xSoundOnSetModeToManual !== null)
+        ? Sound.fromPartial(object.x3xSoundOnSetModeToManual)
+        : undefined;
+    message.x3xSoundOnSetModeToTapOpenMicToPtt =
+      (object.x3xSoundOnSetModeToTapOpenMicToPtt !== undefined && object.x3xSoundOnSetModeToTapOpenMicToPtt !== null)
+        ? Sound.fromPartial(object.x3xSoundOnSetModeToTapOpenMicToPtt)
+        : undefined;
+    message.x3xSoundOnSetModeToManualOpenMicToPtt =
+      (object.x3xSoundOnSetModeToManualOpenMicToPtt !== undefined &&
+          object.x3xSoundOnSetModeToManualOpenMicToPtt !== null)
+        ? Sound.fromPartial(object.x3xSoundOnSetModeToManualOpenMicToPtt)
+        : undefined;
+    message.x3xSoundOnToggleMuteGlobalOn =
+      (object.x3xSoundOnToggleMuteGlobalOn !== undefined && object.x3xSoundOnToggleMuteGlobalOn !== null)
+        ? Sound.fromPartial(object.x3xSoundOnToggleMuteGlobalOn)
+        : undefined;
+    message.x3xSoundOnToggleMuteGlobalOff =
+      (object.x3xSoundOnToggleMuteGlobalOff !== undefined && object.x3xSoundOnToggleMuteGlobalOff !== null)
+        ? Sound.fromPartial(object.x3xSoundOnToggleMuteGlobalOff)
+        : undefined;
+    message.x3xSoundOnToggleMuteOn =
+      (object.x3xSoundOnToggleMuteOn !== undefined && object.x3xSoundOnToggleMuteOn !== null)
+        ? Sound.fromPartial(object.x3xSoundOnToggleMuteOn)
+        : undefined;
+    message.x3xSoundOnToggleMuteOff =
+      (object.x3xSoundOnToggleMuteOff !== undefined && object.x3xSoundOnToggleMuteOff !== null)
+        ? Sound.fromPartial(object.x3xSoundOnToggleMuteOff)
+        : undefined;
+    message.x3xPttSingle = (object.x3xPttSingle !== undefined && object.x3xPttSingle !== null)
+      ? HotkeyV3.fromPartial(object.x3xPttSingle)
+      : undefined;
+    message.x3xKeyPushToMuteSingle =
+      (object.x3xKeyPushToMuteSingle !== undefined && object.x3xKeyPushToMuteSingle !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeyPushToMuteSingle)
+        : undefined;
+    message.x3xKeyPushToMuteGlobal =
+      (object.x3xKeyPushToMuteGlobal !== undefined && object.x3xKeyPushToMuteGlobal !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeyPushToMuteGlobal)
+        : undefined;
+    message.x3xKeySetModeToVoiceActivity =
+      (object.x3xKeySetModeToVoiceActivity !== undefined && object.x3xKeySetModeToVoiceActivity !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeySetModeToVoiceActivity)
+        : undefined;
+    message.x3xKeySetModeToTap = (object.x3xKeySetModeToTap !== undefined && object.x3xKeySetModeToTap !== null)
+      ? HotkeyV3.fromPartial(object.x3xKeySetModeToTap)
+      : undefined;
+    message.x3xKeySetModeToManual =
+      (object.x3xKeySetModeToManual !== undefined && object.x3xKeySetModeToManual !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeySetModeToManual)
+        : undefined;
+    message.x3xKeySetModeToTapOpenMicToPtt =
+      (object.x3xKeySetModeToTapOpenMicToPtt !== undefined && object.x3xKeySetModeToTapOpenMicToPtt !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeySetModeToTapOpenMicToPtt)
+        : undefined;
+    message.x3xKeySetModeToManualOpenMicToPtt =
+      (object.x3xKeySetModeToManualOpenMicToPtt !== undefined && object.x3xKeySetModeToManualOpenMicToPtt !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeySetModeToManualOpenMicToPtt)
+        : undefined;
+    message.x3xKeySwapModeBetweenManualAndVoiceActivity =
+      (object.x3xKeySwapModeBetweenManualAndVoiceActivity !== undefined &&
+          object.x3xKeySwapModeBetweenManualAndVoiceActivity !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeySwapModeBetweenManualAndVoiceActivity)
+        : undefined;
+    message.x3xKeySwapModeBetweenManualAndTap =
+      (object.x3xKeySwapModeBetweenManualAndTap !== undefined && object.x3xKeySwapModeBetweenManualAndTap !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeySwapModeBetweenManualAndTap)
+        : undefined;
+    message.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt =
+      (object.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt !== undefined &&
+          object.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeySwapModeBetweenManualAndManualOpenMicToPtt)
+        : undefined;
+    message.x3xKeyToggleMuteGlobal =
+      (object.x3xKeyToggleMuteGlobal !== undefined && object.x3xKeyToggleMuteGlobal !== null)
+        ? HotkeyV3.fromPartial(object.x3xKeyToggleMuteGlobal)
+        : undefined;
+    message.x3xDeprecatedExtraTriggerKeys = object.x3xDeprecatedExtraTriggerKeys?.map((e) => HotkeyV3.fromPartial(e)) ||
+      [];
+    message.x3xOpenMicToPttConsumeInput = object.x3xOpenMicToPttConsumeInput ?? false;
+    message.x3xOverlayEnable = object.x3xOverlayEnable ?? false;
+    message.x3xOverlaySettings = (object.x3xOverlaySettings !== undefined && object.x3xOverlaySettings !== null)
+      ? OverlaySettings.fromPartial(object.x3xOverlaySettings)
+      : undefined;
+    message.x3xDeviceDisplayName = object.x3xDeviceDisplayName ?? "";
+    message.x3xKeyGroups = object.x3xKeyGroups?.map((e) => HotkeyGroup.fromPartial(e)) || [];
+    message.x3xUseTapActivationWindow = object.x3xUseTapActivationWindow ?? false;
+    message.x3xTapActivationWindowMs = object.x3xTapActivationWindowMs ?? 0;
+    message.x3xDeviceName = object.x3xDeviceName ?? "";
+    message.x3xDeviceUuid = object.x3xDeviceUuid ?? "";
+    return message;
+  },
+};
+
+function createBaseProfile(): Profile {
+  return { id: new Uint8Array(0), name: "", activationTriggers: [], settings: undefined };
+}
+
+export const Profile: MessageFns<Profile> = {
+  encode(message: Profile, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id.length !== 0) {
+      writer.uint32(10).bytes(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    for (const v of message.activationTriggers) {
+      ProfileActivationTrigger.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.settings !== undefined) {
+      ProfileSettings.encode(message.settings, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Profile {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProfile();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.bytes();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.activationTriggers.push(ProfileActivationTrigger.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.settings = ProfileSettings.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Profile {
+    return {
+      id: isSet(object.id) ? bytesFromBase64(object.id) : new Uint8Array(0),
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      activationTriggers: globalThis.Array.isArray(object?.activationTriggers)
+        ? object.activationTriggers.map((e: any) => ProfileActivationTrigger.fromJSON(e))
+        : [],
+      settings: isSet(object.settings) ? ProfileSettings.fromJSON(object.settings) : undefined,
+    };
+  },
+
+  toJSON(message: Profile): unknown {
+    const obj: any = {};
+    if (message.id.length !== 0) {
+      obj.id = base64FromBytes(message.id);
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.activationTriggers?.length) {
+      obj.activationTriggers = message.activationTriggers.map((e) => ProfileActivationTrigger.toJSON(e));
+    }
+    if (message.settings !== undefined) {
+      obj.settings = ProfileSettings.toJSON(message.settings);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Profile>, I>>(base?: I): Profile {
+    return Profile.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Profile>, I>>(object: I): Profile {
+    const message = createBaseProfile();
+    message.id = object.id ?? new Uint8Array(0);
+    message.name = object.name ?? "";
+    message.activationTriggers = object.activationTriggers?.map((e) => ProfileActivationTrigger.fromPartial(e)) || [];
+    message.settings = (object.settings !== undefined && object.settings !== null)
+      ? ProfileSettings.fromPartial(object.settings)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseProfileSettings(): ProfileSettings {
+  return {
+    threshold: 0,
+    useDeactThreshold: false,
+    deactThreshold: 0,
+    safe: false,
+    safeIntervalMs: 0,
+    releaseDelayMs: 0,
+    activationMode: 0,
+    meterType: 0,
+    soundOnPttDown: undefined,
+    soundOnPttUp: undefined,
+    soundOnPushToMuteDown: undefined,
+    soundOnPushToMuteUp: undefined,
+    soundOnPushToMuteGlobalDown: undefined,
+    soundOnPushToMuteGlobalUp: undefined,
+    soundOnSetModeToVoiceActivity: undefined,
+    soundOnSetModeToTap: undefined,
+    soundOnSetModeToManual: undefined,
+    soundOnSetModeToTapOpenMicToPtt: undefined,
+    soundOnSetModeToManualOpenMicToPtt: undefined,
+    soundOnToggleMuteGlobalOn: undefined,
+    soundOnToggleMuteGlobalOff: undefined,
+    soundOnToggleMuteOn: undefined,
+    soundOnToggleMuteOff: undefined,
+    keyPushToMuteGlobal: undefined,
+    keySetModeToVoiceActivity: undefined,
+    keySetModeToTap: undefined,
+    keySetModeToManual: undefined,
+    keySetModeToTapOpenMicToPtt: undefined,
+    keySetModeToManualOpenMicToPtt: undefined,
+    keySwapModeBetweenManualAndVoiceActivity: undefined,
+    keySwapModeBetweenManualAndTap: undefined,
+    keySwapModeBetweenManualAndManualOpenMicToPtt: undefined,
+    keyToggleMuteGlobal: undefined,
+    openMicToPttConsumeInput: false,
+    overlayEnable: false,
+    overlaySettings: undefined,
+    deviceDisplayName: "",
+    keyGroups: [],
+    useTapActivationWindow: false,
+    tapActivationWindowMs: 0,
+    deviceName: "",
+    deviceUuid: "",
+  };
+}
+
+export const ProfileSettings: MessageFns<ProfileSettings> = {
+  encode(message: ProfileSettings, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.threshold !== 0) {
+      writer.uint32(9).double(message.threshold);
+    }
+    if (message.useDeactThreshold !== false) {
+      writer.uint32(16).bool(message.useDeactThreshold);
+    }
+    if (message.deactThreshold !== 0) {
+      writer.uint32(25).double(message.deactThreshold);
+    }
+    if (message.safe !== false) {
+      writer.uint32(32).bool(message.safe);
+    }
+    if (message.safeIntervalMs !== 0) {
+      writer.uint32(40).uint32(message.safeIntervalMs);
+    }
+    if (message.releaseDelayMs !== 0) {
+      writer.uint32(56).uint32(message.releaseDelayMs);
+    }
+    if (message.activationMode !== 0) {
+      writer.uint32(64).int32(message.activationMode);
+    }
+    if (message.meterType !== 0) {
+      writer.uint32(72).int32(message.meterType);
+    }
+    if (message.soundOnPttDown !== undefined) {
+      Sound.encode(message.soundOnPttDown, writer.uint32(82).fork()).join();
+    }
+    if (message.soundOnPttUp !== undefined) {
+      Sound.encode(message.soundOnPttUp, writer.uint32(90).fork()).join();
+    }
+    if (message.soundOnPushToMuteDown !== undefined) {
+      Sound.encode(message.soundOnPushToMuteDown, writer.uint32(98).fork()).join();
+    }
+    if (message.soundOnPushToMuteUp !== undefined) {
+      Sound.encode(message.soundOnPushToMuteUp, writer.uint32(106).fork()).join();
+    }
+    if (message.soundOnPushToMuteGlobalDown !== undefined) {
+      Sound.encode(message.soundOnPushToMuteGlobalDown, writer.uint32(114).fork()).join();
+    }
+    if (message.soundOnPushToMuteGlobalUp !== undefined) {
+      Sound.encode(message.soundOnPushToMuteGlobalUp, writer.uint32(122).fork()).join();
+    }
+    if (message.soundOnSetModeToVoiceActivity !== undefined) {
+      Sound.encode(message.soundOnSetModeToVoiceActivity, writer.uint32(130).fork()).join();
+    }
+    if (message.soundOnSetModeToTap !== undefined) {
+      Sound.encode(message.soundOnSetModeToTap, writer.uint32(138).fork()).join();
+    }
+    if (message.soundOnSetModeToManual !== undefined) {
+      Sound.encode(message.soundOnSetModeToManual, writer.uint32(146).fork()).join();
+    }
+    if (message.soundOnSetModeToTapOpenMicToPtt !== undefined) {
+      Sound.encode(message.soundOnSetModeToTapOpenMicToPtt, writer.uint32(154).fork()).join();
+    }
+    if (message.soundOnSetModeToManualOpenMicToPtt !== undefined) {
+      Sound.encode(message.soundOnSetModeToManualOpenMicToPtt, writer.uint32(162).fork()).join();
+    }
+    if (message.soundOnToggleMuteGlobalOn !== undefined) {
+      Sound.encode(message.soundOnToggleMuteGlobalOn, writer.uint32(170).fork()).join();
+    }
+    if (message.soundOnToggleMuteGlobalOff !== undefined) {
+      Sound.encode(message.soundOnToggleMuteGlobalOff, writer.uint32(178).fork()).join();
+    }
+    if (message.soundOnToggleMuteOn !== undefined) {
+      Sound.encode(message.soundOnToggleMuteOn, writer.uint32(186).fork()).join();
+    }
+    if (message.soundOnToggleMuteOff !== undefined) {
+      Sound.encode(message.soundOnToggleMuteOff, writer.uint32(194).fork()).join();
+    }
+    if (message.keyPushToMuteGlobal !== undefined) {
+      HotkeyV3.encode(message.keyPushToMuteGlobal, writer.uint32(202).fork()).join();
+    }
+    if (message.keySetModeToVoiceActivity !== undefined) {
+      HotkeyV3.encode(message.keySetModeToVoiceActivity, writer.uint32(210).fork()).join();
+    }
+    if (message.keySetModeToTap !== undefined) {
+      HotkeyV3.encode(message.keySetModeToTap, writer.uint32(218).fork()).join();
+    }
+    if (message.keySetModeToManual !== undefined) {
+      HotkeyV3.encode(message.keySetModeToManual, writer.uint32(226).fork()).join();
+    }
+    if (message.keySetModeToTapOpenMicToPtt !== undefined) {
+      HotkeyV3.encode(message.keySetModeToTapOpenMicToPtt, writer.uint32(234).fork()).join();
+    }
+    if (message.keySetModeToManualOpenMicToPtt !== undefined) {
+      HotkeyV3.encode(message.keySetModeToManualOpenMicToPtt, writer.uint32(242).fork()).join();
+    }
+    if (message.keySwapModeBetweenManualAndVoiceActivity !== undefined) {
+      HotkeyV3.encode(message.keySwapModeBetweenManualAndVoiceActivity, writer.uint32(250).fork()).join();
+    }
+    if (message.keySwapModeBetweenManualAndTap !== undefined) {
+      HotkeyV3.encode(message.keySwapModeBetweenManualAndTap, writer.uint32(258).fork()).join();
+    }
+    if (message.keySwapModeBetweenManualAndManualOpenMicToPtt !== undefined) {
+      HotkeyV3.encode(message.keySwapModeBetweenManualAndManualOpenMicToPtt, writer.uint32(266).fork()).join();
+    }
+    if (message.keyToggleMuteGlobal !== undefined) {
+      HotkeyV3.encode(message.keyToggleMuteGlobal, writer.uint32(274).fork()).join();
+    }
+    if (message.openMicToPttConsumeInput !== false) {
+      writer.uint32(280).bool(message.openMicToPttConsumeInput);
+    }
+    if (message.overlayEnable !== false) {
+      writer.uint32(288).bool(message.overlayEnable);
+    }
+    if (message.overlaySettings !== undefined) {
+      OverlaySettings.encode(message.overlaySettings, writer.uint32(298).fork()).join();
+    }
+    if (message.deviceDisplayName !== "") {
+      writer.uint32(306).string(message.deviceDisplayName);
+    }
+    for (const v of message.keyGroups) {
+      HotkeyGroup.encode(v!, writer.uint32(314).fork()).join();
+    }
+    if (message.useTapActivationWindow !== false) {
+      writer.uint32(320).bool(message.useTapActivationWindow);
+    }
+    if (message.tapActivationWindowMs !== 0) {
+      writer.uint32(328).uint32(message.tapActivationWindowMs);
+    }
+    if (message.deviceName !== "") {
+      writer.uint32(338).string(message.deviceName);
+    }
+    if (message.deviceUuid !== "") {
+      writer.uint32(346).string(message.deviceUuid);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProfileSettings {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProfileSettings();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 9) {
+            break;
+          }
+
+          message.threshold = reader.double();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.useDeactThreshold = reader.bool();
+          continue;
+        }
+        case 3: {
+          if (tag !== 25) {
+            break;
+          }
+
+          message.deactThreshold = reader.double();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.safe = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.safeIntervalMs = reader.uint32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.releaseDelayMs = reader.uint32();
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.activationMode = reader.int32() as any;
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.meterType = reader.int32() as any;
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.soundOnPttDown = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.soundOnPttUp = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 12: {
+          if (tag !== 98) {
+            break;
+          }
+
+          message.soundOnPushToMuteDown = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 13: {
+          if (tag !== 106) {
+            break;
+          }
+
+          message.soundOnPushToMuteUp = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 14: {
+          if (tag !== 114) {
+            break;
+          }
+
+          message.soundOnPushToMuteGlobalDown = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 15: {
+          if (tag !== 122) {
+            break;
+          }
+
+          message.soundOnPushToMuteGlobalUp = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 16: {
+          if (tag !== 130) {
+            break;
+          }
+
+          message.soundOnSetModeToVoiceActivity = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 17: {
+          if (tag !== 138) {
+            break;
+          }
+
+          message.soundOnSetModeToTap = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 18: {
+          if (tag !== 146) {
+            break;
+          }
+
+          message.soundOnSetModeToManual = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 19: {
+          if (tag !== 154) {
+            break;
+          }
+
+          message.soundOnSetModeToTapOpenMicToPtt = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 20: {
+          if (tag !== 162) {
+            break;
+          }
+
+          message.soundOnSetModeToManualOpenMicToPtt = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 21: {
+          if (tag !== 170) {
+            break;
+          }
+
+          message.soundOnToggleMuteGlobalOn = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 22: {
+          if (tag !== 178) {
+            break;
+          }
+
+          message.soundOnToggleMuteGlobalOff = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 23: {
+          if (tag !== 186) {
+            break;
+          }
+
+          message.soundOnToggleMuteOn = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 24: {
+          if (tag !== 194) {
+            break;
+          }
+
+          message.soundOnToggleMuteOff = Sound.decode(reader, reader.uint32());
+          continue;
+        }
+        case 25: {
+          if (tag !== 202) {
+            break;
+          }
+
+          message.keyPushToMuteGlobal = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 26: {
+          if (tag !== 210) {
+            break;
+          }
+
+          message.keySetModeToVoiceActivity = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 27: {
+          if (tag !== 218) {
+            break;
+          }
+
+          message.keySetModeToTap = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 28: {
+          if (tag !== 226) {
+            break;
+          }
+
+          message.keySetModeToManual = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 29: {
+          if (tag !== 234) {
+            break;
+          }
+
+          message.keySetModeToTapOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 30: {
+          if (tag !== 242) {
+            break;
+          }
+
+          message.keySetModeToManualOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 31: {
+          if (tag !== 250) {
+            break;
+          }
+
+          message.keySwapModeBetweenManualAndVoiceActivity = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 32: {
+          if (tag !== 258) {
+            break;
+          }
+
+          message.keySwapModeBetweenManualAndTap = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 33: {
+          if (tag !== 266) {
+            break;
+          }
+
+          message.keySwapModeBetweenManualAndManualOpenMicToPtt = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 34: {
+          if (tag !== 274) {
+            break;
+          }
+
+          message.keyToggleMuteGlobal = HotkeyV3.decode(reader, reader.uint32());
+          continue;
+        }
+        case 35: {
+          if (tag !== 280) {
+            break;
+          }
+
+          message.openMicToPttConsumeInput = reader.bool();
+          continue;
+        }
+        case 36: {
+          if (tag !== 288) {
+            break;
+          }
+
+          message.overlayEnable = reader.bool();
+          continue;
+        }
+        case 37: {
+          if (tag !== 298) {
+            break;
+          }
+
+          message.overlaySettings = OverlaySettings.decode(reader, reader.uint32());
+          continue;
+        }
+        case 38: {
+          if (tag !== 306) {
+            break;
+          }
+
+          message.deviceDisplayName = reader.string();
+          continue;
+        }
+        case 39: {
+          if (tag !== 314) {
+            break;
+          }
+
+          message.keyGroups.push(HotkeyGroup.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 40: {
+          if (tag !== 320) {
+            break;
+          }
+
+          message.useTapActivationWindow = reader.bool();
+          continue;
+        }
+        case 41: {
+          if (tag !== 328) {
+            break;
+          }
+
+          message.tapActivationWindowMs = reader.uint32();
+          continue;
+        }
+        case 42: {
+          if (tag !== 338) {
+            break;
+          }
+
+          message.deviceName = reader.string();
+          continue;
+        }
+        case 43: {
+          if (tag !== 346) {
+            break;
+          }
+
+          message.deviceUuid = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ProfileSettings {
+    return {
       threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
       useDeactThreshold: isSet(object.useDeactThreshold) ? globalThis.Boolean(object.useDeactThreshold) : false,
       deactThreshold: isSet(object.deactThreshold) ? globalThis.Number(object.deactThreshold) : 0,
       safe: isSet(object.safe) ? globalThis.Boolean(object.safe) : false,
       safeIntervalMs: isSet(object.safeIntervalMs) ? globalThis.Number(object.safeIntervalMs) : 0,
-      deprecatedUpdateIntervalMs: isSet(object.deprecatedUpdateIntervalMs)
-        ? globalThis.Number(object.deprecatedUpdateIntervalMs)
-        : 0,
       releaseDelayMs: isSet(object.releaseDelayMs) ? globalThis.Number(object.releaseDelayMs) : 0,
       activationMode: isSet(object.activationMode) ? activationModeFromJSON(object.activationMode) : 0,
       meterType: isSet(object.meterType) ? meterTypeFromJSON(object.meterType) : 0,
-      startOnBootType: isSet(object.startOnBootType) ? startOnBootTypeFromJSON(object.startOnBootType) : 0,
-      deprecatedDeviceNameOrUuid: isSet(object.deprecatedDeviceNameOrUuid)
-        ? globalThis.String(object.deprecatedDeviceNameOrUuid)
-        : "",
-      licenseKey: isSet(object.licenseKey) ? globalThis.String(object.licenseKey) : "",
-      useSidekick: isSet(object.useSidekick) ? globalThis.Boolean(object.useSidekick) : false,
       soundOnPttDown: isSet(object.soundOnPttDown) ? Sound.fromJSON(object.soundOnPttDown) : undefined,
       soundOnPttUp: isSet(object.soundOnPttUp) ? Sound.fromJSON(object.soundOnPttUp) : undefined,
       soundOnPushToMuteDown: isSet(object.soundOnPushToMuteDown)
@@ -1383,10 +2605,6 @@ export const Settings: MessageFns<Settings> = {
       soundOnToggleMuteOff: isSet(object.soundOnToggleMuteOff)
         ? Sound.fromJSON(object.soundOnToggleMuteOff)
         : undefined,
-      pttSingle: isSet(object.pttSingle) ? HotkeyV3.fromJSON(object.pttSingle) : undefined,
-      keyPushToMuteSingle: isSet(object.keyPushToMuteSingle)
-        ? HotkeyV3.fromJSON(object.keyPushToMuteSingle)
-        : undefined,
       keyPushToMuteGlobal: isSet(object.keyPushToMuteGlobal)
         ? HotkeyV3.fromJSON(object.keyPushToMuteGlobal)
         : undefined,
@@ -1413,37 +2631,26 @@ export const Settings: MessageFns<Settings> = {
       keyToggleMuteGlobal: isSet(object.keyToggleMuteGlobal)
         ? HotkeyV3.fromJSON(object.keyToggleMuteGlobal)
         : undefined,
-      deprecatedExtraTriggerKeys: globalThis.Array.isArray(object?.deprecatedExtraTriggerKeys)
-        ? object.deprecatedExtraTriggerKeys.map((e: any) => HotkeyV3.fromJSON(e))
-        : [],
-      minimizeToTray: isSet(object.minimizeToTray) ? globalThis.Boolean(object.minimizeToTray) : false,
       openMicToPttConsumeInput: isSet(object.openMicToPttConsumeInput)
         ? globalThis.Boolean(object.openMicToPttConsumeInput)
         : false,
-      updateCheck: isSet(object.updateCheck) ? globalThis.Boolean(object.updateCheck) : false,
-      ipcAddr: isSet(object.ipcAddr) ? globalThis.String(object.ipcAddr) : "",
       overlayEnable: isSet(object.overlayEnable) ? globalThis.Boolean(object.overlayEnable) : false,
       overlaySettings: isSet(object.overlaySettings) ? OverlaySettings.fromJSON(object.overlaySettings) : undefined,
       deviceDisplayName: isSet(object.deviceDisplayName) ? globalThis.String(object.deviceDisplayName) : "",
       keyGroups: globalThis.Array.isArray(object?.keyGroups)
         ? object.keyGroups.map((e: any) => HotkeyGroup.fromJSON(e))
         : [],
-      selectedTab: isSet(object.selectedTab) ? SelectedTab.fromJSON(object.selectedTab) : undefined,
       useTapActivationWindow: isSet(object.useTapActivationWindow)
         ? globalThis.Boolean(object.useTapActivationWindow)
         : false,
       tapActivationWindowMs: isSet(object.tapActivationWindowMs) ? globalThis.Number(object.tapActivationWindowMs) : 0,
       deviceName: isSet(object.deviceName) ? globalThis.String(object.deviceName) : "",
       deviceUuid: isSet(object.deviceUuid) ? globalThis.String(object.deviceUuid) : "",
-      appVersion: isSet(object.appVersion) ? globalThis.Number(object.appVersion) : 0,
     };
   },
 
-  toJSON(message: Settings): unknown {
+  toJSON(message: ProfileSettings): unknown {
     const obj: any = {};
-    if (message.version !== 0) {
-      obj.version = Math.round(message.version);
-    }
     if (message.threshold !== 0) {
       obj.threshold = message.threshold;
     }
@@ -1459,9 +2666,6 @@ export const Settings: MessageFns<Settings> = {
     if (message.safeIntervalMs !== 0) {
       obj.safeIntervalMs = Math.round(message.safeIntervalMs);
     }
-    if (message.deprecatedUpdateIntervalMs !== 0) {
-      obj.deprecatedUpdateIntervalMs = Math.round(message.deprecatedUpdateIntervalMs);
-    }
     if (message.releaseDelayMs !== 0) {
       obj.releaseDelayMs = Math.round(message.releaseDelayMs);
     }
@@ -1470,18 +2674,6 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.meterType !== 0) {
       obj.meterType = meterTypeToJSON(message.meterType);
-    }
-    if (message.startOnBootType !== 0) {
-      obj.startOnBootType = startOnBootTypeToJSON(message.startOnBootType);
-    }
-    if (message.deprecatedDeviceNameOrUuid !== "") {
-      obj.deprecatedDeviceNameOrUuid = message.deprecatedDeviceNameOrUuid;
-    }
-    if (message.licenseKey !== "") {
-      obj.licenseKey = message.licenseKey;
-    }
-    if (message.useSidekick !== false) {
-      obj.useSidekick = message.useSidekick;
     }
     if (message.soundOnPttDown !== undefined) {
       obj.soundOnPttDown = Sound.toJSON(message.soundOnPttDown);
@@ -1528,12 +2720,6 @@ export const Settings: MessageFns<Settings> = {
     if (message.soundOnToggleMuteOff !== undefined) {
       obj.soundOnToggleMuteOff = Sound.toJSON(message.soundOnToggleMuteOff);
     }
-    if (message.pttSingle !== undefined) {
-      obj.pttSingle = HotkeyV3.toJSON(message.pttSingle);
-    }
-    if (message.keyPushToMuteSingle !== undefined) {
-      obj.keyPushToMuteSingle = HotkeyV3.toJSON(message.keyPushToMuteSingle);
-    }
     if (message.keyPushToMuteGlobal !== undefined) {
       obj.keyPushToMuteGlobal = HotkeyV3.toJSON(message.keyPushToMuteGlobal);
     }
@@ -1566,20 +2752,8 @@ export const Settings: MessageFns<Settings> = {
     if (message.keyToggleMuteGlobal !== undefined) {
       obj.keyToggleMuteGlobal = HotkeyV3.toJSON(message.keyToggleMuteGlobal);
     }
-    if (message.deprecatedExtraTriggerKeys?.length) {
-      obj.deprecatedExtraTriggerKeys = message.deprecatedExtraTriggerKeys.map((e) => HotkeyV3.toJSON(e));
-    }
-    if (message.minimizeToTray !== false) {
-      obj.minimizeToTray = message.minimizeToTray;
-    }
     if (message.openMicToPttConsumeInput !== false) {
       obj.openMicToPttConsumeInput = message.openMicToPttConsumeInput;
-    }
-    if (message.updateCheck !== false) {
-      obj.updateCheck = message.updateCheck;
-    }
-    if (message.ipcAddr !== "") {
-      obj.ipcAddr = message.ipcAddr;
     }
     if (message.overlayEnable !== false) {
       obj.overlayEnable = message.overlayEnable;
@@ -1593,9 +2767,6 @@ export const Settings: MessageFns<Settings> = {
     if (message.keyGroups?.length) {
       obj.keyGroups = message.keyGroups.map((e) => HotkeyGroup.toJSON(e));
     }
-    if (message.selectedTab !== undefined) {
-      obj.selectedTab = SelectedTab.toJSON(message.selectedTab);
-    }
     if (message.useTapActivationWindow !== false) {
       obj.useTapActivationWindow = message.useTapActivationWindow;
     }
@@ -1608,31 +2779,22 @@ export const Settings: MessageFns<Settings> = {
     if (message.deviceUuid !== "") {
       obj.deviceUuid = message.deviceUuid;
     }
-    if (message.appVersion !== 0) {
-      obj.appVersion = Math.round(message.appVersion);
-    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Settings>, I>>(base?: I): Settings {
-    return Settings.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ProfileSettings>, I>>(base?: I): ProfileSettings {
+    return ProfileSettings.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Settings>, I>>(object: I): Settings {
-    const message = createBaseSettings();
-    message.version = object.version ?? 0;
+  fromPartial<I extends Exact<DeepPartial<ProfileSettings>, I>>(object: I): ProfileSettings {
+    const message = createBaseProfileSettings();
     message.threshold = object.threshold ?? 0;
     message.useDeactThreshold = object.useDeactThreshold ?? false;
     message.deactThreshold = object.deactThreshold ?? 0;
     message.safe = object.safe ?? false;
     message.safeIntervalMs = object.safeIntervalMs ?? 0;
-    message.deprecatedUpdateIntervalMs = object.deprecatedUpdateIntervalMs ?? 0;
     message.releaseDelayMs = object.releaseDelayMs ?? 0;
     message.activationMode = object.activationMode ?? 0;
     message.meterType = object.meterType ?? 0;
-    message.startOnBootType = object.startOnBootType ?? 0;
-    message.deprecatedDeviceNameOrUuid = object.deprecatedDeviceNameOrUuid ?? "";
-    message.licenseKey = object.licenseKey ?? "";
-    message.useSidekick = object.useSidekick ?? false;
     message.soundOnPttDown = (object.soundOnPttDown !== undefined && object.soundOnPttDown !== null)
       ? Sound.fromPartial(object.soundOnPttDown)
       : undefined;
@@ -1687,12 +2849,6 @@ export const Settings: MessageFns<Settings> = {
     message.soundOnToggleMuteOff = (object.soundOnToggleMuteOff !== undefined && object.soundOnToggleMuteOff !== null)
       ? Sound.fromPartial(object.soundOnToggleMuteOff)
       : undefined;
-    message.pttSingle = (object.pttSingle !== undefined && object.pttSingle !== null)
-      ? HotkeyV3.fromPartial(object.pttSingle)
-      : undefined;
-    message.keyPushToMuteSingle = (object.keyPushToMuteSingle !== undefined && object.keyPushToMuteSingle !== null)
-      ? HotkeyV3.fromPartial(object.keyPushToMuteSingle)
-      : undefined;
     message.keyPushToMuteGlobal = (object.keyPushToMuteGlobal !== undefined && object.keyPushToMuteGlobal !== null)
       ? HotkeyV3.fromPartial(object.keyPushToMuteGlobal)
       : undefined;
@@ -1731,25 +2887,109 @@ export const Settings: MessageFns<Settings> = {
     message.keyToggleMuteGlobal = (object.keyToggleMuteGlobal !== undefined && object.keyToggleMuteGlobal !== null)
       ? HotkeyV3.fromPartial(object.keyToggleMuteGlobal)
       : undefined;
-    message.deprecatedExtraTriggerKeys = object.deprecatedExtraTriggerKeys?.map((e) => HotkeyV3.fromPartial(e)) || [];
-    message.minimizeToTray = object.minimizeToTray ?? false;
     message.openMicToPttConsumeInput = object.openMicToPttConsumeInput ?? false;
-    message.updateCheck = object.updateCheck ?? false;
-    message.ipcAddr = object.ipcAddr ?? "";
     message.overlayEnable = object.overlayEnable ?? false;
     message.overlaySettings = (object.overlaySettings !== undefined && object.overlaySettings !== null)
       ? OverlaySettings.fromPartial(object.overlaySettings)
       : undefined;
     message.deviceDisplayName = object.deviceDisplayName ?? "";
     message.keyGroups = object.keyGroups?.map((e) => HotkeyGroup.fromPartial(e)) || [];
-    message.selectedTab = (object.selectedTab !== undefined && object.selectedTab !== null)
-      ? SelectedTab.fromPartial(object.selectedTab)
-      : undefined;
     message.useTapActivationWindow = object.useTapActivationWindow ?? false;
     message.tapActivationWindowMs = object.tapActivationWindowMs ?? 0;
     message.deviceName = object.deviceName ?? "";
     message.deviceUuid = object.deviceUuid ?? "";
-    message.appVersion = object.appVersion ?? 0;
+    return message;
+  },
+};
+
+function createBaseProfileActivationTrigger(): ProfileActivationTrigger {
+  return { type: 0, text: "", activeWindowOnly: false };
+}
+
+export const ProfileActivationTrigger: MessageFns<ProfileActivationTrigger> = {
+  encode(message: ProfileActivationTrigger, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.type !== 0) {
+      writer.uint32(8).int32(message.type);
+    }
+    if (message.text !== "") {
+      writer.uint32(18).string(message.text);
+    }
+    if (message.activeWindowOnly !== false) {
+      writer.uint32(24).bool(message.activeWindowOnly);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProfileActivationTrigger {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProfileActivationTrigger();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.type = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.activeWindowOnly = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ProfileActivationTrigger {
+    return {
+      type: isSet(object.type) ? profileActivationTrigger_TextTypeFromJSON(object.type) : 0,
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      activeWindowOnly: isSet(object.activeWindowOnly) ? globalThis.Boolean(object.activeWindowOnly) : false,
+    };
+  },
+
+  toJSON(message: ProfileActivationTrigger): unknown {
+    const obj: any = {};
+    if (message.type !== 0) {
+      obj.type = profileActivationTrigger_TextTypeToJSON(message.type);
+    }
+    if (message.text !== "") {
+      obj.text = message.text;
+    }
+    if (message.activeWindowOnly !== false) {
+      obj.activeWindowOnly = message.activeWindowOnly;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ProfileActivationTrigger>, I>>(base?: I): ProfileActivationTrigger {
+    return ProfileActivationTrigger.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ProfileActivationTrigger>, I>>(object: I): ProfileActivationTrigger {
+    const message = createBaseProfileActivationTrigger();
+    message.type = object.type ?? 0;
+    message.text = object.text ?? "";
+    message.activeWindowOnly = object.activeWindowOnly ?? false;
     return message;
   },
 };
@@ -2329,16 +3569,19 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
 };
 
 function createBaseSelectedTab(): SelectedTab {
-  return { general: undefined, device: undefined };
+  return { settingsGeneral: undefined, settingsDevice: undefined, overview: undefined };
 }
 
 export const SelectedTab: MessageFns<SelectedTab> = {
   encode(message: SelectedTab, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.general !== undefined) {
-      SelectedTabGeneral.encode(message.general, writer.uint32(10).fork()).join();
+    if (message.settingsGeneral !== undefined) {
+      SelectedTabSettingsGeneral.encode(message.settingsGeneral, writer.uint32(10).fork()).join();
     }
-    if (message.device !== undefined) {
-      SelectedTabDevice.encode(message.device, writer.uint32(18).fork()).join();
+    if (message.settingsDevice !== undefined) {
+      SelectedTabSettingsDevice.encode(message.settingsDevice, writer.uint32(18).fork()).join();
+    }
+    if (message.overview !== undefined) {
+      SelectedTabOverview.encode(message.overview, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -2355,7 +3598,7 @@ export const SelectedTab: MessageFns<SelectedTab> = {
             break;
           }
 
-          message.general = SelectedTabGeneral.decode(reader, reader.uint32());
+          message.settingsGeneral = SelectedTabSettingsGeneral.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -2363,7 +3606,15 @@ export const SelectedTab: MessageFns<SelectedTab> = {
             break;
           }
 
-          message.device = SelectedTabDevice.decode(reader, reader.uint32());
+          message.settingsDevice = SelectedTabSettingsDevice.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.overview = SelectedTabOverview.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -2377,18 +3628,26 @@ export const SelectedTab: MessageFns<SelectedTab> = {
 
   fromJSON(object: any): SelectedTab {
     return {
-      general: isSet(object.general) ? SelectedTabGeneral.fromJSON(object.general) : undefined,
-      device: isSet(object.device) ? SelectedTabDevice.fromJSON(object.device) : undefined,
+      settingsGeneral: isSet(object.settingsGeneral)
+        ? SelectedTabSettingsGeneral.fromJSON(object.settingsGeneral)
+        : undefined,
+      settingsDevice: isSet(object.settingsDevice)
+        ? SelectedTabSettingsDevice.fromJSON(object.settingsDevice)
+        : undefined,
+      overview: isSet(object.overview) ? SelectedTabOverview.fromJSON(object.overview) : undefined,
     };
   },
 
   toJSON(message: SelectedTab): unknown {
     const obj: any = {};
-    if (message.general !== undefined) {
-      obj.general = SelectedTabGeneral.toJSON(message.general);
+    if (message.settingsGeneral !== undefined) {
+      obj.settingsGeneral = SelectedTabSettingsGeneral.toJSON(message.settingsGeneral);
     }
-    if (message.device !== undefined) {
-      obj.device = SelectedTabDevice.toJSON(message.device);
+    if (message.settingsDevice !== undefined) {
+      obj.settingsDevice = SelectedTabSettingsDevice.toJSON(message.settingsDevice);
+    }
+    if (message.overview !== undefined) {
+      obj.overview = SelectedTabOverview.toJSON(message.overview);
     }
     return obj;
   },
@@ -2398,29 +3657,32 @@ export const SelectedTab: MessageFns<SelectedTab> = {
   },
   fromPartial<I extends Exact<DeepPartial<SelectedTab>, I>>(object: I): SelectedTab {
     const message = createBaseSelectedTab();
-    message.general = (object.general !== undefined && object.general !== null)
-      ? SelectedTabGeneral.fromPartial(object.general)
+    message.settingsGeneral = (object.settingsGeneral !== undefined && object.settingsGeneral !== null)
+      ? SelectedTabSettingsGeneral.fromPartial(object.settingsGeneral)
       : undefined;
-    message.device = (object.device !== undefined && object.device !== null)
-      ? SelectedTabDevice.fromPartial(object.device)
+    message.settingsDevice = (object.settingsDevice !== undefined && object.settingsDevice !== null)
+      ? SelectedTabSettingsDevice.fromPartial(object.settingsDevice)
+      : undefined;
+    message.overview = (object.overview !== undefined && object.overview !== null)
+      ? SelectedTabOverview.fromPartial(object.overview)
       : undefined;
     return message;
   },
 };
 
-function createBaseSelectedTabGeneral(): SelectedTabGeneral {
+function createBaseSelectedTabOverview(): SelectedTabOverview {
   return {};
 }
 
-export const SelectedTabGeneral: MessageFns<SelectedTabGeneral> = {
-  encode(_: SelectedTabGeneral, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SelectedTabOverview: MessageFns<SelectedTabOverview> = {
+  encode(_: SelectedTabOverview, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabGeneral {
+  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabOverview {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSelectedTabGeneral();
+    const message = createBaseSelectedTabOverview();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2433,40 +3695,83 @@ export const SelectedTabGeneral: MessageFns<SelectedTabGeneral> = {
     return message;
   },
 
-  fromJSON(_: any): SelectedTabGeneral {
+  fromJSON(_: any): SelectedTabOverview {
     return {};
   },
 
-  toJSON(_: SelectedTabGeneral): unknown {
+  toJSON(_: SelectedTabOverview): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SelectedTabGeneral>, I>>(base?: I): SelectedTabGeneral {
-    return SelectedTabGeneral.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SelectedTabOverview>, I>>(base?: I): SelectedTabOverview {
+    return SelectedTabOverview.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SelectedTabGeneral>, I>>(_: I): SelectedTabGeneral {
-    const message = createBaseSelectedTabGeneral();
+  fromPartial<I extends Exact<DeepPartial<SelectedTabOverview>, I>>(_: I): SelectedTabOverview {
+    const message = createBaseSelectedTabOverview();
     return message;
   },
 };
 
-function createBaseSelectedTabDevice(): SelectedTabDevice {
+function createBaseSelectedTabSettingsGeneral(): SelectedTabSettingsGeneral {
+  return {};
+}
+
+export const SelectedTabSettingsGeneral: MessageFns<SelectedTabSettingsGeneral> = {
+  encode(_: SelectedTabSettingsGeneral, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabSettingsGeneral {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSelectedTabSettingsGeneral();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): SelectedTabSettingsGeneral {
+    return {};
+  },
+
+  toJSON(_: SelectedTabSettingsGeneral): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SelectedTabSettingsGeneral>, I>>(base?: I): SelectedTabSettingsGeneral {
+    return SelectedTabSettingsGeneral.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SelectedTabSettingsGeneral>, I>>(_: I): SelectedTabSettingsGeneral {
+    const message = createBaseSelectedTabSettingsGeneral();
+    return message;
+  },
+};
+
+function createBaseSelectedTabSettingsDevice(): SelectedTabSettingsDevice {
   return { deviceIndex: 0 };
 }
 
-export const SelectedTabDevice: MessageFns<SelectedTabDevice> = {
-  encode(message: SelectedTabDevice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SelectedTabSettingsDevice: MessageFns<SelectedTabSettingsDevice> = {
+  encode(message: SelectedTabSettingsDevice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.deviceIndex !== 0) {
       writer.uint32(8).int32(message.deviceIndex);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabDevice {
+  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabSettingsDevice {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSelectedTabDevice();
+    const message = createBaseSelectedTabSettingsDevice();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2487,11 +3792,11 @@ export const SelectedTabDevice: MessageFns<SelectedTabDevice> = {
     return message;
   },
 
-  fromJSON(object: any): SelectedTabDevice {
+  fromJSON(object: any): SelectedTabSettingsDevice {
     return { deviceIndex: isSet(object.deviceIndex) ? globalThis.Number(object.deviceIndex) : 0 };
   },
 
-  toJSON(message: SelectedTabDevice): unknown {
+  toJSON(message: SelectedTabSettingsDevice): unknown {
     const obj: any = {};
     if (message.deviceIndex !== 0) {
       obj.deviceIndex = Math.round(message.deviceIndex);
@@ -2499,11 +3804,11 @@ export const SelectedTabDevice: MessageFns<SelectedTabDevice> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SelectedTabDevice>, I>>(base?: I): SelectedTabDevice {
-    return SelectedTabDevice.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SelectedTabSettingsDevice>, I>>(base?: I): SelectedTabSettingsDevice {
+    return SelectedTabSettingsDevice.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SelectedTabDevice>, I>>(object: I): SelectedTabDevice {
-    const message = createBaseSelectedTabDevice();
+  fromPartial<I extends Exact<DeepPartial<SelectedTabSettingsDevice>, I>>(object: I): SelectedTabSettingsDevice {
+    const message = createBaseSelectedTabSettingsDevice();
     message.deviceIndex = object.deviceIndex ?? 0;
     return message;
   },
