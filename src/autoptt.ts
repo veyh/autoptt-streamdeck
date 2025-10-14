@@ -350,7 +350,6 @@ export function appEnabledStateToJSON(object: AppEnabledState): string {
 export interface Settings {
   version: number;
   appVersion: number;
-  selectedTab: SelectedTab | undefined;
   startOnBootType: StartOnBootType;
   licenseKey: string;
   ipcAddr: string;
@@ -555,22 +554,6 @@ export interface HotkeyGroup {
   toggleMute: HotkeyV3[];
 }
 
-export interface SelectedTab {
-  settingsGeneral?: SelectedTabSettingsGeneral | undefined;
-  settingsDevice?: SelectedTabSettingsDevice | undefined;
-  overview?: SelectedTabOverview | undefined;
-}
-
-export interface SelectedTabOverview {
-}
-
-export interface SelectedTabSettingsGeneral {
-}
-
-export interface SelectedTabSettingsDevice {
-  deviceIndex: number;
-}
-
 export interface Ipc {
   serverHello?: IpcServerHello | undefined;
   activityStateChanged?: IpcActivityStateChanged | undefined;
@@ -739,7 +722,6 @@ function createBaseSettings(): Settings {
   return {
     version: 0,
     appVersion: 0,
-    selectedTab: undefined,
     startOnBootType: 0,
     licenseKey: "",
     ipcAddr: "",
@@ -806,9 +788,6 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.appVersion !== 0) {
       writer.uint32(464).uint64(message.appVersion);
-    }
-    if (message.selectedTab !== undefined) {
-      SelectedTab.encode(message.selectedTab, writer.uint32(410).fork()).join();
     }
     if (message.startOnBootType !== 0) {
       writer.uint32(104).int32(message.startOnBootType);
@@ -1002,14 +981,6 @@ export const Settings: MessageFns<Settings> = {
           }
 
           message.appVersion = longToNumber(reader.uint64());
-          continue;
-        }
-        case 51: {
-          if (tag !== 410) {
-            break;
-          }
-
-          message.selectedTab = SelectedTab.decode(reader, reader.uint32());
           continue;
         }
         case 13: {
@@ -1473,7 +1444,6 @@ export const Settings: MessageFns<Settings> = {
     return {
       version: isSet(object.version) ? globalThis.Number(object.version) : 0,
       appVersion: isSet(object.appVersion) ? globalThis.Number(object.appVersion) : 0,
-      selectedTab: isSet(object.selectedTab) ? SelectedTab.fromJSON(object.selectedTab) : undefined,
       startOnBootType: isSet(object.startOnBootType) ? startOnBootTypeFromJSON(object.startOnBootType) : 0,
       licenseKey: isSet(object.licenseKey) ? globalThis.String(object.licenseKey) : "",
       ipcAddr: isSet(object.ipcAddr) ? globalThis.String(object.ipcAddr) : "",
@@ -1604,9 +1574,6 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.appVersion !== 0) {
       obj.appVersion = Math.round(message.appVersion);
-    }
-    if (message.selectedTab !== undefined) {
-      obj.selectedTab = SelectedTab.toJSON(message.selectedTab);
     }
     if (message.startOnBootType !== 0) {
       obj.startOnBootType = startOnBootTypeToJSON(message.startOnBootType);
@@ -1790,9 +1757,6 @@ export const Settings: MessageFns<Settings> = {
     const message = createBaseSettings();
     message.version = object.version ?? 0;
     message.appVersion = object.appVersion ?? 0;
-    message.selectedTab = (object.selectedTab !== undefined && object.selectedTab !== null)
-      ? SelectedTab.fromPartial(object.selectedTab)
-      : undefined;
     message.startOnBootType = object.startOnBootType ?? 0;
     message.licenseKey = object.licenseKey ?? "";
     message.ipcAddr = object.ipcAddr ?? "";
@@ -3582,252 +3546,6 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
     message.pushToMute = object.pushToMute?.map((e) => HotkeyV3.fromPartial(e)) || [];
     message.extraTriggers = object.extraTriggers?.map((e) => HotkeyV3.fromPartial(e)) || [];
     message.toggleMute = object.toggleMute?.map((e) => HotkeyV3.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseSelectedTab(): SelectedTab {
-  return { settingsGeneral: undefined, settingsDevice: undefined, overview: undefined };
-}
-
-export const SelectedTab: MessageFns<SelectedTab> = {
-  encode(message: SelectedTab, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.settingsGeneral !== undefined) {
-      SelectedTabSettingsGeneral.encode(message.settingsGeneral, writer.uint32(10).fork()).join();
-    }
-    if (message.settingsDevice !== undefined) {
-      SelectedTabSettingsDevice.encode(message.settingsDevice, writer.uint32(18).fork()).join();
-    }
-    if (message.overview !== undefined) {
-      SelectedTabOverview.encode(message.overview, writer.uint32(26).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTab {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSelectedTab();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.settingsGeneral = SelectedTabSettingsGeneral.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.settingsDevice = SelectedTabSettingsDevice.decode(reader, reader.uint32());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.overview = SelectedTabOverview.decode(reader, reader.uint32());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): SelectedTab {
-    return {
-      settingsGeneral: isSet(object.settingsGeneral)
-        ? SelectedTabSettingsGeneral.fromJSON(object.settingsGeneral)
-        : undefined,
-      settingsDevice: isSet(object.settingsDevice)
-        ? SelectedTabSettingsDevice.fromJSON(object.settingsDevice)
-        : undefined,
-      overview: isSet(object.overview) ? SelectedTabOverview.fromJSON(object.overview) : undefined,
-    };
-  },
-
-  toJSON(message: SelectedTab): unknown {
-    const obj: any = {};
-    if (message.settingsGeneral !== undefined) {
-      obj.settingsGeneral = SelectedTabSettingsGeneral.toJSON(message.settingsGeneral);
-    }
-    if (message.settingsDevice !== undefined) {
-      obj.settingsDevice = SelectedTabSettingsDevice.toJSON(message.settingsDevice);
-    }
-    if (message.overview !== undefined) {
-      obj.overview = SelectedTabOverview.toJSON(message.overview);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<SelectedTab>, I>>(base?: I): SelectedTab {
-    return SelectedTab.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SelectedTab>, I>>(object: I): SelectedTab {
-    const message = createBaseSelectedTab();
-    message.settingsGeneral = (object.settingsGeneral !== undefined && object.settingsGeneral !== null)
-      ? SelectedTabSettingsGeneral.fromPartial(object.settingsGeneral)
-      : undefined;
-    message.settingsDevice = (object.settingsDevice !== undefined && object.settingsDevice !== null)
-      ? SelectedTabSettingsDevice.fromPartial(object.settingsDevice)
-      : undefined;
-    message.overview = (object.overview !== undefined && object.overview !== null)
-      ? SelectedTabOverview.fromPartial(object.overview)
-      : undefined;
-    return message;
-  },
-};
-
-function createBaseSelectedTabOverview(): SelectedTabOverview {
-  return {};
-}
-
-export const SelectedTabOverview: MessageFns<SelectedTabOverview> = {
-  encode(_: SelectedTabOverview, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabOverview {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSelectedTabOverview();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(_: any): SelectedTabOverview {
-    return {};
-  },
-
-  toJSON(_: SelectedTabOverview): unknown {
-    const obj: any = {};
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<SelectedTabOverview>, I>>(base?: I): SelectedTabOverview {
-    return SelectedTabOverview.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SelectedTabOverview>, I>>(_: I): SelectedTabOverview {
-    const message = createBaseSelectedTabOverview();
-    return message;
-  },
-};
-
-function createBaseSelectedTabSettingsGeneral(): SelectedTabSettingsGeneral {
-  return {};
-}
-
-export const SelectedTabSettingsGeneral: MessageFns<SelectedTabSettingsGeneral> = {
-  encode(_: SelectedTabSettingsGeneral, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabSettingsGeneral {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSelectedTabSettingsGeneral();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(_: any): SelectedTabSettingsGeneral {
-    return {};
-  },
-
-  toJSON(_: SelectedTabSettingsGeneral): unknown {
-    const obj: any = {};
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<SelectedTabSettingsGeneral>, I>>(base?: I): SelectedTabSettingsGeneral {
-    return SelectedTabSettingsGeneral.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SelectedTabSettingsGeneral>, I>>(_: I): SelectedTabSettingsGeneral {
-    const message = createBaseSelectedTabSettingsGeneral();
-    return message;
-  },
-};
-
-function createBaseSelectedTabSettingsDevice(): SelectedTabSettingsDevice {
-  return { deviceIndex: 0 };
-}
-
-export const SelectedTabSettingsDevice: MessageFns<SelectedTabSettingsDevice> = {
-  encode(message: SelectedTabSettingsDevice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.deviceIndex !== 0) {
-      writer.uint32(8).int32(message.deviceIndex);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SelectedTabSettingsDevice {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSelectedTabSettingsDevice();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.deviceIndex = reader.int32();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): SelectedTabSettingsDevice {
-    return { deviceIndex: isSet(object.deviceIndex) ? globalThis.Number(object.deviceIndex) : 0 };
-  },
-
-  toJSON(message: SelectedTabSettingsDevice): unknown {
-    const obj: any = {};
-    if (message.deviceIndex !== 0) {
-      obj.deviceIndex = Math.round(message.deviceIndex);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<SelectedTabSettingsDevice>, I>>(base?: I): SelectedTabSettingsDevice {
-    return SelectedTabSettingsDevice.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SelectedTabSettingsDevice>, I>>(object: I): SelectedTabSettingsDevice {
-    const message = createBaseSelectedTabSettingsDevice();
-    message.deviceIndex = object.deviceIndex ?? 0;
     return message;
   },
 };
