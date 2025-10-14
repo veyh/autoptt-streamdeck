@@ -357,6 +357,7 @@ export interface Settings {
   minimizeToTray: boolean;
   updateCheck: boolean;
   useSidekick: boolean;
+  autoProfileSwitch: boolean;
   profile: number;
   profiles: Profile[];
   x3xThreshold: number;
@@ -745,6 +746,7 @@ function createBaseSettings(): Settings {
     minimizeToTray: false,
     updateCheck: false,
     useSidekick: false,
+    autoProfileSwitch: false,
     profile: 0,
     profiles: [],
     x3xThreshold: 0,
@@ -825,6 +827,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.useSidekick !== false) {
       writer.uint32(128).bool(message.useSidekick);
+    }
+    if (message.autoProfileSwitch !== false) {
+      writer.uint32(472).bool(message.autoProfileSwitch);
     }
     if (message.profile !== 0) {
       writer.uint32(520).uint64(message.profile);
@@ -1053,6 +1058,14 @@ export const Settings: MessageFns<Settings> = {
           }
 
           message.useSidekick = reader.bool();
+          continue;
+        }
+        case 59: {
+          if (tag !== 472) {
+            break;
+          }
+
+          message.autoProfileSwitch = reader.bool();
           continue;
         }
         case 65: {
@@ -1467,6 +1480,7 @@ export const Settings: MessageFns<Settings> = {
       minimizeToTray: isSet(object.minimizeToTray) ? globalThis.Boolean(object.minimizeToTray) : false,
       updateCheck: isSet(object.updateCheck) ? globalThis.Boolean(object.updateCheck) : false,
       useSidekick: isSet(object.useSidekick) ? globalThis.Boolean(object.useSidekick) : false,
+      autoProfileSwitch: isSet(object.autoProfileSwitch) ? globalThis.Boolean(object.autoProfileSwitch) : false,
       profile: isSet(object.profile) ? globalThis.Number(object.profile) : 0,
       profiles: globalThis.Array.isArray(object?.profiles) ? object.profiles.map((e: any) => Profile.fromJSON(e)) : [],
       x3xThreshold: isSet(object.x3xThreshold) ? globalThis.Number(object.x3xThreshold) : 0,
@@ -1611,6 +1625,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.useSidekick !== false) {
       obj.useSidekick = message.useSidekick;
+    }
+    if (message.autoProfileSwitch !== false) {
+      obj.autoProfileSwitch = message.autoProfileSwitch;
     }
     if (message.profile !== 0) {
       obj.profile = Math.round(message.profile);
@@ -1782,6 +1799,7 @@ export const Settings: MessageFns<Settings> = {
     message.minimizeToTray = object.minimizeToTray ?? false;
     message.updateCheck = object.updateCheck ?? false;
     message.useSidekick = object.useSidekick ?? false;
+    message.autoProfileSwitch = object.autoProfileSwitch ?? false;
     message.profile = object.profile ?? 0;
     message.profiles = object.profiles?.map((e) => Profile.fromPartial(e)) || [];
     message.x3xThreshold = object.x3xThreshold ?? 0;
