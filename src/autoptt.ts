@@ -582,6 +582,9 @@ export interface Ipc {
   requestSetPushToMuteGlobalState?: IpcRequestSetPushToMuteGlobalState | undefined;
   requestToggleMuteGlobal?: IpcRequestToggleMuteGlobal | undefined;
   requestToggleMute?: IpcRequestToggleMute | undefined;
+  requestChangeProfile?: IpcRequestChangeProfile | undefined;
+  requestSetAutoProfileSwitch?: IpcRequestSetAutoProfileSwitch | undefined;
+  requestToggleAutoProfileSwitch?: IpcRequestToggleAutoProfileSwitch | undefined;
 }
 
 export interface IpcActivityStateChanged {
@@ -716,6 +719,17 @@ export interface IpcRequestToggleMuteGlobal {
 
 export interface IpcRequestToggleMute {
   keyGroupIndex: number;
+}
+
+export interface IpcRequestChangeProfile {
+  profileId: Uint8Array;
+}
+
+export interface IpcRequestSetAutoProfileSwitch {
+  isEnabled: boolean;
+}
+
+export interface IpcRequestToggleAutoProfileSwitch {
 }
 
 function createBaseSettings(): Settings {
@@ -3579,6 +3593,9 @@ function createBaseIpc(): Ipc {
     requestSetPushToMuteGlobalState: undefined,
     requestToggleMuteGlobal: undefined,
     requestToggleMute: undefined,
+    requestChangeProfile: undefined,
+    requestSetAutoProfileSwitch: undefined,
+    requestToggleAutoProfileSwitch: undefined,
   };
 }
 
@@ -3665,6 +3682,16 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.requestToggleMute !== undefined) {
       IpcRequestToggleMute.encode(message.requestToggleMute, writer.uint32(266).fork()).join();
+    }
+    if (message.requestChangeProfile !== undefined) {
+      IpcRequestChangeProfile.encode(message.requestChangeProfile, writer.uint32(274).fork()).join();
+    }
+    if (message.requestSetAutoProfileSwitch !== undefined) {
+      IpcRequestSetAutoProfileSwitch.encode(message.requestSetAutoProfileSwitch, writer.uint32(282).fork()).join();
+    }
+    if (message.requestToggleAutoProfileSwitch !== undefined) {
+      IpcRequestToggleAutoProfileSwitch.encode(message.requestToggleAutoProfileSwitch, writer.uint32(290).fork())
+        .join();
     }
     return writer;
   },
@@ -3892,6 +3919,30 @@ export const Ipc: MessageFns<Ipc> = {
           message.requestToggleMute = IpcRequestToggleMute.decode(reader, reader.uint32());
           continue;
         }
+        case 34: {
+          if (tag !== 274) {
+            break;
+          }
+
+          message.requestChangeProfile = IpcRequestChangeProfile.decode(reader, reader.uint32());
+          continue;
+        }
+        case 35: {
+          if (tag !== 282) {
+            break;
+          }
+
+          message.requestSetAutoProfileSwitch = IpcRequestSetAutoProfileSwitch.decode(reader, reader.uint32());
+          continue;
+        }
+        case 36: {
+          if (tag !== 290) {
+            break;
+          }
+
+          message.requestToggleAutoProfileSwitch = IpcRequestToggleAutoProfileSwitch.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -3967,6 +4018,15 @@ export const Ipc: MessageFns<Ipc> = {
         : undefined,
       requestToggleMute: isSet(object.requestToggleMute)
         ? IpcRequestToggleMute.fromJSON(object.requestToggleMute)
+        : undefined,
+      requestChangeProfile: isSet(object.requestChangeProfile)
+        ? IpcRequestChangeProfile.fromJSON(object.requestChangeProfile)
+        : undefined,
+      requestSetAutoProfileSwitch: isSet(object.requestSetAutoProfileSwitch)
+        ? IpcRequestSetAutoProfileSwitch.fromJSON(object.requestSetAutoProfileSwitch)
+        : undefined,
+      requestToggleAutoProfileSwitch: isSet(object.requestToggleAutoProfileSwitch)
+        ? IpcRequestToggleAutoProfileSwitch.fromJSON(object.requestToggleAutoProfileSwitch)
         : undefined,
     };
   },
@@ -4055,6 +4115,17 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.requestToggleMute !== undefined) {
       obj.requestToggleMute = IpcRequestToggleMute.toJSON(message.requestToggleMute);
+    }
+    if (message.requestChangeProfile !== undefined) {
+      obj.requestChangeProfile = IpcRequestChangeProfile.toJSON(message.requestChangeProfile);
+    }
+    if (message.requestSetAutoProfileSwitch !== undefined) {
+      obj.requestSetAutoProfileSwitch = IpcRequestSetAutoProfileSwitch.toJSON(message.requestSetAutoProfileSwitch);
+    }
+    if (message.requestToggleAutoProfileSwitch !== undefined) {
+      obj.requestToggleAutoProfileSwitch = IpcRequestToggleAutoProfileSwitch.toJSON(
+        message.requestToggleAutoProfileSwitch,
+      );
     }
     return obj;
   },
@@ -4153,6 +4224,17 @@ export const Ipc: MessageFns<Ipc> = {
     message.requestToggleMute = (object.requestToggleMute !== undefined && object.requestToggleMute !== null)
       ? IpcRequestToggleMute.fromPartial(object.requestToggleMute)
       : undefined;
+    message.requestChangeProfile = (object.requestChangeProfile !== undefined && object.requestChangeProfile !== null)
+      ? IpcRequestChangeProfile.fromPartial(object.requestChangeProfile)
+      : undefined;
+    message.requestSetAutoProfileSwitch =
+      (object.requestSetAutoProfileSwitch !== undefined && object.requestSetAutoProfileSwitch !== null)
+        ? IpcRequestSetAutoProfileSwitch.fromPartial(object.requestSetAutoProfileSwitch)
+        : undefined;
+    message.requestToggleAutoProfileSwitch =
+      (object.requestToggleAutoProfileSwitch !== undefined && object.requestToggleAutoProfileSwitch !== null)
+        ? IpcRequestToggleAutoProfileSwitch.fromPartial(object.requestToggleAutoProfileSwitch)
+        : undefined;
     return message;
   },
 };
@@ -6092,6 +6174,171 @@ export const IpcRequestToggleMute: MessageFns<IpcRequestToggleMute> = {
   fromPartial<I extends Exact<DeepPartial<IpcRequestToggleMute>, I>>(object: I): IpcRequestToggleMute {
     const message = createBaseIpcRequestToggleMute();
     message.keyGroupIndex = object.keyGroupIndex ?? 0;
+    return message;
+  },
+};
+
+function createBaseIpcRequestChangeProfile(): IpcRequestChangeProfile {
+  return { profileId: new Uint8Array(0) };
+}
+
+export const IpcRequestChangeProfile: MessageFns<IpcRequestChangeProfile> = {
+  encode(message: IpcRequestChangeProfile, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.profileId.length !== 0) {
+      writer.uint32(10).bytes(message.profileId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcRequestChangeProfile {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcRequestChangeProfile();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.profileId = reader.bytes();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcRequestChangeProfile {
+    return { profileId: isSet(object.profileId) ? bytesFromBase64(object.profileId) : new Uint8Array(0) };
+  },
+
+  toJSON(message: IpcRequestChangeProfile): unknown {
+    const obj: any = {};
+    if (message.profileId.length !== 0) {
+      obj.profileId = base64FromBytes(message.profileId);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcRequestChangeProfile>, I>>(base?: I): IpcRequestChangeProfile {
+    return IpcRequestChangeProfile.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcRequestChangeProfile>, I>>(object: I): IpcRequestChangeProfile {
+    const message = createBaseIpcRequestChangeProfile();
+    message.profileId = object.profileId ?? new Uint8Array(0);
+    return message;
+  },
+};
+
+function createBaseIpcRequestSetAutoProfileSwitch(): IpcRequestSetAutoProfileSwitch {
+  return { isEnabled: false };
+}
+
+export const IpcRequestSetAutoProfileSwitch: MessageFns<IpcRequestSetAutoProfileSwitch> = {
+  encode(message: IpcRequestSetAutoProfileSwitch, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.isEnabled !== false) {
+      writer.uint32(8).bool(message.isEnabled);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcRequestSetAutoProfileSwitch {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcRequestSetAutoProfileSwitch();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.isEnabled = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcRequestSetAutoProfileSwitch {
+    return { isEnabled: isSet(object.isEnabled) ? globalThis.Boolean(object.isEnabled) : false };
+  },
+
+  toJSON(message: IpcRequestSetAutoProfileSwitch): unknown {
+    const obj: any = {};
+    if (message.isEnabled !== false) {
+      obj.isEnabled = message.isEnabled;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcRequestSetAutoProfileSwitch>, I>>(base?: I): IpcRequestSetAutoProfileSwitch {
+    return IpcRequestSetAutoProfileSwitch.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcRequestSetAutoProfileSwitch>, I>>(
+    object: I,
+  ): IpcRequestSetAutoProfileSwitch {
+    const message = createBaseIpcRequestSetAutoProfileSwitch();
+    message.isEnabled = object.isEnabled ?? false;
+    return message;
+  },
+};
+
+function createBaseIpcRequestToggleAutoProfileSwitch(): IpcRequestToggleAutoProfileSwitch {
+  return {};
+}
+
+export const IpcRequestToggleAutoProfileSwitch: MessageFns<IpcRequestToggleAutoProfileSwitch> = {
+  encode(_: IpcRequestToggleAutoProfileSwitch, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcRequestToggleAutoProfileSwitch {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcRequestToggleAutoProfileSwitch();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): IpcRequestToggleAutoProfileSwitch {
+    return {};
+  },
+
+  toJSON(_: IpcRequestToggleAutoProfileSwitch): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcRequestToggleAutoProfileSwitch>, I>>(
+    base?: I,
+  ): IpcRequestToggleAutoProfileSwitch {
+    return IpcRequestToggleAutoProfileSwitch.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcRequestToggleAutoProfileSwitch>, I>>(
+    _: I,
+  ): IpcRequestToggleAutoProfileSwitch {
+    const message = createBaseIpcRequestToggleAutoProfileSwitch();
     return message;
   },
 };
