@@ -7,6 +7,7 @@ import {
   Ipc as AutopttIpc,
   Settings as AutopttSettings,
   AppEnabledState as AutopttAppEnabledState,
+  ActivationMode,
 } from "./autoptt";
 
 const DEFAULT_IPC_HOST = "127.1.2.3";
@@ -40,8 +41,9 @@ export default class IPC {
   // IPC versions
   // 3 - AutoPTT 2.8.0
   // 4 - AutoPTT 2.11.0
+  // 5 - AutoPTT 3.0.0
 
-  static VERSION = 4;
+  static VERSION = 5;
 
   isCompatible() {
     const server = this.serverIpcVersion;
@@ -51,12 +53,25 @@ export default class IPC {
       return true;
     }
 
-    if (server === 3 && client === 4) {
-      // individual toggle mute will not work though
+    if (server === 1) {
+      return false; // too old
+    }
+
+    if (server === 2) {
+      return false; // too old
+    }
+
+    if (server === 3) {
+      // individual toggle mute will not work
       return true;
     }
 
-    return false;
+    if (server === 4) {
+      // profile switching will not work (there are no profiles :)
+      return true;
+    }
+
+    return false; // fallback for unknown versions
   }
 
   start() {
@@ -224,7 +239,17 @@ export default class IPC {
 
     if (msg.settingsChanged?.settings) {
       this.settings = msg.settingsChanged.settings;
-      this.activationMode = msg.settingsChanged.settings.activationMode;
+
+      if (this.serverIpcVersion < 5) {
+        this.activationMode = this.settings.activationMode;
+      }
+
+      else {
+        this.activationMode = this.getCurrentProfile()!
+          .settings!
+          .activationMode;
+      }
+
       streamDeck.logger.debug("activationMode", this.activationMode);
     }
 
@@ -316,6 +341,26 @@ export default class IPC {
     }
 
     return [host, port];
+  }
+
+  getCurrentProfile() {
+    if (!this.settings) {
+      return null;
+    }
+
+    return this.settings.profiles[this.settings.profile];
+  }
+
+  getKeyGroups() {
+    if (!this.settings) {
+      return [];
+    }
+
+    if (this.serverIpcVersion < 5) {
+      return this.settings.keyGroups;
+    }
+
+    return this.getCurrentProfile()!.settings!.keyGroups;
   }
 
   setActivationMode(mode: AutopttActivationMode) {

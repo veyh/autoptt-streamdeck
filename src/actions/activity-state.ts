@@ -94,7 +94,7 @@ export class ActivityState extends SingletonAction<Settings> {
 			}
 
 			case "swap:manual-voice": {
-				if (cx.ipc.settings?.activationMode === AutopttActivationMode.MANUAL) {
+				if (cx.ipc.activationMode === AutopttActivationMode.MANUAL) {
 					return cx.ipc.setActivationMode(AutopttActivationMode.AUTOMATIC);
 				}
 
@@ -102,7 +102,7 @@ export class ActivityState extends SingletonAction<Settings> {
 			}
 
 			case "swap:manual-tap": {
-				if (cx.ipc.settings?.activationMode === AutopttActivationMode.MANUAL) {
+				if (cx.ipc.activationMode === AutopttActivationMode.MANUAL) {
 					return cx.ipc.setActivationMode(AutopttActivationMode.TAP_PTT);
 				}
 
@@ -110,7 +110,7 @@ export class ActivityState extends SingletonAction<Settings> {
 			}
 
 			case "swap:manual-om2ptt-manual": {
-				if (cx.ipc.settings?.activationMode === AutopttActivationMode.MANUAL) {
+				if (cx.ipc.activationMode === AutopttActivationMode.MANUAL) {
 					return cx.ipc.setActivationMode(AutopttActivationMode.MANUAL_OPEN_MIC_TO_PTT);
 				}
 
@@ -265,7 +265,7 @@ export class ActivityState extends SingletonAction<Settings> {
 		let keyGroupCount = 0;
 
 		if (cx.ipc.state === "connected") {
-			keyGroupCount = cx.ipc.settings?.keyGroups.length ?? 0;
+			keyGroupCount = cx.ipc.getKeyGroups().length ?? 0;
 		}
 
 		else {
@@ -407,7 +407,7 @@ class Context {
 			return "Invalid\nLicense";
 		}
 
-		switch (this.ipc.settings?.activationMode) {
+		switch (this.ipc.activationMode) {
 			case AutopttActivationMode.AUTOMATIC:
 				return "VA";
 
