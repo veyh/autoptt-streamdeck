@@ -1,0 +1,14 @@
+{
+  "name:": "autoptt-ipc",
+  "type": "module",
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "~20.15.0",
+    "@types/varint": "^6.0.3",
+    "ts-proto": "^2.6.1"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.2.3",
+    "varint": "^6.0.0"
+  }
+}

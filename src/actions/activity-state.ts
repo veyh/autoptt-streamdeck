@@ -1,11 +1,11 @@
 import streamDeck, { Action, action, ApplicationDidLaunchEvent, DidReceiveSettingsEvent, KeyDownEvent, KeyUpEvent, SendToPluginEvent, SingletonAction, WillAppearEvent, WillDisappearEvent } from "@elgato/streamdeck";
-import IPC from "../IPC";
+import IPC from "../../deps/autoptt-ipc/IPC";
 import {
 	ActivationMode as AutopttActivationMode,
 	ActivityState as AutopttActivityState,
 	AppEnabledState as AutopttAppEnabledState,
 	Ipc as AutopttIpc,
-} from "../autoptt";
+} from "../../deps/autoptt-ipc/autoptt";
 
 type Settings = {
 	ipcAddress?: string;

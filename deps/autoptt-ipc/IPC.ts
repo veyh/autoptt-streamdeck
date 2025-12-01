@@ -1,5 +1,4 @@
 import * as net from "node:net";
-import streamDeck from "@elgato/streamdeck";
 import varint from "varint";
 import {
   ActivationMode as AutopttActivationMode,
@@ -7,7 +6,6 @@ import {
   Ipc as AutopttIpc,
   Settings as AutopttSettings,
   AppEnabledState as AutopttAppEnabledState,
-  ActivationMode,
 } from "./autoptt";
 
 const DEFAULT_IPC_HOST = "127.1.2.3";
@@ -18,6 +16,8 @@ type State =
   | "connecting"
   | "connected";
 
+type LogFn = (...args: any[]) => void;
+
 export default class IPC {
   state: State = "idle";
   socket = new net.Socket;
@@ -25,6 +25,9 @@ export default class IPC {
 
   ipcHost = DEFAULT_IPC_HOST;
   ipcPort = DEFAULT_IPC_PORT;
+
+  logDebug: LogFn = console.log;
+  logError: LogFn = console.error;
 
   settings: AutopttSettings | undefined;
 
@@ -97,7 +100,7 @@ export default class IPC {
       return;
     }
 
-    streamDeck.logger.debug(`[setState] ${this.state} --> ${newState}`);
+    this.logDebug(`[setState] ${this.state} --> ${newState}`);
 
     this.state = newState;
 
@@ -134,35 +137,35 @@ export default class IPC {
   }
 
   onError = (e: any) => {
-    streamDeck.logger.debug("[onError]", e);
+    this.logDebug("[onError]", e);
 
     this.setState("idle");
     this.unregisterEvents();
   };
 
   onClose = () => {
-    streamDeck.logger.debug("[onClose] called");
+    this.logDebug("[onClose] called");
 
     this.setState("idle");
     this.unregisterEvents();
   };
 
   onEnd = () => {
-    streamDeck.logger.debug("[onEnd] called");
+    this.logDebug("[onEnd] called");
 
     this.setState("idle");
     this.unregisterEvents();
   };
 
   onConnect = () => {
-    streamDeck.logger.debug("[onConnect] called");
+    this.logDebug("[onConnect] called");
 
     this.setState("connected");
     this.configure();
   };
 
   onData = (data: Buffer) => {
-    streamDeck.logger.debug("recv", data.byteLength);
+    this.logDebug("recv", data.byteLength);
 
     this.recvBuffer = Buffer.concat([this.recvBuffer, data]);
 
@@ -195,12 +198,12 @@ export default class IPC {
 
       this.recvBuffer = this.recvBuffer.subarray(varintLen + msgLen);
 
-      streamDeck.logger.debug("[onData] AutopttIpc", msgLen, msg);
+      this.logDebug("[onData] AutopttIpc", msgLen, msg);
       this.onMessage(msg);
     }
 
     catch (err) {
-      console.error("[onData] AutopttIpc.decode failed", err);
+      this.logError("[onData] AutopttIpc.decode failed", err);
       return false;
     }
 
@@ -218,7 +221,7 @@ export default class IPC {
       }
     }));
 
-    streamDeck.logger.debug("[configure] wrote IpcClientConfigure");
+    this.logDebug("[configure] wrote IpcClientConfigure");
   }
 
   write(msg: AutopttIpc) {
@@ -250,17 +253,17 @@ export default class IPC {
           .activationMode;
       }
 
-      streamDeck.logger.debug("activationMode", this.activationMode);
+      this.logDebug("activationMode", this.activationMode);
     }
 
     if (msg.muteStateChanged) {
       this.isMuted = msg.muteStateChanged.isMuted;
-      streamDeck.logger.debug("isMuted", this.isMuted);
+      this.logDebug("isMuted", this.isMuted);
     }
 
     if (msg.activityStateChanged) {
       this.aggregateActivityState = msg.activityStateChanged.aggregateState;
-      streamDeck.logger.debug("aggregateActivityState", this.aggregateActivityState);
+      this.logDebug("aggregateActivityState", this.aggregateActivityState);
     }
 
     if (msg.currentValueChanged) {
@@ -295,7 +298,7 @@ export default class IPC {
     let port = DEFAULT_IPC_PORT;
 
     const parsed = this.parseAddress(addr);
-    streamDeck.logger.debug("[setAddr]", { addr, parsed });
+    this.logDebug("[setAddr]", { addr, parsed });
 
     if (parsed) {
       host = parsed[0];
@@ -303,14 +306,14 @@ export default class IPC {
     }
 
     if (host === this.ipcHost && port === this.ipcPort) {
-      streamDeck.logger.debug("[setAddr] no changes");
+      this.logDebug("[setAddr] no changes");
       return;
     }
 
     this.ipcHost = host;
     this.ipcPort = port;
 
-    streamDeck.logger.debug("[setAddr] changed to", host, port);
+    this.logDebug("[setAddr] changed to", host, port);
 
     if (this.state === "idle") {
       return;
