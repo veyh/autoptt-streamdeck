@@ -7,7 +7,9 @@ import {
   Ipc as AutopttIpc,
   Settings as AutopttSettings,
   AppEnabledState as AutopttAppEnabledState,
+  Settings,
 } from "./autoptt.js";
+import { base64Decode, base64Encode } from "@bufbuild/protobuf/wire";
 
 const DEFAULT_IPC_HOST = "127.1.2.3";
 const DEFAULT_IPC_PORT = 4000;
@@ -43,6 +45,9 @@ export default class IPC {
   currentValue = 0;
   appEnabledState = AutopttAppEnabledState.ENABLED;
   toggleMuteStates: (boolean | undefined)[] = [];
+  profileName = "Default";
+  profileId = "";
+  autoProfileSwitch = false;
 
   private serverIpcVersion = -1;
 
@@ -80,6 +85,10 @@ export default class IPC {
     }
 
     return false; // fallback for unknown versions
+  }
+
+  supportsProfiles() {
+    return this.serverIpcVersion >= 5;
   }
 
   start() {
@@ -252,22 +261,11 @@ export default class IPC {
   private onMessage(msg: AutopttIpc) {
     if (msg.serverHello) {
       this.serverIpcVersion = msg.serverHello.ipcVersion;
+      this.logDebug("serverIpcVersion", this.serverIpcVersion);
     }
 
     if (msg.settingsChanged?.settings) {
-      this.settings = msg.settingsChanged.settings;
-
-      if (this.serverIpcVersion < 5) {
-        this.activationMode = this.settings.activationMode;
-      }
-
-      else {
-        this.activationMode = this.getCurrentProfile()!
-          .settings!
-          .activationMode;
-      }
-
-      this.logDebug("activationMode", this.activationMode);
+      this.onSettingsChanged(msg.settingsChanged.settings);
     }
 
     if (msg.muteStateChanged) {
@@ -303,6 +301,26 @@ export default class IPC {
     }
 
     this.onMessageHook?.(msg);
+  }
+
+  private onSettingsChanged(settings: Settings) {
+    this.settings = settings;
+
+    if (this.supportsProfiles()) {
+      const profile = this.getCurrentProfile()!;
+
+      this.profileId = base64Encode(profile.id);
+      this.profileName = profile.name;;
+      this.activationMode = profile.settings!.activationMode;
+      this.autoProfileSwitch = settings.autoProfileSwitch;
+    }
+
+    else {
+      this.profileId = "";
+      this.profileName = "Default";
+      this.activationMode = this.settings.activationMode;
+      this.autoProfileSwitch = false;
+    }
   }
 
   onMessageHook = (_msg: AutopttIpc) => {};
@@ -368,16 +386,35 @@ export default class IPC {
     return this.settings.profiles[this.settings.profile];
   }
 
+  getCurrentProfileIndex() {
+    return this.settings?.profile ?? 0;
+  }
+
   getKeyGroups() {
     if (!this.settings) {
       return [];
     }
 
-    if (this.serverIpcVersion < 5) {
+    if (!this.supportsProfiles()) {
       return this.settings.keyGroups;
     }
 
     return this.getCurrentProfile()!.settings!.keyGroups;
+  }
+
+  getProfileIdsAndNames() {
+    if (!this.settings) {
+      return [];
+    }
+
+    if (!this.supportsProfiles()) {
+      return [];
+    }
+
+    return this.settings.profiles.map(x => ({
+      id: base64Encode(x.id),
+      name: x.name,
+    }));
   }
 
   setActivationMode(mode: AutopttActivationMode) {
@@ -425,6 +462,26 @@ export default class IPC {
       requestToggleMute: {
         keyGroupIndex: index,
       }
+    }));
+  }
+
+  changeProfile(id: string) {
+    const profileId = base64Decode(id);
+
+    this.write(AutopttIpc.create({
+      requestChangeProfile: { profileId }
+    }));
+  }
+
+  setAutoProfileSwitch(value: boolean) {
+    this.write(AutopttIpc.create({
+      requestSetAutoProfileSwitch: { isEnabled: value }
+    }));
+  }
+
+  toggleAutoProfileSwitch() {
+    this.write(AutopttIpc.create({
+      requestToggleAutoProfileSwitch: {}
     }));
   }
 }
