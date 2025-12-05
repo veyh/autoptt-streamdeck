@@ -44,8 +44,10 @@ export class ActivityState extends SingletonAction<Settings> {
 
 		const cx = this.contexts[ev.action.id];
 
+		cx.ipc.ipcTag = "autoptt-streamdeck";
 		cx.ipc.setAddr(ev.payload.settings.ipcAddress);
 		cx.ipc.start();
+
 		cx.updateIcon(true);
 		cx.updateTitle(true);
 	}

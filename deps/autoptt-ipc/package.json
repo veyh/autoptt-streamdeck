@@ -1,5 +1,6 @@
 {
   "name:": "autoptt-ipc",
+  "version": "1.0.0",
   "type": "module",
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",

@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 
-process.chdir(__dirname);
+process.chdir(import.meta.dirname);
 
 const pluginPath = (process.platform === "win32")
   ? ".\\node_modules\\.bin\\protoc-gen-ts_proto.cmd"

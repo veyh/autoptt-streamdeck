@@ -1,4 +1,5 @@
 import * as net from "node:net";
+// @ts-ignore-error
 import varint from "varint";
 import {
   ActivationMode as AutopttActivationMode,
@@ -6,10 +7,11 @@ import {
   Ipc as AutopttIpc,
   Settings as AutopttSettings,
   AppEnabledState as AutopttAppEnabledState,
-} from "./autoptt";
+} from "./autoptt.js";
 
 const DEFAULT_IPC_HOST = "127.1.2.3";
 const DEFAULT_IPC_PORT = 4000;
+const DEFAULT_IPC_TAG = "autoptt-ipc-js";
 
 type State =
   | "idle"
@@ -19,12 +21,15 @@ type State =
 type LogFn = (...args: any[]) => void;
 
 export default class IPC {
+  private socket = new net.Socket;
+  private recvBuffer = Buffer.alloc(0);
+
   state: State = "idle";
-  socket = new net.Socket;
-  recvBuffer = Buffer.alloc(0);
 
   ipcHost = DEFAULT_IPC_HOST;
   ipcPort = DEFAULT_IPC_PORT;
+  ipcTag = DEFAULT_IPC_TAG;
+  connectRetryIntervalSec = 0;
 
   logDebug: LogFn = console.log;
   logError: LogFn = console.error;
@@ -39,7 +44,7 @@ export default class IPC {
   appEnabledState = AutopttAppEnabledState.ENABLED;
   toggleMuteStates: (boolean | undefined)[] = [];
 
-  serverIpcVersion = -1;
+  private serverIpcVersion = -1;
 
   // IPC versions
   // 3 - AutoPTT 2.8.0
@@ -95,7 +100,7 @@ export default class IPC {
     this.setState("connecting");
   }
 
-  setState = (newState: State) => {
+  private setState = (newState: State) => {
     if (this.state === newState) {
       return;
     }
@@ -109,7 +114,7 @@ export default class IPC {
 
   onStateChanged = () => {};
 
-  registerEvents() {
+  private registerEvents() {
     this.socket.on("close", this.onClose);
     this.socket.on("end", this.onEnd);
     this.socket.on("error", this.onError);
@@ -117,7 +122,7 @@ export default class IPC {
     this.socket.on("data", this.onData);
   }
 
-  unregisterEvents() {
+  private unregisterEvents() {
     this.socket.off("close", this.onClose);
     this.socket.off("end", this.onEnd);
     this.socket.off("error", this.onError);
@@ -136,35 +141,43 @@ export default class IPC {
     this.socket = new net.Socket;
   }
 
-  onError = (e: any) => {
+  private onError = (e: any) => {
     this.logDebug("[onError]", e);
 
     this.setState("idle");
     this.unregisterEvents();
+
+    if (this.connectRetryIntervalSec > 0) {
+      const timeSec = this.connectRetryIntervalSec;
+
+      this.logDebug(`[onError] schedule retry in ${timeSec} sec`)
+
+      setTimeout(() => this.start(), timeSec * 1000);
+    }
   };
 
-  onClose = () => {
+  private onClose = () => {
     this.logDebug("[onClose] called");
 
     this.setState("idle");
     this.unregisterEvents();
   };
 
-  onEnd = () => {
+  private onEnd = () => {
     this.logDebug("[onEnd] called");
 
     this.setState("idle");
     this.unregisterEvents();
   };
 
-  onConnect = () => {
+  private onConnect = () => {
     this.logDebug("[onConnect] called");
 
     this.setState("connected");
     this.configure();
   };
 
-  onData = (data: Buffer) => {
+  private onData = (data: Buffer) => {
     this.logDebug("recv", data.byteLength);
 
     this.recvBuffer = Buffer.concat([this.recvBuffer, data]);
@@ -178,7 +191,7 @@ export default class IPC {
     }
   };
 
-  tryDecode() {
+  private tryDecode() {
     let msgLen = 0;
 
     try {
@@ -210,10 +223,10 @@ export default class IPC {
     return true;
   }
 
-  configure() {
+  private configure() {
     this.write(AutopttIpc.create({
       clientConfigure: {
-        ipcTag: "autoptt-streamdeck",
+        ipcTag: this.ipcTag,
         ipcVersion: IPC.VERSION,
 
         // this disables current value updates, as we don't currently use them
@@ -224,7 +237,7 @@ export default class IPC {
     this.logDebug("[configure] wrote IpcClientConfigure");
   }
 
-  write(msg: AutopttIpc) {
+  private write(msg: AutopttIpc) {
     const encoded = AutopttIpc.encode(msg).finish();
     const varintBytes = varint.encode(encoded.byteLength);
     const delimited = Buffer.concat([
@@ -232,10 +245,11 @@ export default class IPC {
       encoded
     ]);
 
+    // this.logDebug("[write]", delimited.length, msg);
     this.socket.write(delimited);
   }
 
-  onMessage(msg: AutopttIpc) {
+  private onMessage(msg: AutopttIpc) {
     if (msg.serverHello) {
       this.serverIpcVersion = msg.serverHello.ipcVersion;
     }
@@ -323,7 +337,7 @@ export default class IPC {
     this.start();
   }
 
-  parseAddress(addr?: string): [string, number] | null {
+  private parseAddress(addr?: string): [string, number] | null {
     if (!addr) {
       return null;
     }
