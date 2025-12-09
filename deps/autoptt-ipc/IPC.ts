@@ -45,6 +45,7 @@ export default class IPC {
   currentValue = 0;
   appEnabledState = AutopttAppEnabledState.ENABLED;
   toggleMuteStates: (boolean | undefined)[] = [];
+  activityStates: AutopttActivityState[] = [];
   profileName = "Default";
   profileId = "";
   autoProfileSwitch = false;
@@ -274,6 +275,7 @@ export default class IPC {
     }
 
     if (msg.activityStateChanged) {
+      this.activityStates = msg.activityStateChanged.keyGroupStates;
       this.aggregateActivityState = msg.activityStateChanged.aggregateState;
       this.logDebug("aggregateActivityState", this.aggregateActivityState);
     }
