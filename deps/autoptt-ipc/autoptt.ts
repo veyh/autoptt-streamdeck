@@ -356,6 +356,7 @@ export interface Settings {
   minimizeToTray: boolean;
   updateCheck: boolean;
   useSidekick: boolean;
+  useFakerInput: boolean;
   autoProfileSwitch: boolean;
   profile: number;
   profiles: Profile[];
@@ -569,6 +570,7 @@ export interface Ipc {
   updateCheckSuccess?: IpcUpdateCheckSuccess | undefined;
   updateCheckFailed?: IpcUpdateCheckFailed | undefined;
   guiDeviceChanged?: IpcGuiDeviceChanged | undefined;
+  fakerInputStatus?: IpcFakerInputStatus | undefined;
   overlayHello?: IpcOverlayHello | undefined;
   clientConfigure?: IpcClientConfigure | undefined;
   requestRestart?: IpcRequestRestart | undefined;
@@ -692,6 +694,10 @@ export interface IpcGuiDeviceChanged {
   deviceNameOrUuid: string;
 }
 
+export interface IpcFakerInputStatus {
+  exists: boolean;
+}
+
 export interface IpcAppEnabledStateChanged {
   state: AppEnabledState;
 }
@@ -742,6 +748,7 @@ function createBaseSettings(): Settings {
     minimizeToTray: false,
     updateCheck: false,
     useSidekick: false,
+    useFakerInput: false,
     autoProfileSwitch: false,
     profile: 0,
     profiles: [],
@@ -820,6 +827,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.useSidekick !== false) {
       writer.uint32(128).bool(message.useSidekick);
+    }
+    if (message.useFakerInput !== false) {
+      writer.uint32(536).bool(message.useFakerInput);
     }
     if (message.autoProfileSwitch !== false) {
       writer.uint32(472).bool(message.autoProfileSwitch);
@@ -1043,6 +1053,14 @@ export const Settings: MessageFns<Settings> = {
           }
 
           message.useSidekick = reader.bool();
+          continue;
+        }
+        case 67: {
+          if (tag !== 536) {
+            break;
+          }
+
+          message.useFakerInput = reader.bool();
           continue;
         }
         case 59: {
@@ -1464,6 +1482,7 @@ export const Settings: MessageFns<Settings> = {
       minimizeToTray: isSet(object.minimizeToTray) ? globalThis.Boolean(object.minimizeToTray) : false,
       updateCheck: isSet(object.updateCheck) ? globalThis.Boolean(object.updateCheck) : false,
       useSidekick: isSet(object.useSidekick) ? globalThis.Boolean(object.useSidekick) : false,
+      useFakerInput: isSet(object.useFakerInput) ? globalThis.Boolean(object.useFakerInput) : false,
       autoProfileSwitch: isSet(object.autoProfileSwitch) ? globalThis.Boolean(object.autoProfileSwitch) : false,
       profile: isSet(object.profile) ? globalThis.Number(object.profile) : 0,
       profiles: globalThis.Array.isArray(object?.profiles) ? object.profiles.map((e: any) => Profile.fromJSON(e)) : [],
@@ -1592,6 +1611,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.useSidekick !== false) {
       obj.useSidekick = message.useSidekick;
+    }
+    if (message.useFakerInput !== false) {
+      obj.useFakerInput = message.useFakerInput;
     }
     if (message.autoProfileSwitch !== false) {
       obj.autoProfileSwitch = message.autoProfileSwitch;
@@ -1761,6 +1783,7 @@ export const Settings: MessageFns<Settings> = {
     message.minimizeToTray = object.minimizeToTray ?? false;
     message.updateCheck = object.updateCheck ?? false;
     message.useSidekick = object.useSidekick ?? false;
+    message.useFakerInput = object.useFakerInput ?? false;
     message.autoProfileSwitch = object.autoProfileSwitch ?? false;
     message.profile = object.profile ?? 0;
     message.profiles = object.profiles?.map((e) => Profile.fromPartial(e)) || [];
@@ -3554,6 +3577,7 @@ function createBaseIpc(): Ipc {
     updateCheckSuccess: undefined,
     updateCheckFailed: undefined,
     guiDeviceChanged: undefined,
+    fakerInputStatus: undefined,
     overlayHello: undefined,
     clientConfigure: undefined,
     requestRestart: undefined,
@@ -3616,6 +3640,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.guiDeviceChanged !== undefined) {
       IpcGuiDeviceChanged.encode(message.guiDeviceChanged, writer.uint32(194).fork()).join();
+    }
+    if (message.fakerInputStatus !== undefined) {
+      IpcFakerInputStatus.encode(message.fakerInputStatus, writer.uint32(298).fork()).join();
     }
     if (message.overlayHello !== undefined) {
       IpcOverlayHello.encode(message.overlayHello, writer.uint32(34).fork()).join();
@@ -3787,6 +3814,14 @@ export const Ipc: MessageFns<Ipc> = {
           }
 
           message.guiDeviceChanged = IpcGuiDeviceChanged.decode(reader, reader.uint32());
+          continue;
+        }
+        case 37: {
+          if (tag !== 298) {
+            break;
+          }
+
+          message.fakerInputStatus = IpcFakerInputStatus.decode(reader, reader.uint32());
           continue;
         }
         case 4: {
@@ -3966,6 +4001,9 @@ export const Ipc: MessageFns<Ipc> = {
       guiDeviceChanged: isSet(object.guiDeviceChanged)
         ? IpcGuiDeviceChanged.fromJSON(object.guiDeviceChanged)
         : undefined,
+      fakerInputStatus: isSet(object.fakerInputStatus)
+        ? IpcFakerInputStatus.fromJSON(object.fakerInputStatus)
+        : undefined,
       overlayHello: isSet(object.overlayHello) ? IpcOverlayHello.fromJSON(object.overlayHello) : undefined,
       clientConfigure: isSet(object.clientConfigure) ? IpcClientConfigure.fromJSON(object.clientConfigure) : undefined,
       requestRestart: isSet(object.requestRestart) ? IpcRequestRestart.fromJSON(object.requestRestart) : undefined,
@@ -4048,6 +4086,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.guiDeviceChanged !== undefined) {
       obj.guiDeviceChanged = IpcGuiDeviceChanged.toJSON(message.guiDeviceChanged);
+    }
+    if (message.fakerInputStatus !== undefined) {
+      obj.fakerInputStatus = IpcFakerInputStatus.toJSON(message.fakerInputStatus);
     }
     if (message.overlayHello !== undefined) {
       obj.overlayHello = IpcOverlayHello.toJSON(message.overlayHello);
@@ -4152,6 +4193,9 @@ export const Ipc: MessageFns<Ipc> = {
       : undefined;
     message.guiDeviceChanged = (object.guiDeviceChanged !== undefined && object.guiDeviceChanged !== null)
       ? IpcGuiDeviceChanged.fromPartial(object.guiDeviceChanged)
+      : undefined;
+    message.fakerInputStatus = (object.fakerInputStatus !== undefined && object.fakerInputStatus !== null)
+      ? IpcFakerInputStatus.fromPartial(object.fakerInputStatus)
       : undefined;
     message.overlayHello = (object.overlayHello !== undefined && object.overlayHello !== null)
       ? IpcOverlayHello.fromPartial(object.overlayHello)
@@ -5703,6 +5747,64 @@ export const IpcGuiDeviceChanged: MessageFns<IpcGuiDeviceChanged> = {
   fromPartial<I extends Exact<DeepPartial<IpcGuiDeviceChanged>, I>>(object: I): IpcGuiDeviceChanged {
     const message = createBaseIpcGuiDeviceChanged();
     message.deviceNameOrUuid = object.deviceNameOrUuid ?? "";
+    return message;
+  },
+};
+
+function createBaseIpcFakerInputStatus(): IpcFakerInputStatus {
+  return { exists: false };
+}
+
+export const IpcFakerInputStatus: MessageFns<IpcFakerInputStatus> = {
+  encode(message: IpcFakerInputStatus, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.exists !== false) {
+      writer.uint32(8).bool(message.exists);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcFakerInputStatus {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcFakerInputStatus();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.exists = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcFakerInputStatus {
+    return { exists: isSet(object.exists) ? globalThis.Boolean(object.exists) : false };
+  },
+
+  toJSON(message: IpcFakerInputStatus): unknown {
+    const obj: any = {};
+    if (message.exists !== false) {
+      obj.exists = message.exists;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcFakerInputStatus>, I>>(base?: I): IpcFakerInputStatus {
+    return IpcFakerInputStatus.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcFakerInputStatus>, I>>(object: I): IpcFakerInputStatus {
+    const message = createBaseIpcFakerInputStatus();
+    message.exists = object.exists ?? false;
     return message;
   },
 };
