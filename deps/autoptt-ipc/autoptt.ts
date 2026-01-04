@@ -9,6 +9,45 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "autoptt";
 
+export enum InputMethod {
+  VIRTUAL = 0,
+  FAKER = 1,
+  SIDEKICK = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function inputMethodFromJSON(object: any): InputMethod {
+  switch (object) {
+    case 0:
+    case "VIRTUAL":
+      return InputMethod.VIRTUAL;
+    case 1:
+    case "FAKER":
+      return InputMethod.FAKER;
+    case 2:
+    case "SIDEKICK":
+      return InputMethod.SIDEKICK;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return InputMethod.UNRECOGNIZED;
+  }
+}
+
+export function inputMethodToJSON(object: InputMethod): string {
+  switch (object) {
+    case InputMethod.VIRTUAL:
+      return "VIRTUAL";
+    case InputMethod.FAKER:
+      return "FAKER";
+    case InputMethod.SIDEKICK:
+      return "SIDEKICK";
+    case InputMethod.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum ActivationMode {
   AUTOMATIC = 0,
   TAP_PTT = 1,
@@ -355,11 +394,11 @@ export interface Settings {
   ipcAddr: string;
   minimizeToTray: boolean;
   updateCheck: boolean;
-  useSidekick: boolean;
-  useFakerInput: boolean;
   autoProfileSwitch: boolean;
   profile: number;
   profiles: Profile[];
+  /** --> ProfileSettings.input_method */
+  useSidekick: boolean;
   threshold: number;
   useDeactThreshold: boolean;
   deactThreshold: number;
@@ -470,6 +509,7 @@ export interface ProfileSettings {
   tapActivationWindowMs: number;
   deviceName: string;
   deviceUuid: string;
+  inputMethod: InputMethod;
 }
 
 export interface ProfileActivationTrigger {
@@ -747,11 +787,10 @@ function createBaseSettings(): Settings {
     ipcAddr: "",
     minimizeToTray: false,
     updateCheck: false,
-    useSidekick: false,
-    useFakerInput: false,
     autoProfileSwitch: false,
     profile: 0,
     profiles: [],
+    useSidekick: false,
     threshold: 0,
     useDeactThreshold: false,
     deactThreshold: 0,
@@ -825,12 +864,6 @@ export const Settings: MessageFns<Settings> = {
     if (message.updateCheck !== false) {
       writer.uint32(328).bool(message.updateCheck);
     }
-    if (message.useSidekick !== false) {
-      writer.uint32(128).bool(message.useSidekick);
-    }
-    if (message.useFakerInput !== false) {
-      writer.uint32(536).bool(message.useFakerInput);
-    }
     if (message.autoProfileSwitch !== false) {
       writer.uint32(472).bool(message.autoProfileSwitch);
     }
@@ -839,6 +872,9 @@ export const Settings: MessageFns<Settings> = {
     }
     for (const v of message.profiles) {
       Profile.encode(v!, writer.uint32(530).fork()).join();
+    }
+    if (message.useSidekick !== false) {
+      writer.uint32(128).bool(message.useSidekick);
     }
     if (message.threshold !== 0) {
       writer.uint32(17).double(message.threshold);
@@ -1047,22 +1083,6 @@ export const Settings: MessageFns<Settings> = {
           message.updateCheck = reader.bool();
           continue;
         }
-        case 16: {
-          if (tag !== 128) {
-            break;
-          }
-
-          message.useSidekick = reader.bool();
-          continue;
-        }
-        case 67: {
-          if (tag !== 536) {
-            break;
-          }
-
-          message.useFakerInput = reader.bool();
-          continue;
-        }
         case 59: {
           if (tag !== 472) {
             break;
@@ -1085,6 +1105,14 @@ export const Settings: MessageFns<Settings> = {
           }
 
           message.profiles.push(Profile.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 16: {
+          if (tag !== 128) {
+            break;
+          }
+
+          message.useSidekick = reader.bool();
           continue;
         }
         case 2: {
@@ -1481,11 +1509,10 @@ export const Settings: MessageFns<Settings> = {
       ipcAddr: isSet(object.ipcAddr) ? globalThis.String(object.ipcAddr) : "",
       minimizeToTray: isSet(object.minimizeToTray) ? globalThis.Boolean(object.minimizeToTray) : false,
       updateCheck: isSet(object.updateCheck) ? globalThis.Boolean(object.updateCheck) : false,
-      useSidekick: isSet(object.useSidekick) ? globalThis.Boolean(object.useSidekick) : false,
-      useFakerInput: isSet(object.useFakerInput) ? globalThis.Boolean(object.useFakerInput) : false,
       autoProfileSwitch: isSet(object.autoProfileSwitch) ? globalThis.Boolean(object.autoProfileSwitch) : false,
       profile: isSet(object.profile) ? globalThis.Number(object.profile) : 0,
       profiles: globalThis.Array.isArray(object?.profiles) ? object.profiles.map((e: any) => Profile.fromJSON(e)) : [],
+      useSidekick: isSet(object.useSidekick) ? globalThis.Boolean(object.useSidekick) : false,
       threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
       useDeactThreshold: isSet(object.useDeactThreshold) ? globalThis.Boolean(object.useDeactThreshold) : false,
       deactThreshold: isSet(object.deactThreshold) ? globalThis.Number(object.deactThreshold) : 0,
@@ -1609,12 +1636,6 @@ export const Settings: MessageFns<Settings> = {
     if (message.updateCheck !== false) {
       obj.updateCheck = message.updateCheck;
     }
-    if (message.useSidekick !== false) {
-      obj.useSidekick = message.useSidekick;
-    }
-    if (message.useFakerInput !== false) {
-      obj.useFakerInput = message.useFakerInput;
-    }
     if (message.autoProfileSwitch !== false) {
       obj.autoProfileSwitch = message.autoProfileSwitch;
     }
@@ -1623,6 +1644,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.profiles?.length) {
       obj.profiles = message.profiles.map((e) => Profile.toJSON(e));
+    }
+    if (message.useSidekick !== false) {
+      obj.useSidekick = message.useSidekick;
     }
     if (message.threshold !== 0) {
       obj.threshold = message.threshold;
@@ -1782,11 +1806,10 @@ export const Settings: MessageFns<Settings> = {
     message.ipcAddr = object.ipcAddr ?? "";
     message.minimizeToTray = object.minimizeToTray ?? false;
     message.updateCheck = object.updateCheck ?? false;
-    message.useSidekick = object.useSidekick ?? false;
-    message.useFakerInput = object.useFakerInput ?? false;
     message.autoProfileSwitch = object.autoProfileSwitch ?? false;
     message.profile = object.profile ?? 0;
     message.profiles = object.profiles?.map((e) => Profile.fromPartial(e)) || [];
+    message.useSidekick = object.useSidekick ?? false;
     message.threshold = object.threshold ?? 0;
     message.useDeactThreshold = object.useDeactThreshold ?? false;
     message.deactThreshold = object.deactThreshold ?? 0;
@@ -2067,6 +2090,7 @@ function createBaseProfileSettings(): ProfileSettings {
     tapActivationWindowMs: 0,
     deviceName: "",
     deviceUuid: "",
+    inputMethod: 0,
   };
 }
 
@@ -2197,6 +2221,9 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     }
     if (message.deviceUuid !== "") {
       writer.uint32(346).string(message.deviceUuid);
+    }
+    if (message.inputMethod !== 0) {
+      writer.uint32(352).int32(message.inputMethod);
     }
     return writer;
   },
@@ -2544,6 +2571,14 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
           message.deviceUuid = reader.string();
           continue;
         }
+        case 44: {
+          if (tag !== 352) {
+            break;
+          }
+
+          message.inputMethod = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2639,6 +2674,7 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
       tapActivationWindowMs: isSet(object.tapActivationWindowMs) ? globalThis.Number(object.tapActivationWindowMs) : 0,
       deviceName: isSet(object.deviceName) ? globalThis.String(object.deviceName) : "",
       deviceUuid: isSet(object.deviceUuid) ? globalThis.String(object.deviceUuid) : "",
+      inputMethod: isSet(object.inputMethod) ? inputMethodFromJSON(object.inputMethod) : 0,
     };
   },
 
@@ -2772,6 +2808,9 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.deviceUuid !== "") {
       obj.deviceUuid = message.deviceUuid;
     }
+    if (message.inputMethod !== 0) {
+      obj.inputMethod = inputMethodToJSON(message.inputMethod);
+    }
     return obj;
   },
 
@@ -2891,6 +2930,7 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     message.tapActivationWindowMs = object.tapActivationWindowMs ?? 0;
     message.deviceName = object.deviceName ?? "";
     message.deviceUuid = object.deviceUuid ?? "";
+    message.inputMethod = object.inputMethod ?? 0;
     return message;
   },
 };
