@@ -50,14 +50,15 @@ export default class IPC {
   profileId = "";
   autoProfileSwitch = false;
 
-  private serverIpcVersion = -1;
+  serverIpcVersion = -1;
 
   // IPC versions
   // 3 - AutoPTT 2.8.0
   // 4 - AutoPTT 2.11.0
   // 5 - AutoPTT 3.0.0
+  // 6 - AutoPTT 4.0.0
 
-  static VERSION = 5;
+  static VERSION = 6;
 
   isCompatible() {
     const server = this.serverIpcVersion;
@@ -82,6 +83,11 @@ export default class IPC {
 
     if (server === 4) {
       // profile switching will not work (there are no profiles :)
+      return true;
+    }
+
+    if (server === 5) {
+      // FakerInput status won't be available but that's fine
       return true;
     }
 
@@ -190,7 +196,10 @@ export default class IPC {
   private onData = (data: Buffer) => {
     this.logDebug("recv", data.byteLength);
 
-    this.recvBuffer = Buffer.concat([this.recvBuffer, data]);
+    this.recvBuffer = Buffer.concat([
+      this.recvBuffer as Uint8Array,
+      data as Uint8Array
+    ]);
 
     while (this.recvBuffer.byteLength > 0) {
       const ok = this.tryDecode();
@@ -205,7 +214,7 @@ export default class IPC {
     let msgLen = 0;
 
     try {
-      msgLen = varint.decode(this.recvBuffer);
+      msgLen = varint.decode(Uint8Array.from(this.recvBuffer));
     }
 
     catch (_err) {
@@ -216,7 +225,7 @@ export default class IPC {
 
     try {
       const msg = AutopttIpc.decode(
-        this.recvBuffer.subarray(varintLen, varintLen + msgLen)
+          this.recvBuffer.subarray(varintLen, varintLen + msgLen) as Uint8Array
       );
 
       this.recvBuffer = this.recvBuffer.subarray(varintLen + msgLen);
@@ -251,12 +260,12 @@ export default class IPC {
     const encoded = AutopttIpc.encode(msg).finish();
     const varintBytes = varint.encode(encoded.byteLength);
     const delimited = Buffer.concat([
-      Buffer.from(varintBytes),
+      Buffer.from(varintBytes) as Uint8Array,
       encoded
     ]);
 
     // this.logDebug("[write]", delimited.length, msg);
-    this.socket.write(delimited);
+    this.socket.write(delimited as Uint8Array);
   }
 
   private onMessage(msg: AutopttIpc) {
