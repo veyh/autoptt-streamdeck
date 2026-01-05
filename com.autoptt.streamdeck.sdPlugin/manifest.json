@@ -25,9 +25,9 @@
 	"CodePath": "bin/plugin.js",
 	"Description": "Elgato Streamdeck plugin for AutoPTT",
 	"Icon": "imgs/plugin/marketplace",
-	"SDKVersion": 2,
+	"SDKVersion": 3,
 	"Software": {
-		"MinimumVersion": "6.4"
+		"MinimumVersion": "6.9"
 	},
 	"OS": [
 		{

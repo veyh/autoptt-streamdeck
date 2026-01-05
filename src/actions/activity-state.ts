@@ -234,7 +234,7 @@ export class ActivityState extends SingletonAction<Settings> {
 		hotkeyActions.push({ value: "ptm-global", label: "Push-to-Mute (Global)" });
 		hotkeyActions.push({ value: "toggle-mute-global", label: "Toggle Mute (Global)" });
 
-		streamDeck.ui.current?.sendToPropertyInspector({
+		streamDeck.ui.sendToPropertyInspector({
 			event: "getOnKeyDownOptions",
 			items: [{
 				label: "Set Activity Mode",
