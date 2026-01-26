@@ -611,6 +611,7 @@ export interface Ipc {
   updateCheckFailed?: IpcUpdateCheckFailed | undefined;
   guiDeviceChanged?: IpcGuiDeviceChanged | undefined;
   fakerInputStatus?: IpcFakerInputStatus | undefined;
+  profileChanged?: IpcProfileChanged | undefined;
   overlayHello?: IpcOverlayHello | undefined;
   clientConfigure?: IpcClientConfigure | undefined;
   requestRestart?: IpcRequestRestart | undefined;
@@ -736,6 +737,11 @@ export interface IpcGuiDeviceChanged {
 
 export interface IpcFakerInputStatus {
   exists: boolean;
+}
+
+export interface IpcProfileChanged {
+  profileIdPrev: Uint8Array;
+  profileId: Uint8Array;
 }
 
 export interface IpcAppEnabledStateChanged {
@@ -3618,6 +3624,7 @@ function createBaseIpc(): Ipc {
     updateCheckFailed: undefined,
     guiDeviceChanged: undefined,
     fakerInputStatus: undefined,
+    profileChanged: undefined,
     overlayHello: undefined,
     clientConfigure: undefined,
     requestRestart: undefined,
@@ -3683,6 +3690,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.fakerInputStatus !== undefined) {
       IpcFakerInputStatus.encode(message.fakerInputStatus, writer.uint32(298).fork()).join();
+    }
+    if (message.profileChanged !== undefined) {
+      IpcProfileChanged.encode(message.profileChanged, writer.uint32(306).fork()).join();
     }
     if (message.overlayHello !== undefined) {
       IpcOverlayHello.encode(message.overlayHello, writer.uint32(34).fork()).join();
@@ -3862,6 +3872,14 @@ export const Ipc: MessageFns<Ipc> = {
           }
 
           message.fakerInputStatus = IpcFakerInputStatus.decode(reader, reader.uint32());
+          continue;
+        }
+        case 38: {
+          if (tag !== 306) {
+            break;
+          }
+
+          message.profileChanged = IpcProfileChanged.decode(reader, reader.uint32());
           continue;
         }
         case 4: {
@@ -4044,6 +4062,7 @@ export const Ipc: MessageFns<Ipc> = {
       fakerInputStatus: isSet(object.fakerInputStatus)
         ? IpcFakerInputStatus.fromJSON(object.fakerInputStatus)
         : undefined,
+      profileChanged: isSet(object.profileChanged) ? IpcProfileChanged.fromJSON(object.profileChanged) : undefined,
       overlayHello: isSet(object.overlayHello) ? IpcOverlayHello.fromJSON(object.overlayHello) : undefined,
       clientConfigure: isSet(object.clientConfigure) ? IpcClientConfigure.fromJSON(object.clientConfigure) : undefined,
       requestRestart: isSet(object.requestRestart) ? IpcRequestRestart.fromJSON(object.requestRestart) : undefined,
@@ -4129,6 +4148,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.fakerInputStatus !== undefined) {
       obj.fakerInputStatus = IpcFakerInputStatus.toJSON(message.fakerInputStatus);
+    }
+    if (message.profileChanged !== undefined) {
+      obj.profileChanged = IpcProfileChanged.toJSON(message.profileChanged);
     }
     if (message.overlayHello !== undefined) {
       obj.overlayHello = IpcOverlayHello.toJSON(message.overlayHello);
@@ -4236,6 +4258,9 @@ export const Ipc: MessageFns<Ipc> = {
       : undefined;
     message.fakerInputStatus = (object.fakerInputStatus !== undefined && object.fakerInputStatus !== null)
       ? IpcFakerInputStatus.fromPartial(object.fakerInputStatus)
+      : undefined;
+    message.profileChanged = (object.profileChanged !== undefined && object.profileChanged !== null)
+      ? IpcProfileChanged.fromPartial(object.profileChanged)
       : undefined;
     message.overlayHello = (object.overlayHello !== undefined && object.overlayHello !== null)
       ? IpcOverlayHello.fromPartial(object.overlayHello)
@@ -5845,6 +5870,82 @@ export const IpcFakerInputStatus: MessageFns<IpcFakerInputStatus> = {
   fromPartial<I extends Exact<DeepPartial<IpcFakerInputStatus>, I>>(object: I): IpcFakerInputStatus {
     const message = createBaseIpcFakerInputStatus();
     message.exists = object.exists ?? false;
+    return message;
+  },
+};
+
+function createBaseIpcProfileChanged(): IpcProfileChanged {
+  return { profileIdPrev: new Uint8Array(0), profileId: new Uint8Array(0) };
+}
+
+export const IpcProfileChanged: MessageFns<IpcProfileChanged> = {
+  encode(message: IpcProfileChanged, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.profileIdPrev.length !== 0) {
+      writer.uint32(10).bytes(message.profileIdPrev);
+    }
+    if (message.profileId.length !== 0) {
+      writer.uint32(18).bytes(message.profileId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcProfileChanged {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcProfileChanged();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.profileIdPrev = reader.bytes();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.profileId = reader.bytes();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcProfileChanged {
+    return {
+      profileIdPrev: isSet(object.profileIdPrev) ? bytesFromBase64(object.profileIdPrev) : new Uint8Array(0),
+      profileId: isSet(object.profileId) ? bytesFromBase64(object.profileId) : new Uint8Array(0),
+    };
+  },
+
+  toJSON(message: IpcProfileChanged): unknown {
+    const obj: any = {};
+    if (message.profileIdPrev.length !== 0) {
+      obj.profileIdPrev = base64FromBytes(message.profileIdPrev);
+    }
+    if (message.profileId.length !== 0) {
+      obj.profileId = base64FromBytes(message.profileId);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcProfileChanged>, I>>(base?: I): IpcProfileChanged {
+    return IpcProfileChanged.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcProfileChanged>, I>>(object: I): IpcProfileChanged {
+    const message = createBaseIpcProfileChanged();
+    message.profileIdPrev = object.profileIdPrev ?? new Uint8Array(0);
+    message.profileId = object.profileId ?? new Uint8Array(0);
     return message;
   },
 };
