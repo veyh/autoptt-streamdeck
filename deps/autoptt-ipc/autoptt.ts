@@ -136,6 +136,8 @@ export enum StartOnBootType {
   NO = 0,
   YES = 1,
   YES_MINIMIZED = 2,
+  YES_ADMIN = 3,
+  YES_MINIMIZED_ADMIN = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -150,6 +152,12 @@ export function startOnBootTypeFromJSON(object: any): StartOnBootType {
     case 2:
     case "YES_MINIMIZED":
       return StartOnBootType.YES_MINIMIZED;
+    case 3:
+    case "YES_ADMIN":
+      return StartOnBootType.YES_ADMIN;
+    case 4:
+    case "YES_MINIMIZED_ADMIN":
+      return StartOnBootType.YES_MINIMIZED_ADMIN;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -165,6 +173,10 @@ export function startOnBootTypeToJSON(object: StartOnBootType): string {
       return "YES";
     case StartOnBootType.YES_MINIMIZED:
       return "YES_MINIMIZED";
+    case StartOnBootType.YES_ADMIN:
+      return "YES_ADMIN";
+    case StartOnBootType.YES_MINIMIZED_ADMIN:
+      return "YES_MINIMIZED_ADMIN";
     case StartOnBootType.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
