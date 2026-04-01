@@ -606,6 +606,18 @@ export interface HotkeyGroup {
   pushToMute: HotkeyV3[];
   extraTriggers: HotkeyV3[];
   toggleMute: HotkeyV3[];
+  /**
+   * This is synced with `extra_triggers` so you can use the same index, eg.
+   * for `extra_triggers[1].vk_codes[2]` you would check
+   * `extra_triggers_consume_when_active[1].vk_codes[2]`
+   */
+  extraTriggersConsumeWhenActive: ExtraTriggersConsumeWhenActive[];
+}
+
+export interface ExtraTriggersConsumeWhenActive {
+  vkCodes: boolean[];
+  joyButtons: boolean[];
+  joyPovs: boolean[];
 }
 
 export interface Ipc {
@@ -3506,7 +3518,14 @@ export const JoyId: MessageFns<JoyId> = {
 };
 
 function createBaseHotkeyGroup(): HotkeyGroup {
-  return { displayName: "", pushToTalk: undefined, pushToMute: [], extraTriggers: [], toggleMute: [] };
+  return {
+    displayName: "",
+    pushToTalk: undefined,
+    pushToMute: [],
+    extraTriggers: [],
+    toggleMute: [],
+    extraTriggersConsumeWhenActive: [],
+  };
 }
 
 export const HotkeyGroup: MessageFns<HotkeyGroup> = {
@@ -3525,6 +3544,9 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
     }
     for (const v of message.toggleMute) {
       HotkeyV3.encode(v!, writer.uint32(42).fork()).join();
+    }
+    for (const v of message.extraTriggersConsumeWhenActive) {
+      ExtraTriggersConsumeWhenActive.encode(v!, writer.uint32(50).fork()).join();
     }
     return writer;
   },
@@ -3576,6 +3598,14 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
           message.toggleMute.push(HotkeyV3.decode(reader, reader.uint32()));
           continue;
         }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.extraTriggersConsumeWhenActive.push(ExtraTriggersConsumeWhenActive.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -3598,6 +3628,9 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
       toggleMute: globalThis.Array.isArray(object?.toggleMute)
         ? object.toggleMute.map((e: any) => HotkeyV3.fromJSON(e))
         : [],
+      extraTriggersConsumeWhenActive: globalThis.Array.isArray(object?.extraTriggersConsumeWhenActive)
+        ? object.extraTriggersConsumeWhenActive.map((e: any) => ExtraTriggersConsumeWhenActive.fromJSON(e))
+        : [],
     };
   },
 
@@ -3618,6 +3651,11 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
     if (message.toggleMute?.length) {
       obj.toggleMute = message.toggleMute.map((e) => HotkeyV3.toJSON(e));
     }
+    if (message.extraTriggersConsumeWhenActive?.length) {
+      obj.extraTriggersConsumeWhenActive = message.extraTriggersConsumeWhenActive.map((e) =>
+        ExtraTriggersConsumeWhenActive.toJSON(e)
+      );
+    }
     return obj;
   },
 
@@ -3633,6 +3671,140 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
     message.pushToMute = object.pushToMute?.map((e) => HotkeyV3.fromPartial(e)) || [];
     message.extraTriggers = object.extraTriggers?.map((e) => HotkeyV3.fromPartial(e)) || [];
     message.toggleMute = object.toggleMute?.map((e) => HotkeyV3.fromPartial(e)) || [];
+    message.extraTriggersConsumeWhenActive =
+      object.extraTriggersConsumeWhenActive?.map((e) => ExtraTriggersConsumeWhenActive.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseExtraTriggersConsumeWhenActive(): ExtraTriggersConsumeWhenActive {
+  return { vkCodes: [], joyButtons: [], joyPovs: [] };
+}
+
+export const ExtraTriggersConsumeWhenActive: MessageFns<ExtraTriggersConsumeWhenActive> = {
+  encode(message: ExtraTriggersConsumeWhenActive, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    writer.uint32(10).fork();
+    for (const v of message.vkCodes) {
+      writer.bool(v);
+    }
+    writer.join();
+    writer.uint32(18).fork();
+    for (const v of message.joyButtons) {
+      writer.bool(v);
+    }
+    writer.join();
+    writer.uint32(26).fork();
+    for (const v of message.joyPovs) {
+      writer.bool(v);
+    }
+    writer.join();
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ExtraTriggersConsumeWhenActive {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseExtraTriggersConsumeWhenActive();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag === 8) {
+            message.vkCodes.push(reader.bool());
+
+            continue;
+          }
+
+          if (tag === 10) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.vkCodes.push(reader.bool());
+            }
+
+            continue;
+          }
+
+          break;
+        }
+        case 2: {
+          if (tag === 16) {
+            message.joyButtons.push(reader.bool());
+
+            continue;
+          }
+
+          if (tag === 18) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.joyButtons.push(reader.bool());
+            }
+
+            continue;
+          }
+
+          break;
+        }
+        case 3: {
+          if (tag === 24) {
+            message.joyPovs.push(reader.bool());
+
+            continue;
+          }
+
+          if (tag === 26) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.joyPovs.push(reader.bool());
+            }
+
+            continue;
+          }
+
+          break;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ExtraTriggersConsumeWhenActive {
+    return {
+      vkCodes: globalThis.Array.isArray(object?.vkCodes) ? object.vkCodes.map((e: any) => globalThis.Boolean(e)) : [],
+      joyButtons: globalThis.Array.isArray(object?.joyButtons)
+        ? object.joyButtons.map((e: any) => globalThis.Boolean(e))
+        : [],
+      joyPovs: globalThis.Array.isArray(object?.joyPovs) ? object.joyPovs.map((e: any) => globalThis.Boolean(e)) : [],
+    };
+  },
+
+  toJSON(message: ExtraTriggersConsumeWhenActive): unknown {
+    const obj: any = {};
+    if (message.vkCodes?.length) {
+      obj.vkCodes = message.vkCodes;
+    }
+    if (message.joyButtons?.length) {
+      obj.joyButtons = message.joyButtons;
+    }
+    if (message.joyPovs?.length) {
+      obj.joyPovs = message.joyPovs;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ExtraTriggersConsumeWhenActive>, I>>(base?: I): ExtraTriggersConsumeWhenActive {
+    return ExtraTriggersConsumeWhenActive.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ExtraTriggersConsumeWhenActive>, I>>(
+    object: I,
+  ): ExtraTriggersConsumeWhenActive {
+    const message = createBaseExtraTriggersConsumeWhenActive();
+    message.vkCodes = object.vkCodes?.map((e) => e) || [];
+    message.joyButtons = object.joyButtons?.map((e) => e) || [];
+    message.joyPovs = object.joyPovs?.map((e) => e) || [];
     return message;
   },
 };
