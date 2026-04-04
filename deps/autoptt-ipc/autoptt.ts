@@ -615,9 +615,11 @@ export interface HotkeyGroup {
 }
 
 export interface ExtraTriggersConsumeWhenActive {
+  /**
+   * repeated bool joy_buttons = 2; // NOT SUPPORTED
+   * repeated bool joy_povs = 3;    // NOT SUPPORTED
+   */
   vkCodes: boolean[];
-  joyButtons: boolean[];
-  joyPovs: boolean[];
 }
 
 export interface Ipc {
@@ -3678,23 +3680,13 @@ export const HotkeyGroup: MessageFns<HotkeyGroup> = {
 };
 
 function createBaseExtraTriggersConsumeWhenActive(): ExtraTriggersConsumeWhenActive {
-  return { vkCodes: [], joyButtons: [], joyPovs: [] };
+  return { vkCodes: [] };
 }
 
 export const ExtraTriggersConsumeWhenActive: MessageFns<ExtraTriggersConsumeWhenActive> = {
   encode(message: ExtraTriggersConsumeWhenActive, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     writer.uint32(10).fork();
     for (const v of message.vkCodes) {
-      writer.bool(v);
-    }
-    writer.join();
-    writer.uint32(18).fork();
-    for (const v of message.joyButtons) {
-      writer.bool(v);
-    }
-    writer.join();
-    writer.uint32(26).fork();
-    for (const v of message.joyPovs) {
       writer.bool(v);
     }
     writer.join();
@@ -3726,42 +3718,6 @@ export const ExtraTriggersConsumeWhenActive: MessageFns<ExtraTriggersConsumeWhen
 
           break;
         }
-        case 2: {
-          if (tag === 16) {
-            message.joyButtons.push(reader.bool());
-
-            continue;
-          }
-
-          if (tag === 18) {
-            const end2 = reader.uint32() + reader.pos;
-            while (reader.pos < end2) {
-              message.joyButtons.push(reader.bool());
-            }
-
-            continue;
-          }
-
-          break;
-        }
-        case 3: {
-          if (tag === 24) {
-            message.joyPovs.push(reader.bool());
-
-            continue;
-          }
-
-          if (tag === 26) {
-            const end2 = reader.uint32() + reader.pos;
-            while (reader.pos < end2) {
-              message.joyPovs.push(reader.bool());
-            }
-
-            continue;
-          }
-
-          break;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -3774,10 +3730,6 @@ export const ExtraTriggersConsumeWhenActive: MessageFns<ExtraTriggersConsumeWhen
   fromJSON(object: any): ExtraTriggersConsumeWhenActive {
     return {
       vkCodes: globalThis.Array.isArray(object?.vkCodes) ? object.vkCodes.map((e: any) => globalThis.Boolean(e)) : [],
-      joyButtons: globalThis.Array.isArray(object?.joyButtons)
-        ? object.joyButtons.map((e: any) => globalThis.Boolean(e))
-        : [],
-      joyPovs: globalThis.Array.isArray(object?.joyPovs) ? object.joyPovs.map((e: any) => globalThis.Boolean(e)) : [],
     };
   },
 
@@ -3785,12 +3737,6 @@ export const ExtraTriggersConsumeWhenActive: MessageFns<ExtraTriggersConsumeWhen
     const obj: any = {};
     if (message.vkCodes?.length) {
       obj.vkCodes = message.vkCodes;
-    }
-    if (message.joyButtons?.length) {
-      obj.joyButtons = message.joyButtons;
-    }
-    if (message.joyPovs?.length) {
-      obj.joyPovs = message.joyPovs;
     }
     return obj;
   },
@@ -3803,8 +3749,6 @@ export const ExtraTriggersConsumeWhenActive: MessageFns<ExtraTriggersConsumeWhen
   ): ExtraTriggersConsumeWhenActive {
     const message = createBaseExtraTriggersConsumeWhenActive();
     message.vkCodes = object.vkCodes?.map((e) => e) || [];
-    message.joyButtons = object.joyButtons?.map((e) => e) || [];
-    message.joyPovs = object.joyPovs?.map((e) => e) || [];
     return message;
   },
 };
