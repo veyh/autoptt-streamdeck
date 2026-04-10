@@ -655,6 +655,7 @@ export interface Ipc {
   requestChangeProfile?: IpcRequestChangeProfile | undefined;
   requestSetAutoProfileSwitch?: IpcRequestSetAutoProfileSwitch | undefined;
   requestToggleAutoProfileSwitch?: IpcRequestToggleAutoProfileSwitch | undefined;
+  requestBringToFront?: IpcRequestBringToFront | undefined;
 }
 
 export interface IpcActivityStateChanged {
@@ -809,6 +810,9 @@ export interface IpcRequestSetAutoProfileSwitch {
 }
 
 export interface IpcRequestToggleAutoProfileSwitch {
+}
+
+export interface IpcRequestBringToFront {
 }
 
 function createBaseSettings(): Settings {
@@ -3787,6 +3791,7 @@ function createBaseIpc(): Ipc {
     requestChangeProfile: undefined,
     requestSetAutoProfileSwitch: undefined,
     requestToggleAutoProfileSwitch: undefined,
+    requestBringToFront: undefined,
   };
 }
 
@@ -3889,6 +3894,9 @@ export const Ipc: MessageFns<Ipc> = {
     if (message.requestToggleAutoProfileSwitch !== undefined) {
       IpcRequestToggleAutoProfileSwitch.encode(message.requestToggleAutoProfileSwitch, writer.uint32(290).fork())
         .join();
+    }
+    if (message.requestBringToFront !== undefined) {
+      IpcRequestBringToFront.encode(message.requestBringToFront, writer.uint32(314).fork()).join();
     }
     return writer;
   },
@@ -4156,6 +4164,14 @@ export const Ipc: MessageFns<Ipc> = {
           message.requestToggleAutoProfileSwitch = IpcRequestToggleAutoProfileSwitch.decode(reader, reader.uint32());
           continue;
         }
+        case 39: {
+          if (tag !== 314) {
+            break;
+          }
+
+          message.requestBringToFront = IpcRequestBringToFront.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -4244,6 +4260,9 @@ export const Ipc: MessageFns<Ipc> = {
         : undefined,
       requestToggleAutoProfileSwitch: isSet(object.requestToggleAutoProfileSwitch)
         ? IpcRequestToggleAutoProfileSwitch.fromJSON(object.requestToggleAutoProfileSwitch)
+        : undefined,
+      requestBringToFront: isSet(object.requestBringToFront)
+        ? IpcRequestBringToFront.fromJSON(object.requestBringToFront)
         : undefined,
     };
   },
@@ -4349,6 +4368,9 @@ export const Ipc: MessageFns<Ipc> = {
       obj.requestToggleAutoProfileSwitch = IpcRequestToggleAutoProfileSwitch.toJSON(
         message.requestToggleAutoProfileSwitch,
       );
+    }
+    if (message.requestBringToFront !== undefined) {
+      obj.requestBringToFront = IpcRequestBringToFront.toJSON(message.requestBringToFront);
     }
     return obj;
   },
@@ -4464,6 +4486,9 @@ export const Ipc: MessageFns<Ipc> = {
       (object.requestToggleAutoProfileSwitch !== undefined && object.requestToggleAutoProfileSwitch !== null)
         ? IpcRequestToggleAutoProfileSwitch.fromPartial(object.requestToggleAutoProfileSwitch)
         : undefined;
+    message.requestBringToFront = (object.requestBringToFront !== undefined && object.requestBringToFront !== null)
+      ? IpcRequestBringToFront.fromPartial(object.requestBringToFront)
+      : undefined;
     return message;
   },
 };
@@ -6702,6 +6727,49 @@ export const IpcRequestToggleAutoProfileSwitch: MessageFns<IpcRequestToggleAutoP
     _: I,
   ): IpcRequestToggleAutoProfileSwitch {
     const message = createBaseIpcRequestToggleAutoProfileSwitch();
+    return message;
+  },
+};
+
+function createBaseIpcRequestBringToFront(): IpcRequestBringToFront {
+  return {};
+}
+
+export const IpcRequestBringToFront: MessageFns<IpcRequestBringToFront> = {
+  encode(_: IpcRequestBringToFront, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcRequestBringToFront {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcRequestBringToFront();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): IpcRequestBringToFront {
+    return {};
+  },
+
+  toJSON(_: IpcRequestBringToFront): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcRequestBringToFront>, I>>(base?: I): IpcRequestBringToFront {
+    return IpcRequestBringToFront.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcRequestBringToFront>, I>>(_: I): IpcRequestBringToFront {
+    const message = createBaseIpcRequestBringToFront();
     return message;
   },
 };
