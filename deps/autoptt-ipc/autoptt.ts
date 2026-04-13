@@ -402,6 +402,7 @@ export interface Settings {
   version: number;
   appVersion: number;
   startOnBootType: StartOnBootType;
+  startOnBootGlobalMuted: boolean;
   licenseKey: string;
   ipcAddr: string;
   minimizeToTray: boolean;
@@ -820,6 +821,7 @@ function createBaseSettings(): Settings {
     version: 0,
     appVersion: 0,
     startOnBootType: 0,
+    startOnBootGlobalMuted: false,
     licenseKey: "",
     ipcAddr: "",
     minimizeToTray: false,
@@ -889,6 +891,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.startOnBootType !== 0) {
       writer.uint32(104).int32(message.startOnBootType);
+    }
+    if (message.startOnBootGlobalMuted !== false) {
+      writer.uint32(544).bool(message.startOnBootGlobalMuted);
     }
     if (message.licenseKey !== "") {
       writer.uint32(122).string(message.licenseKey);
@@ -1090,6 +1095,14 @@ export const Settings: MessageFns<Settings> = {
           }
 
           message.startOnBootType = reader.int32() as any;
+          continue;
+        }
+        case 68: {
+          if (tag !== 544) {
+            break;
+          }
+
+          message.startOnBootGlobalMuted = reader.bool();
           continue;
         }
         case 15: {
@@ -1554,6 +1567,9 @@ export const Settings: MessageFns<Settings> = {
       version: isSet(object.version) ? globalThis.Number(object.version) : 0,
       appVersion: isSet(object.appVersion) ? globalThis.Number(object.appVersion) : 0,
       startOnBootType: isSet(object.startOnBootType) ? startOnBootTypeFromJSON(object.startOnBootType) : 0,
+      startOnBootGlobalMuted: isSet(object.startOnBootGlobalMuted)
+        ? globalThis.Boolean(object.startOnBootGlobalMuted)
+        : false,
       licenseKey: isSet(object.licenseKey) ? globalThis.String(object.licenseKey) : "",
       ipcAddr: isSet(object.ipcAddr) ? globalThis.String(object.ipcAddr) : "",
       minimizeToTray: isSet(object.minimizeToTray) ? globalThis.Boolean(object.minimizeToTray) : false,
@@ -1673,6 +1689,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.startOnBootType !== 0) {
       obj.startOnBootType = startOnBootTypeToJSON(message.startOnBootType);
+    }
+    if (message.startOnBootGlobalMuted !== false) {
+      obj.startOnBootGlobalMuted = message.startOnBootGlobalMuted;
     }
     if (message.licenseKey !== "") {
       obj.licenseKey = message.licenseKey;
@@ -1855,6 +1874,7 @@ export const Settings: MessageFns<Settings> = {
     message.version = object.version ?? 0;
     message.appVersion = object.appVersion ?? 0;
     message.startOnBootType = object.startOnBootType ?? 0;
+    message.startOnBootGlobalMuted = object.startOnBootGlobalMuted ?? false;
     message.licenseKey = object.licenseKey ?? "";
     message.ipcAddr = object.ipcAddr ?? "";
     message.minimizeToTray = object.minimizeToTray ?? false;
