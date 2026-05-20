@@ -484,8 +484,6 @@ export interface ProfileSettings {
   threshold: number;
   useDeactThreshold: boolean;
   deactThreshold: number;
-  safe: boolean;
-  safeIntervalMs: number;
   releaseDelayMs: number;
   activationMode: ActivationMode;
   meterType: MeterType;
@@ -524,6 +522,8 @@ export interface ProfileSettings {
   deviceName: string;
   deviceUuid: string;
   inputMethod: InputMethod;
+  safe: boolean;
+  safeIntervalMs: number;
 }
 
 export interface ProfileActivationTrigger {
@@ -2125,8 +2125,6 @@ function createBaseProfileSettings(): ProfileSettings {
     threshold: 0,
     useDeactThreshold: false,
     deactThreshold: 0,
-    safe: false,
-    safeIntervalMs: 0,
     releaseDelayMs: 0,
     activationMode: 0,
     meterType: 0,
@@ -2165,6 +2163,8 @@ function createBaseProfileSettings(): ProfileSettings {
     deviceName: "",
     deviceUuid: "",
     inputMethod: 0,
+    safe: false,
+    safeIntervalMs: 0,
   };
 }
 
@@ -2178,12 +2178,6 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     }
     if (message.deactThreshold !== 0) {
       writer.uint32(25).double(message.deactThreshold);
-    }
-    if (message.safe !== false) {
-      writer.uint32(32).bool(message.safe);
-    }
-    if (message.safeIntervalMs !== 0) {
-      writer.uint32(40).uint32(message.safeIntervalMs);
     }
     if (message.releaseDelayMs !== 0) {
       writer.uint32(56).uint32(message.releaseDelayMs);
@@ -2299,6 +2293,12 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.inputMethod !== 0) {
       writer.uint32(352).int32(message.inputMethod);
     }
+    if (message.safe !== false) {
+      writer.uint32(32).bool(message.safe);
+    }
+    if (message.safeIntervalMs !== 0) {
+      writer.uint32(40).uint32(message.safeIntervalMs);
+    }
     return writer;
   },
 
@@ -2331,22 +2331,6 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
           }
 
           message.deactThreshold = reader.double();
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.safe = reader.bool();
-          continue;
-        }
-        case 5: {
-          if (tag !== 40) {
-            break;
-          }
-
-          message.safeIntervalMs = reader.uint32();
           continue;
         }
         case 7: {
@@ -2653,6 +2637,22 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
           message.inputMethod = reader.int32() as any;
           continue;
         }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.safe = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.safeIntervalMs = reader.uint32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2667,8 +2667,6 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
       threshold: isSet(object.threshold) ? globalThis.Number(object.threshold) : 0,
       useDeactThreshold: isSet(object.useDeactThreshold) ? globalThis.Boolean(object.useDeactThreshold) : false,
       deactThreshold: isSet(object.deactThreshold) ? globalThis.Number(object.deactThreshold) : 0,
-      safe: isSet(object.safe) ? globalThis.Boolean(object.safe) : false,
-      safeIntervalMs: isSet(object.safeIntervalMs) ? globalThis.Number(object.safeIntervalMs) : 0,
       releaseDelayMs: isSet(object.releaseDelayMs) ? globalThis.Number(object.releaseDelayMs) : 0,
       activationMode: isSet(object.activationMode) ? activationModeFromJSON(object.activationMode) : 0,
       meterType: isSet(object.meterType) ? meterTypeFromJSON(object.meterType) : 0,
@@ -2749,6 +2747,8 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
       deviceName: isSet(object.deviceName) ? globalThis.String(object.deviceName) : "",
       deviceUuid: isSet(object.deviceUuid) ? globalThis.String(object.deviceUuid) : "",
       inputMethod: isSet(object.inputMethod) ? inputMethodFromJSON(object.inputMethod) : 0,
+      safe: isSet(object.safe) ? globalThis.Boolean(object.safe) : false,
+      safeIntervalMs: isSet(object.safeIntervalMs) ? globalThis.Number(object.safeIntervalMs) : 0,
     };
   },
 
@@ -2762,12 +2762,6 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     }
     if (message.deactThreshold !== 0) {
       obj.deactThreshold = message.deactThreshold;
-    }
-    if (message.safe !== false) {
-      obj.safe = message.safe;
-    }
-    if (message.safeIntervalMs !== 0) {
-      obj.safeIntervalMs = Math.round(message.safeIntervalMs);
     }
     if (message.releaseDelayMs !== 0) {
       obj.releaseDelayMs = Math.round(message.releaseDelayMs);
@@ -2885,6 +2879,12 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.inputMethod !== 0) {
       obj.inputMethod = inputMethodToJSON(message.inputMethod);
     }
+    if (message.safe !== false) {
+      obj.safe = message.safe;
+    }
+    if (message.safeIntervalMs !== 0) {
+      obj.safeIntervalMs = Math.round(message.safeIntervalMs);
+    }
     return obj;
   },
 
@@ -2896,8 +2896,6 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     message.threshold = object.threshold ?? 0;
     message.useDeactThreshold = object.useDeactThreshold ?? false;
     message.deactThreshold = object.deactThreshold ?? 0;
-    message.safe = object.safe ?? false;
-    message.safeIntervalMs = object.safeIntervalMs ?? 0;
     message.releaseDelayMs = object.releaseDelayMs ?? 0;
     message.activationMode = object.activationMode ?? 0;
     message.meterType = object.meterType ?? 0;
@@ -3005,6 +3003,8 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     message.deviceName = object.deviceName ?? "";
     message.deviceUuid = object.deviceUuid ?? "";
     message.inputMethod = object.inputMethod ?? 0;
+    message.safe = object.safe ?? false;
+    message.safeIntervalMs = object.safeIntervalMs ?? 0;
     return message;
   },
 };
