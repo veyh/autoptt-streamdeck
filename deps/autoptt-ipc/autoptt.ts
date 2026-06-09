@@ -758,6 +758,7 @@ export interface IpcServerHello {
    * Example: app version 1.2.3 --> 1002003
    */
   appVersion: number;
+  isFirstBoot: boolean;
 }
 
 export interface IpcGuiDeviceChanged {
@@ -5874,7 +5875,7 @@ export const IpcClientConfigure: MessageFns<IpcClientConfigure> = {
 };
 
 function createBaseIpcServerHello(): IpcServerHello {
-  return { ipcVersion: 0, appVersion: 0 };
+  return { ipcVersion: 0, appVersion: 0, isFirstBoot: false };
 }
 
 export const IpcServerHello: MessageFns<IpcServerHello> = {
@@ -5884,6 +5885,9 @@ export const IpcServerHello: MessageFns<IpcServerHello> = {
     }
     if (message.appVersion !== 0) {
       writer.uint32(16).uint32(message.appVersion);
+    }
+    if (message.isFirstBoot !== false) {
+      writer.uint32(24).bool(message.isFirstBoot);
     }
     return writer;
   },
@@ -5911,6 +5915,14 @@ export const IpcServerHello: MessageFns<IpcServerHello> = {
           message.appVersion = reader.uint32();
           continue;
         }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.isFirstBoot = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -5924,6 +5936,7 @@ export const IpcServerHello: MessageFns<IpcServerHello> = {
     return {
       ipcVersion: isSet(object.ipcVersion) ? globalThis.Number(object.ipcVersion) : 0,
       appVersion: isSet(object.appVersion) ? globalThis.Number(object.appVersion) : 0,
+      isFirstBoot: isSet(object.isFirstBoot) ? globalThis.Boolean(object.isFirstBoot) : false,
     };
   },
 
@@ -5935,6 +5948,9 @@ export const IpcServerHello: MessageFns<IpcServerHello> = {
     if (message.appVersion !== 0) {
       obj.appVersion = Math.round(message.appVersion);
     }
+    if (message.isFirstBoot !== false) {
+      obj.isFirstBoot = message.isFirstBoot;
+    }
     return obj;
   },
 
@@ -5945,6 +5961,7 @@ export const IpcServerHello: MessageFns<IpcServerHello> = {
     const message = createBaseIpcServerHello();
     message.ipcVersion = object.ipcVersion ?? 0;
     message.appVersion = object.appVersion ?? 0;
+    message.isFirstBoot = object.isFirstBoot ?? false;
     return message;
   },
 };
