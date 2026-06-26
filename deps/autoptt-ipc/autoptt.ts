@@ -48,6 +48,78 @@ export function inputMethodToJSON(object: InputMethod): string {
   }
 }
 
+export enum MicInactiveWarning {
+  NONE = 0,
+  CURRENT_VALUE = 1,
+  ACTIVITY = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function micInactiveWarningFromJSON(object: any): MicInactiveWarning {
+  switch (object) {
+    case 0:
+    case "NONE":
+      return MicInactiveWarning.NONE;
+    case 1:
+    case "CURRENT_VALUE":
+      return MicInactiveWarning.CURRENT_VALUE;
+    case 2:
+    case "ACTIVITY":
+      return MicInactiveWarning.ACTIVITY;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return MicInactiveWarning.UNRECOGNIZED;
+  }
+}
+
+export function micInactiveWarningToJSON(object: MicInactiveWarning): string {
+  switch (object) {
+    case MicInactiveWarning.NONE:
+      return "NONE";
+    case MicInactiveWarning.CURRENT_VALUE:
+      return "CURRENT_VALUE";
+    case MicInactiveWarning.ACTIVITY:
+      return "ACTIVITY";
+    case MicInactiveWarning.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum AfkDetectionMethod {
+  ANY_INPUT = 0,
+  PHYSICAL_KEYBOARD = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function afkDetectionMethodFromJSON(object: any): AfkDetectionMethod {
+  switch (object) {
+    case 0:
+    case "ANY_INPUT":
+      return AfkDetectionMethod.ANY_INPUT;
+    case 1:
+    case "PHYSICAL_KEYBOARD":
+      return AfkDetectionMethod.PHYSICAL_KEYBOARD;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return AfkDetectionMethod.UNRECOGNIZED;
+  }
+}
+
+export function afkDetectionMethodToJSON(object: AfkDetectionMethod): string {
+  switch (object) {
+    case AfkDetectionMethod.ANY_INPUT:
+      return "ANY_INPUT";
+    case AfkDetectionMethod.PHYSICAL_KEYBOARD:
+      return "PHYSICAL_KEYBOARD";
+    case AfkDetectionMethod.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum ActivationMode {
   AUTOMATIC = 0,
   TAP_PTT = 1,
@@ -502,6 +574,7 @@ export interface ProfileSettings {
   soundOnToggleMuteGlobalOff: Sound | undefined;
   soundOnToggleMuteOn: Sound | undefined;
   soundOnToggleMuteOff: Sound | undefined;
+  soundOnMicInactiveWarning: Sound | undefined;
   keyPushToMuteGlobal: HotkeyV3 | undefined;
   keySetModeToVoiceActivity: HotkeyV3 | undefined;
   keySetModeToTap: HotkeyV3 | undefined;
@@ -522,6 +595,11 @@ export interface ProfileSettings {
   deviceName: string;
   deviceUuid: string;
   inputMethod: InputMethod;
+  micInactiveWarning: MicInactiveWarning;
+  micInactiveWarningWindowMs: number;
+  micInactiveAfkDetectionMethod: AfkDetectionMethod;
+  micInactiveAfkThresholdMs: number;
+  micInactiveWarningDisableWhileAfk: boolean;
   safe: boolean;
   safeIntervalMs: number;
 }
@@ -640,6 +718,8 @@ export interface Ipc {
   guiDeviceChanged?: IpcGuiDeviceChanged | undefined;
   fakerInputStatus?: IpcFakerInputStatus | undefined;
   profileChanged?: IpcProfileChanged | undefined;
+  lastInputInfo?: IpcLastInputInfo | undefined;
+  micInactiveChanged?: IpcMicInactiveChanged | undefined;
   overlayHello?: IpcOverlayHello | undefined;
   clientConfigure?: IpcClientConfigure | undefined;
   requestRestart?: IpcRequestRestart | undefined;
@@ -657,6 +737,7 @@ export interface Ipc {
   requestSetAutoProfileSwitch?: IpcRequestSetAutoProfileSwitch | undefined;
   requestToggleAutoProfileSwitch?: IpcRequestToggleAutoProfileSwitch | undefined;
   requestBringToFront?: IpcRequestBringToFront | undefined;
+  requestLastInputInfo?: IpcRequestLastInputInfo | undefined;
 }
 
 export interface IpcActivityStateChanged {
@@ -815,6 +896,23 @@ export interface IpcRequestToggleAutoProfileSwitch {
 }
 
 export interface IpcRequestBringToFront {
+}
+
+export interface IpcRequestLastInputInfo {
+}
+
+export interface IpcLastInputInfo {
+  /** uses WINAPI GetLastInputInfo, includes mouse movement */
+  sinceLastInputMs: number;
+  /**
+   * this only considers physical keyboard events
+   * SendInput, FakerInput & Sidekick events are ignored
+   */
+  sinceLastInputPhysicalMs: number;
+}
+
+export interface IpcMicInactiveChanged {
+  isInactive: boolean;
 }
 
 function createBaseSettings(): Settings {
@@ -2144,6 +2242,7 @@ function createBaseProfileSettings(): ProfileSettings {
     soundOnToggleMuteGlobalOff: undefined,
     soundOnToggleMuteOn: undefined,
     soundOnToggleMuteOff: undefined,
+    soundOnMicInactiveWarning: undefined,
     keyPushToMuteGlobal: undefined,
     keySetModeToVoiceActivity: undefined,
     keySetModeToTap: undefined,
@@ -2164,6 +2263,11 @@ function createBaseProfileSettings(): ProfileSettings {
     deviceName: "",
     deviceUuid: "",
     inputMethod: 0,
+    micInactiveWarning: 0,
+    micInactiveWarningWindowMs: 0,
+    micInactiveAfkDetectionMethod: 0,
+    micInactiveAfkThresholdMs: 0,
+    micInactiveWarningDisableWhileAfk: false,
     safe: false,
     safeIntervalMs: 0,
   };
@@ -2234,6 +2338,9 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.soundOnToggleMuteOff !== undefined) {
       Sound.encode(message.soundOnToggleMuteOff, writer.uint32(194).fork()).join();
     }
+    if (message.soundOnMicInactiveWarning !== undefined) {
+      Sound.encode(message.soundOnMicInactiveWarning, writer.uint32(378).fork()).join();
+    }
     if (message.keyPushToMuteGlobal !== undefined) {
       HotkeyV3.encode(message.keyPushToMuteGlobal, writer.uint32(202).fork()).join();
     }
@@ -2293,6 +2400,21 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     }
     if (message.inputMethod !== 0) {
       writer.uint32(352).int32(message.inputMethod);
+    }
+    if (message.micInactiveWarning !== 0) {
+      writer.uint32(360).int32(message.micInactiveWarning);
+    }
+    if (message.micInactiveWarningWindowMs !== 0) {
+      writer.uint32(368).uint32(message.micInactiveWarningWindowMs);
+    }
+    if (message.micInactiveAfkDetectionMethod !== 0) {
+      writer.uint32(384).int32(message.micInactiveAfkDetectionMethod);
+    }
+    if (message.micInactiveAfkThresholdMs !== 0) {
+      writer.uint32(392).uint32(message.micInactiveAfkThresholdMs);
+    }
+    if (message.micInactiveWarningDisableWhileAfk !== false) {
+      writer.uint32(400).bool(message.micInactiveWarningDisableWhileAfk);
     }
     if (message.safe !== false) {
       writer.uint32(32).bool(message.safe);
@@ -2478,6 +2600,14 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
           message.soundOnToggleMuteOff = Sound.decode(reader, reader.uint32());
           continue;
         }
+        case 47: {
+          if (tag !== 378) {
+            break;
+          }
+
+          message.soundOnMicInactiveWarning = Sound.decode(reader, reader.uint32());
+          continue;
+        }
         case 25: {
           if (tag !== 202) {
             break;
@@ -2638,6 +2768,46 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
           message.inputMethod = reader.int32() as any;
           continue;
         }
+        case 45: {
+          if (tag !== 360) {
+            break;
+          }
+
+          message.micInactiveWarning = reader.int32() as any;
+          continue;
+        }
+        case 46: {
+          if (tag !== 368) {
+            break;
+          }
+
+          message.micInactiveWarningWindowMs = reader.uint32();
+          continue;
+        }
+        case 48: {
+          if (tag !== 384) {
+            break;
+          }
+
+          message.micInactiveAfkDetectionMethod = reader.int32() as any;
+          continue;
+        }
+        case 49: {
+          if (tag !== 392) {
+            break;
+          }
+
+          message.micInactiveAfkThresholdMs = reader.uint32();
+          continue;
+        }
+        case 50: {
+          if (tag !== 400) {
+            break;
+          }
+
+          message.micInactiveWarningDisableWhileAfk = reader.bool();
+          continue;
+        }
         case 4: {
           if (tag !== 32) {
             break;
@@ -2706,6 +2876,9 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
       soundOnToggleMuteOff: isSet(object.soundOnToggleMuteOff)
         ? Sound.fromJSON(object.soundOnToggleMuteOff)
         : undefined,
+      soundOnMicInactiveWarning: isSet(object.soundOnMicInactiveWarning)
+        ? Sound.fromJSON(object.soundOnMicInactiveWarning)
+        : undefined,
       keyPushToMuteGlobal: isSet(object.keyPushToMuteGlobal)
         ? HotkeyV3.fromJSON(object.keyPushToMuteGlobal)
         : undefined,
@@ -2748,6 +2921,19 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
       deviceName: isSet(object.deviceName) ? globalThis.String(object.deviceName) : "",
       deviceUuid: isSet(object.deviceUuid) ? globalThis.String(object.deviceUuid) : "",
       inputMethod: isSet(object.inputMethod) ? inputMethodFromJSON(object.inputMethod) : 0,
+      micInactiveWarning: isSet(object.micInactiveWarning) ? micInactiveWarningFromJSON(object.micInactiveWarning) : 0,
+      micInactiveWarningWindowMs: isSet(object.micInactiveWarningWindowMs)
+        ? globalThis.Number(object.micInactiveWarningWindowMs)
+        : 0,
+      micInactiveAfkDetectionMethod: isSet(object.micInactiveAfkDetectionMethod)
+        ? afkDetectionMethodFromJSON(object.micInactiveAfkDetectionMethod)
+        : 0,
+      micInactiveAfkThresholdMs: isSet(object.micInactiveAfkThresholdMs)
+        ? globalThis.Number(object.micInactiveAfkThresholdMs)
+        : 0,
+      micInactiveWarningDisableWhileAfk: isSet(object.micInactiveWarningDisableWhileAfk)
+        ? globalThis.Boolean(object.micInactiveWarningDisableWhileAfk)
+        : false,
       safe: isSet(object.safe) ? globalThis.Boolean(object.safe) : false,
       safeIntervalMs: isSet(object.safeIntervalMs) ? globalThis.Number(object.safeIntervalMs) : 0,
     };
@@ -2818,6 +3004,9 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.soundOnToggleMuteOff !== undefined) {
       obj.soundOnToggleMuteOff = Sound.toJSON(message.soundOnToggleMuteOff);
     }
+    if (message.soundOnMicInactiveWarning !== undefined) {
+      obj.soundOnMicInactiveWarning = Sound.toJSON(message.soundOnMicInactiveWarning);
+    }
     if (message.keyPushToMuteGlobal !== undefined) {
       obj.keyPushToMuteGlobal = HotkeyV3.toJSON(message.keyPushToMuteGlobal);
     }
@@ -2879,6 +3068,21 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     }
     if (message.inputMethod !== 0) {
       obj.inputMethod = inputMethodToJSON(message.inputMethod);
+    }
+    if (message.micInactiveWarning !== 0) {
+      obj.micInactiveWarning = micInactiveWarningToJSON(message.micInactiveWarning);
+    }
+    if (message.micInactiveWarningWindowMs !== 0) {
+      obj.micInactiveWarningWindowMs = Math.round(message.micInactiveWarningWindowMs);
+    }
+    if (message.micInactiveAfkDetectionMethod !== 0) {
+      obj.micInactiveAfkDetectionMethod = afkDetectionMethodToJSON(message.micInactiveAfkDetectionMethod);
+    }
+    if (message.micInactiveAfkThresholdMs !== 0) {
+      obj.micInactiveAfkThresholdMs = Math.round(message.micInactiveAfkThresholdMs);
+    }
+    if (message.micInactiveWarningDisableWhileAfk !== false) {
+      obj.micInactiveWarningDisableWhileAfk = message.micInactiveWarningDisableWhileAfk;
     }
     if (message.safe !== false) {
       obj.safe = message.safe;
@@ -2954,6 +3158,10 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     message.soundOnToggleMuteOff = (object.soundOnToggleMuteOff !== undefined && object.soundOnToggleMuteOff !== null)
       ? Sound.fromPartial(object.soundOnToggleMuteOff)
       : undefined;
+    message.soundOnMicInactiveWarning =
+      (object.soundOnMicInactiveWarning !== undefined && object.soundOnMicInactiveWarning !== null)
+        ? Sound.fromPartial(object.soundOnMicInactiveWarning)
+        : undefined;
     message.keyPushToMuteGlobal = (object.keyPushToMuteGlobal !== undefined && object.keyPushToMuteGlobal !== null)
       ? HotkeyV3.fromPartial(object.keyPushToMuteGlobal)
       : undefined;
@@ -3004,6 +3212,11 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     message.deviceName = object.deviceName ?? "";
     message.deviceUuid = object.deviceUuid ?? "";
     message.inputMethod = object.inputMethod ?? 0;
+    message.micInactiveWarning = object.micInactiveWarning ?? 0;
+    message.micInactiveWarningWindowMs = object.micInactiveWarningWindowMs ?? 0;
+    message.micInactiveAfkDetectionMethod = object.micInactiveAfkDetectionMethod ?? 0;
+    message.micInactiveAfkThresholdMs = object.micInactiveAfkThresholdMs ?? 0;
+    message.micInactiveWarningDisableWhileAfk = object.micInactiveWarningDisableWhileAfk ?? false;
     message.safe = object.safe ?? false;
     message.safeIntervalMs = object.safeIntervalMs ?? 0;
     return message;
@@ -3796,6 +4009,8 @@ function createBaseIpc(): Ipc {
     guiDeviceChanged: undefined,
     fakerInputStatus: undefined,
     profileChanged: undefined,
+    lastInputInfo: undefined,
+    micInactiveChanged: undefined,
     overlayHello: undefined,
     clientConfigure: undefined,
     requestRestart: undefined,
@@ -3813,6 +4028,7 @@ function createBaseIpc(): Ipc {
     requestSetAutoProfileSwitch: undefined,
     requestToggleAutoProfileSwitch: undefined,
     requestBringToFront: undefined,
+    requestLastInputInfo: undefined,
   };
 }
 
@@ -3866,6 +4082,12 @@ export const Ipc: MessageFns<Ipc> = {
     if (message.profileChanged !== undefined) {
       IpcProfileChanged.encode(message.profileChanged, writer.uint32(306).fork()).join();
     }
+    if (message.lastInputInfo !== undefined) {
+      IpcLastInputInfo.encode(message.lastInputInfo, writer.uint32(330).fork()).join();
+    }
+    if (message.micInactiveChanged !== undefined) {
+      IpcMicInactiveChanged.encode(message.micInactiveChanged, writer.uint32(338).fork()).join();
+    }
     if (message.overlayHello !== undefined) {
       IpcOverlayHello.encode(message.overlayHello, writer.uint32(34).fork()).join();
     }
@@ -3918,6 +4140,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.requestBringToFront !== undefined) {
       IpcRequestBringToFront.encode(message.requestBringToFront, writer.uint32(314).fork()).join();
+    }
+    if (message.requestLastInputInfo !== undefined) {
+      IpcRequestLastInputInfo.encode(message.requestLastInputInfo, writer.uint32(322).fork()).join();
     }
     return writer;
   },
@@ -4057,6 +4282,22 @@ export const Ipc: MessageFns<Ipc> = {
           message.profileChanged = IpcProfileChanged.decode(reader, reader.uint32());
           continue;
         }
+        case 41: {
+          if (tag !== 330) {
+            break;
+          }
+
+          message.lastInputInfo = IpcLastInputInfo.decode(reader, reader.uint32());
+          continue;
+        }
+        case 42: {
+          if (tag !== 338) {
+            break;
+          }
+
+          message.micInactiveChanged = IpcMicInactiveChanged.decode(reader, reader.uint32());
+          continue;
+        }
         case 4: {
           if (tag !== 34) {
             break;
@@ -4193,6 +4434,14 @@ export const Ipc: MessageFns<Ipc> = {
           message.requestBringToFront = IpcRequestBringToFront.decode(reader, reader.uint32());
           continue;
         }
+        case 40: {
+          if (tag !== 322) {
+            break;
+          }
+
+          message.requestLastInputInfo = IpcRequestLastInputInfo.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -4246,6 +4495,10 @@ export const Ipc: MessageFns<Ipc> = {
         ? IpcFakerInputStatus.fromJSON(object.fakerInputStatus)
         : undefined,
       profileChanged: isSet(object.profileChanged) ? IpcProfileChanged.fromJSON(object.profileChanged) : undefined,
+      lastInputInfo: isSet(object.lastInputInfo) ? IpcLastInputInfo.fromJSON(object.lastInputInfo) : undefined,
+      micInactiveChanged: isSet(object.micInactiveChanged)
+        ? IpcMicInactiveChanged.fromJSON(object.micInactiveChanged)
+        : undefined,
       overlayHello: isSet(object.overlayHello) ? IpcOverlayHello.fromJSON(object.overlayHello) : undefined,
       clientConfigure: isSet(object.clientConfigure) ? IpcClientConfigure.fromJSON(object.clientConfigure) : undefined,
       requestRestart: isSet(object.requestRestart) ? IpcRequestRestart.fromJSON(object.requestRestart) : undefined,
@@ -4284,6 +4537,9 @@ export const Ipc: MessageFns<Ipc> = {
         : undefined,
       requestBringToFront: isSet(object.requestBringToFront)
         ? IpcRequestBringToFront.fromJSON(object.requestBringToFront)
+        : undefined,
+      requestLastInputInfo: isSet(object.requestLastInputInfo)
+        ? IpcRequestLastInputInfo.fromJSON(object.requestLastInputInfo)
         : undefined,
     };
   },
@@ -4337,6 +4593,12 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.profileChanged !== undefined) {
       obj.profileChanged = IpcProfileChanged.toJSON(message.profileChanged);
+    }
+    if (message.lastInputInfo !== undefined) {
+      obj.lastInputInfo = IpcLastInputInfo.toJSON(message.lastInputInfo);
+    }
+    if (message.micInactiveChanged !== undefined) {
+      obj.micInactiveChanged = IpcMicInactiveChanged.toJSON(message.micInactiveChanged);
     }
     if (message.overlayHello !== undefined) {
       obj.overlayHello = IpcOverlayHello.toJSON(message.overlayHello);
@@ -4392,6 +4654,9 @@ export const Ipc: MessageFns<Ipc> = {
     }
     if (message.requestBringToFront !== undefined) {
       obj.requestBringToFront = IpcRequestBringToFront.toJSON(message.requestBringToFront);
+    }
+    if (message.requestLastInputInfo !== undefined) {
+      obj.requestLastInputInfo = IpcRequestLastInputInfo.toJSON(message.requestLastInputInfo);
     }
     return obj;
   },
@@ -4451,6 +4716,12 @@ export const Ipc: MessageFns<Ipc> = {
     message.profileChanged = (object.profileChanged !== undefined && object.profileChanged !== null)
       ? IpcProfileChanged.fromPartial(object.profileChanged)
       : undefined;
+    message.lastInputInfo = (object.lastInputInfo !== undefined && object.lastInputInfo !== null)
+      ? IpcLastInputInfo.fromPartial(object.lastInputInfo)
+      : undefined;
+    message.micInactiveChanged = (object.micInactiveChanged !== undefined && object.micInactiveChanged !== null)
+      ? IpcMicInactiveChanged.fromPartial(object.micInactiveChanged)
+      : undefined;
     message.overlayHello = (object.overlayHello !== undefined && object.overlayHello !== null)
       ? IpcOverlayHello.fromPartial(object.overlayHello)
       : undefined;
@@ -4509,6 +4780,9 @@ export const Ipc: MessageFns<Ipc> = {
         : undefined;
     message.requestBringToFront = (object.requestBringToFront !== undefined && object.requestBringToFront !== null)
       ? IpcRequestBringToFront.fromPartial(object.requestBringToFront)
+      : undefined;
+    message.requestLastInputInfo = (object.requestLastInputInfo !== undefined && object.requestLastInputInfo !== null)
+      ? IpcRequestLastInputInfo.fromPartial(object.requestLastInputInfo)
       : undefined;
     return message;
   },
@@ -6807,6 +7081,185 @@ export const IpcRequestBringToFront: MessageFns<IpcRequestBringToFront> = {
   },
   fromPartial<I extends Exact<DeepPartial<IpcRequestBringToFront>, I>>(_: I): IpcRequestBringToFront {
     const message = createBaseIpcRequestBringToFront();
+    return message;
+  },
+};
+
+function createBaseIpcRequestLastInputInfo(): IpcRequestLastInputInfo {
+  return {};
+}
+
+export const IpcRequestLastInputInfo: MessageFns<IpcRequestLastInputInfo> = {
+  encode(_: IpcRequestLastInputInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcRequestLastInputInfo {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcRequestLastInputInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): IpcRequestLastInputInfo {
+    return {};
+  },
+
+  toJSON(_: IpcRequestLastInputInfo): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcRequestLastInputInfo>, I>>(base?: I): IpcRequestLastInputInfo {
+    return IpcRequestLastInputInfo.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcRequestLastInputInfo>, I>>(_: I): IpcRequestLastInputInfo {
+    const message = createBaseIpcRequestLastInputInfo();
+    return message;
+  },
+};
+
+function createBaseIpcLastInputInfo(): IpcLastInputInfo {
+  return { sinceLastInputMs: 0, sinceLastInputPhysicalMs: 0 };
+}
+
+export const IpcLastInputInfo: MessageFns<IpcLastInputInfo> = {
+  encode(message: IpcLastInputInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.sinceLastInputMs !== 0) {
+      writer.uint32(8).uint64(message.sinceLastInputMs);
+    }
+    if (message.sinceLastInputPhysicalMs !== 0) {
+      writer.uint32(16).uint64(message.sinceLastInputPhysicalMs);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcLastInputInfo {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcLastInputInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.sinceLastInputMs = longToNumber(reader.uint64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.sinceLastInputPhysicalMs = longToNumber(reader.uint64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcLastInputInfo {
+    return {
+      sinceLastInputMs: isSet(object.sinceLastInputMs) ? globalThis.Number(object.sinceLastInputMs) : 0,
+      sinceLastInputPhysicalMs: isSet(object.sinceLastInputPhysicalMs)
+        ? globalThis.Number(object.sinceLastInputPhysicalMs)
+        : 0,
+    };
+  },
+
+  toJSON(message: IpcLastInputInfo): unknown {
+    const obj: any = {};
+    if (message.sinceLastInputMs !== 0) {
+      obj.sinceLastInputMs = Math.round(message.sinceLastInputMs);
+    }
+    if (message.sinceLastInputPhysicalMs !== 0) {
+      obj.sinceLastInputPhysicalMs = Math.round(message.sinceLastInputPhysicalMs);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcLastInputInfo>, I>>(base?: I): IpcLastInputInfo {
+    return IpcLastInputInfo.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcLastInputInfo>, I>>(object: I): IpcLastInputInfo {
+    const message = createBaseIpcLastInputInfo();
+    message.sinceLastInputMs = object.sinceLastInputMs ?? 0;
+    message.sinceLastInputPhysicalMs = object.sinceLastInputPhysicalMs ?? 0;
+    return message;
+  },
+};
+
+function createBaseIpcMicInactiveChanged(): IpcMicInactiveChanged {
+  return { isInactive: false };
+}
+
+export const IpcMicInactiveChanged: MessageFns<IpcMicInactiveChanged> = {
+  encode(message: IpcMicInactiveChanged, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.isInactive !== false) {
+      writer.uint32(8).bool(message.isInactive);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IpcMicInactiveChanged {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIpcMicInactiveChanged();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.isInactive = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IpcMicInactiveChanged {
+    return { isInactive: isSet(object.isInactive) ? globalThis.Boolean(object.isInactive) : false };
+  },
+
+  toJSON(message: IpcMicInactiveChanged): unknown {
+    const obj: any = {};
+    if (message.isInactive !== false) {
+      obj.isInactive = message.isInactive;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IpcMicInactiveChanged>, I>>(base?: I): IpcMicInactiveChanged {
+    return IpcMicInactiveChanged.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IpcMicInactiveChanged>, I>>(object: I): IpcMicInactiveChanged {
+    const message = createBaseIpcMicInactiveChanged();
+    message.isInactive = object.isInactive ?? false;
     return message;
   },
 };
