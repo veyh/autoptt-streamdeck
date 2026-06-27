@@ -596,7 +596,7 @@ export interface ProfileSettings {
   deviceUuid: string;
   inputMethod: InputMethod;
   micInactiveWarning: MicInactiveWarning;
-  micInactiveWarningWindowMs: number;
+  micInactiveWarningThresholdMs: number;
   micInactiveAfkDetectionMethod: AfkDetectionMethod;
   micInactiveAfkThresholdMs: number;
   micInactiveWarningDisableWhileAfk: boolean;
@@ -2268,7 +2268,7 @@ function createBaseProfileSettings(): ProfileSettings {
     deviceUuid: "",
     inputMethod: 0,
     micInactiveWarning: 0,
-    micInactiveWarningWindowMs: 0,
+    micInactiveWarningThresholdMs: 0,
     micInactiveAfkDetectionMethod: 0,
     micInactiveAfkThresholdMs: 0,
     micInactiveWarningDisableWhileAfk: false,
@@ -2412,8 +2412,8 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.micInactiveWarning !== 0) {
       writer.uint32(360).int32(message.micInactiveWarning);
     }
-    if (message.micInactiveWarningWindowMs !== 0) {
-      writer.uint32(368).uint32(message.micInactiveWarningWindowMs);
+    if (message.micInactiveWarningThresholdMs !== 0) {
+      writer.uint32(368).uint32(message.micInactiveWarningThresholdMs);
     }
     if (message.micInactiveAfkDetectionMethod !== 0) {
       writer.uint32(384).int32(message.micInactiveAfkDetectionMethod);
@@ -2801,7 +2801,7 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
             break;
           }
 
-          message.micInactiveWarningWindowMs = reader.uint32();
+          message.micInactiveWarningThresholdMs = reader.uint32();
           continue;
         }
         case 48: {
@@ -2974,8 +2974,8 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
       deviceUuid: isSet(object.deviceUuid) ? globalThis.String(object.deviceUuid) : "",
       inputMethod: isSet(object.inputMethod) ? inputMethodFromJSON(object.inputMethod) : 0,
       micInactiveWarning: isSet(object.micInactiveWarning) ? micInactiveWarningFromJSON(object.micInactiveWarning) : 0,
-      micInactiveWarningWindowMs: isSet(object.micInactiveWarningWindowMs)
-        ? globalThis.Number(object.micInactiveWarningWindowMs)
+      micInactiveWarningThresholdMs: isSet(object.micInactiveWarningThresholdMs)
+        ? globalThis.Number(object.micInactiveWarningThresholdMs)
         : 0,
       micInactiveAfkDetectionMethod: isSet(object.micInactiveAfkDetectionMethod)
         ? afkDetectionMethodFromJSON(object.micInactiveAfkDetectionMethod)
@@ -3132,8 +3132,8 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.micInactiveWarning !== 0) {
       obj.micInactiveWarning = micInactiveWarningToJSON(message.micInactiveWarning);
     }
-    if (message.micInactiveWarningWindowMs !== 0) {
-      obj.micInactiveWarningWindowMs = Math.round(message.micInactiveWarningWindowMs);
+    if (message.micInactiveWarningThresholdMs !== 0) {
+      obj.micInactiveWarningThresholdMs = Math.round(message.micInactiveWarningThresholdMs);
     }
     if (message.micInactiveAfkDetectionMethod !== 0) {
       obj.micInactiveAfkDetectionMethod = afkDetectionMethodToJSON(message.micInactiveAfkDetectionMethod);
@@ -3285,7 +3285,7 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     message.deviceUuid = object.deviceUuid ?? "";
     message.inputMethod = object.inputMethod ?? 0;
     message.micInactiveWarning = object.micInactiveWarning ?? 0;
-    message.micInactiveWarningWindowMs = object.micInactiveWarningWindowMs ?? 0;
+    message.micInactiveWarningThresholdMs = object.micInactiveWarningThresholdMs ?? 0;
     message.micInactiveAfkDetectionMethod = object.micInactiveAfkDetectionMethod ?? 0;
     message.micInactiveAfkThresholdMs = object.micInactiveAfkThresholdMs ?? 0;
     message.micInactiveWarningDisableWhileAfk = object.micInactiveWarningDisableWhileAfk ?? false;
