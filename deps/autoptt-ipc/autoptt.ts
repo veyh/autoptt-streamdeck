@@ -600,6 +600,10 @@ export interface ProfileSettings {
   micInactiveAfkDetectionMethod: AfkDetectionMethod;
   micInactiveAfkThresholdMs: number;
   micInactiveWarningDisableWhileAfk: boolean;
+  afkAutoMute: boolean;
+  afkAutoUnmute: boolean;
+  afkAutoMuteAfkThresholdMs: number;
+  afkAutoMuteAfkDetectionMethod: AfkDetectionMethod;
   safe: boolean;
   safeIntervalMs: number;
 }
@@ -2268,6 +2272,10 @@ function createBaseProfileSettings(): ProfileSettings {
     micInactiveAfkDetectionMethod: 0,
     micInactiveAfkThresholdMs: 0,
     micInactiveWarningDisableWhileAfk: false,
+    afkAutoMute: false,
+    afkAutoUnmute: false,
+    afkAutoMuteAfkThresholdMs: 0,
+    afkAutoMuteAfkDetectionMethod: 0,
     safe: false,
     safeIntervalMs: 0,
   };
@@ -2415,6 +2423,18 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     }
     if (message.micInactiveWarningDisableWhileAfk !== false) {
       writer.uint32(400).bool(message.micInactiveWarningDisableWhileAfk);
+    }
+    if (message.afkAutoMute !== false) {
+      writer.uint32(408).bool(message.afkAutoMute);
+    }
+    if (message.afkAutoUnmute !== false) {
+      writer.uint32(416).bool(message.afkAutoUnmute);
+    }
+    if (message.afkAutoMuteAfkThresholdMs !== 0) {
+      writer.uint32(424).uint32(message.afkAutoMuteAfkThresholdMs);
+    }
+    if (message.afkAutoMuteAfkDetectionMethod !== 0) {
+      writer.uint32(432).int32(message.afkAutoMuteAfkDetectionMethod);
     }
     if (message.safe !== false) {
       writer.uint32(32).bool(message.safe);
@@ -2808,6 +2828,38 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
           message.micInactiveWarningDisableWhileAfk = reader.bool();
           continue;
         }
+        case 51: {
+          if (tag !== 408) {
+            break;
+          }
+
+          message.afkAutoMute = reader.bool();
+          continue;
+        }
+        case 52: {
+          if (tag !== 416) {
+            break;
+          }
+
+          message.afkAutoUnmute = reader.bool();
+          continue;
+        }
+        case 53: {
+          if (tag !== 424) {
+            break;
+          }
+
+          message.afkAutoMuteAfkThresholdMs = reader.uint32();
+          continue;
+        }
+        case 54: {
+          if (tag !== 432) {
+            break;
+          }
+
+          message.afkAutoMuteAfkDetectionMethod = reader.int32() as any;
+          continue;
+        }
         case 4: {
           if (tag !== 32) {
             break;
@@ -2934,6 +2986,14 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
       micInactiveWarningDisableWhileAfk: isSet(object.micInactiveWarningDisableWhileAfk)
         ? globalThis.Boolean(object.micInactiveWarningDisableWhileAfk)
         : false,
+      afkAutoMute: isSet(object.afkAutoMute) ? globalThis.Boolean(object.afkAutoMute) : false,
+      afkAutoUnmute: isSet(object.afkAutoUnmute) ? globalThis.Boolean(object.afkAutoUnmute) : false,
+      afkAutoMuteAfkThresholdMs: isSet(object.afkAutoMuteAfkThresholdMs)
+        ? globalThis.Number(object.afkAutoMuteAfkThresholdMs)
+        : 0,
+      afkAutoMuteAfkDetectionMethod: isSet(object.afkAutoMuteAfkDetectionMethod)
+        ? afkDetectionMethodFromJSON(object.afkAutoMuteAfkDetectionMethod)
+        : 0,
       safe: isSet(object.safe) ? globalThis.Boolean(object.safe) : false,
       safeIntervalMs: isSet(object.safeIntervalMs) ? globalThis.Number(object.safeIntervalMs) : 0,
     };
@@ -3084,6 +3144,18 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     if (message.micInactiveWarningDisableWhileAfk !== false) {
       obj.micInactiveWarningDisableWhileAfk = message.micInactiveWarningDisableWhileAfk;
     }
+    if (message.afkAutoMute !== false) {
+      obj.afkAutoMute = message.afkAutoMute;
+    }
+    if (message.afkAutoUnmute !== false) {
+      obj.afkAutoUnmute = message.afkAutoUnmute;
+    }
+    if (message.afkAutoMuteAfkThresholdMs !== 0) {
+      obj.afkAutoMuteAfkThresholdMs = Math.round(message.afkAutoMuteAfkThresholdMs);
+    }
+    if (message.afkAutoMuteAfkDetectionMethod !== 0) {
+      obj.afkAutoMuteAfkDetectionMethod = afkDetectionMethodToJSON(message.afkAutoMuteAfkDetectionMethod);
+    }
     if (message.safe !== false) {
       obj.safe = message.safe;
     }
@@ -3217,6 +3289,10 @@ export const ProfileSettings: MessageFns<ProfileSettings> = {
     message.micInactiveAfkDetectionMethod = object.micInactiveAfkDetectionMethod ?? 0;
     message.micInactiveAfkThresholdMs = object.micInactiveAfkThresholdMs ?? 0;
     message.micInactiveWarningDisableWhileAfk = object.micInactiveWarningDisableWhileAfk ?? false;
+    message.afkAutoMute = object.afkAutoMute ?? false;
+    message.afkAutoUnmute = object.afkAutoUnmute ?? false;
+    message.afkAutoMuteAfkThresholdMs = object.afkAutoMuteAfkThresholdMs ?? 0;
+    message.afkAutoMuteAfkDetectionMethod = object.afkAutoMuteAfkDetectionMethod ?? 0;
     message.safe = object.safe ?? false;
     message.safeIntervalMs = object.safeIntervalMs ?? 0;
     return message;
