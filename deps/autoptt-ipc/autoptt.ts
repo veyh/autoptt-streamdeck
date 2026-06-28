@@ -89,7 +89,7 @@ export function micInactiveWarningToJSON(object: MicInactiveWarning): string {
 
 export enum AfkDetectionMethod {
   ANY_INPUT = 0,
-  PHYSICAL_KEYBOARD = 1,
+  PHYSICAL_KEYBOARD_MOUSE = 1,
   UNRECOGNIZED = -1,
 }
 
@@ -99,8 +99,8 @@ export function afkDetectionMethodFromJSON(object: any): AfkDetectionMethod {
     case "ANY_INPUT":
       return AfkDetectionMethod.ANY_INPUT;
     case 1:
-    case "PHYSICAL_KEYBOARD":
-      return AfkDetectionMethod.PHYSICAL_KEYBOARD;
+    case "PHYSICAL_KEYBOARD_MOUSE":
+      return AfkDetectionMethod.PHYSICAL_KEYBOARD_MOUSE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -112,8 +112,8 @@ export function afkDetectionMethodToJSON(object: AfkDetectionMethod): string {
   switch (object) {
     case AfkDetectionMethod.ANY_INPUT:
       return "ANY_INPUT";
-    case AfkDetectionMethod.PHYSICAL_KEYBOARD:
-      return "PHYSICAL_KEYBOARD";
+    case AfkDetectionMethod.PHYSICAL_KEYBOARD_MOUSE:
+      return "PHYSICAL_KEYBOARD_MOUSE";
     case AfkDetectionMethod.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -906,11 +906,11 @@ export interface IpcRequestLastInputInfo {
 }
 
 export interface IpcLastInputInfo {
-  /** uses WINAPI GetLastInputInfo, includes mouse movement */
+  /** Uses WINAPI GetLastInputInfo, Includes mouse movement. */
   sinceLastInputMs: number;
   /**
-   * this only considers physical keyboard events
-   * SendInput, FakerInput & Sidekick events are ignored
+   * Physical keyboard or mouse events (no movement).
+   * SendInput, FakerInput & Sidekick events are ignored.
    */
   sinceLastInputPhysicalMs: number;
 }
