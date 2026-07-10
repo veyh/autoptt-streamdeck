@@ -1,0 +1,8 @@
+[tasks.build]
+run = "rollup -c"
+
+[tasks.watch]
+run = "rollup -c -w --watch.onEnd=\"streamdeck restart com.autoptt.streamdeck\""
+
+[tasks.release]
+run = "streamdeck pack --force com.autoptt.streamdeck.sdPlugin"
