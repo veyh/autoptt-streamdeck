@@ -1,0 +1,4 @@
+[tasks.build]
+sources = ["autoptt.proto"]
+outputs = ["autoptt.ts"]
+run = "node build.mjs"
